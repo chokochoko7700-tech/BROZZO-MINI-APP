@@ -31,20 +31,13 @@ Mahsulotga to'g'ridan-to'g'ri havola: `t.me/<bot>/<app>?startapp=p_<id>`.
 - Rozilik belgisi + Maxfiylik siyosati sahifasi. UZ / RU tili (Profil → Til; Telegram tili ruscha bo'lsa avtomatik).
 - Demo mahsulotlar `public/demo/` rasmlari bilan (Brozzo Instagram'idan).
 
-## Integratsiya (v4) — Admin panel → Integratsiya
-- **Excel/CSV**: istalgan dasturdan eksport qilingan fayl. Ustunlar: Nomi, Narx, Qoldiq (+ Artikul, Shtrix-kod, O'lcham, Rang, Kategoriya, Eski narx, Rasm). Ruscha nomlar ham tanadi. Namuna: `/shablon.csv`.
-- **1C** (CommerceML 2, "Обмен с сайтом"): manzil `https://<sayt>/1c_exchange`, login/parol admin panelda. Tovar, narx, qoldiq, rasmlar keladi; botdagi buyurtmalar 1C'ga "Заказ" bo'lib ketadi.
-- **BILLZ**: secret token → `api-admin.billz.ai` (har N daqiqada avtomatik).
-- **YesPOS**: Excel eksport yoki API manzil+kalit (universal JSON).
-- Yangi tovar rasmsiz kelsa — "Rasm kutmoqda" ro'yxatiga tushadi. Bot buyurtmasi qoldiqni kamaytiradi, bekor qilinsa qaytaradi.
-
 ## Xavfsizlik
 - Har bir so'rov Telegram imzosi (initData HMAC-SHA256, 24 soat) bilan tekshiriladi; admin API faqat adminlar ID'si uchun.
 - Supabase: barcha jadvallarda RLS yoqilgan, tashqaridan kirish yopiq; faqat server (service key) ishlaydi. Kalitlar faqat Render muhitida.
 - Narxlar serverda qayta hisoblanadi, qoldiq tekshiriladi; buyurtma spami cheklangan (10 daqiqada 6 ta).
-- Telegram webhook maxfiy sarlavha bilan; 1C paroli timing-safe tekshiriladi, 10 xato urinishdan keyin IP bloklanadi.
-- Rasm yuklash faqat JPEG/PNG/WebP (SVG/HTML yo'q), 5 MB; BILLZ/API kalitlari admin panelda yashirin.
+- Telegram webhook maxfiy sarlavha bilan tekshiriladi.
+- Rasm yuklash faqat JPEG/PNG/WebP (SVG/HTML yo'q), 5 MB; har rasmning 480px nusxasi katalogda (trafik tejaladi).
 - Xavfsizlik sarlavhalari (nosniff, HSTS, Referrer-Policy, Permissions-Policy); barcha matnlar ekranlanadi (XSS).
 
 ## Testlar
-`node tests/run.js` — internet va paketlarsiz 82 ta to'liq test: xavfsizlik, buyurtma, Excel, 1C (CommerceML), BILLZ, YesPOS, qoldiq.
+`node tests/run.js` — internet va paketlarsiz to'liq testlar: xavfsizlik, buyurtma himoyasi, qoldiq.

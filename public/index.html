@@ -396,17 +396,6 @@ html.fs #sv .hd{top:calc(var(--st) + 20px)}
 .swrow{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
 .swrow b{display:block;font-size:15px}.swrow small{display:block;color:var(--mute);font-size:12px}
 .form .group{margin:0}
-.icard{background:var(--card);border-radius:16px;padding:14px;margin:0 16px 12px}
-.icard .ist{display:flex;align-items:center;gap:8px;font-weight:700}.icard .dot{width:9px;height:9px;border-radius:50%;background:#22c55e;flex:none}.icard .dot.err{background:#ef4444}.icard .dot.off{background:#c4c4bf}
-.icard small{display:block;color:var(--mute);font-size:13px;margin-top:4px;line-height:1.4}
-.icard .acts{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
-.warnbar{display:flex;align-items:center;gap:10px;background:var(--y);border-radius:14px;padding:12px 14px;margin:0 16px 12px;font-weight:700;font-size:14px;width:calc(100% - 32px);text-align:left}
-.steps{counter-reset:s;display:grid;gap:8px;font-size:14px;line-height:1.45}.steps li{list-style:none;position:relative;padding-left:30px}
-.steps li:before{counter-increment:s;content:counter(s);position:absolute;left:0;top:0;width:22px;height:22px;border-radius:50%;background:var(--ink);color:#fff;font-size:12px;font-weight:700;display:grid;place-items:center}
-.cpy{display:flex;align-items:center;gap:8px;background:var(--soft);border-radius:12px;padding:10px 12px;font-size:14px;font-weight:600;word-break:break-all;width:100%;text-align:left}
-.cpy span{flex:1}.ilog{display:flex;gap:10px;padding:10px 0;border-top:1px solid var(--line);font-size:13px}.ilog:first-child{border-top:0}.ilog b{font-size:13px}
-.pv{background:var(--soft);border-radius:14px;padding:12px;font-size:14px;display:grid;gap:4px}.pv .n{font-size:22px;font-weight:800}
-.tagd{display:inline-block;font-size:11px;font-weight:700;background:var(--y);border-radius:6px;padding:2px 6px;margin-left:6px;vertical-align:middle}
 .thumbs-edit div.main{box-shadow:0 0 0 2px var(--ink)}
 .thumbs-edit div em{position:absolute;left:4px;bottom:4px;font-style:normal;font-size:10px;font-weight:700;background:var(--ink);color:#fff;padding:2px 6px;border-radius:6px}
 .thumbs-edit div{cursor:pointer}
@@ -848,9 +837,8 @@ const ago = d => { const m = Math.round((Date.now() - new Date(d)) / 60000); ret
 const ASEC = {
   orders: ['Buyurtmalar', 'bag-4-linear'], products: ['Mahsulotlar', 'box-linear'], banners: ['Bannerlar', 'gallery-wide-linear'],
   stories: ['Istoriyalar', 'play-circle-linear'], cats: ['Kategoriyalar', 'widget-2-linear'], broadcast: ['Rassilka', 'letter-linear'],
-  stats: ['Statistika', 'chart-2-linear'], integ: ['Integratsiya', 'refresh-circle-linear'], settings: ['Sozlamalar', 'settings-linear'],
+  stats: ['Statistika', 'chart-2-linear'], settings: ['Sozlamalar', 'settings-linear'],
 };
-const ITYPES = { none: "O'chiq", excel: 'Excel', onec: '1C', billz: 'BILLZ', yespos: 'YesPOS' };
 const mv = (table, id) => `<button class="ibtn" data-mv="${table}:${id}:-1">${ic('alt-arrow-up-linear', 18)}</button><button class="ibtn" data-mv="${table}:${id}:1">${ic('alt-arrow-down-linear', 18)}</button>`;
 const sw = (attr, on) => `<label class="sw"><input type="checkbox" ${attr} ${on ? 'checked' : ''}><i></i></label>`;
 async function refreshAdminBadge() { if (!isAdmin) return; try { const o = await api('/admin/orders'); ADM.newOrders = o.filter(x => x.status === 'new').length; AD.orders = o; navBar(); } catch {} }
@@ -870,7 +858,7 @@ V.admin = async (c) => {
   if (!tab) {
     let x = null; try { x = await api('/admin/stats'); ADM.newOrders = x.newOrders; navBar(); } catch {}
     const sub = { orders: x ? `${x.newOrders} ta yangi` : '', products: `${D.products.length} ta`, banners: `${D.banners.length} ta`, stories: `${D.stories.length} ta`,
-      cats: `${D.categories.length} ta`, broadcast: 'Mijozlarga xabar', stats: x ? `7 kun: ${som(x.week.revenue)}` : '', integ: '1C, BILLZ, YesPOS, Excel', settings: 'Adminlar, yetkazish' };
+      cats: `${D.categories.length} ta`, broadcast: 'Mijozlarga xabar', stats: x ? `7 kun: ${som(x.week.revenue)}` : '', settings: 'Adminlar, yetkazish' };
     return title('Admin panel') + (x ? `<div class="stats">
       <div class="stat"><small>Bugungi savdo</small><b>${som(x.today.revenue)}</b><span>${x.today.count} ta buyurtma</span></div>
       <div class="stat" data-anav="orders"><small>Yangi buyurtmalar</small><b>${x.newOrders}</b><span>javob kutmoqda</span></div></div>` : '') +
@@ -907,9 +895,7 @@ V.admin = async (c) => {
   if (tab === 'product') {
     const f = AD.form ||= emptyForm();
     const extra = f.sizes.filter(z => !PRESET.has(z)).join(', ');
-    const synced = f.source && f.source !== 'manual';
-    return title(f.id ? 'Tahrirlash' : 'Yangi mahsulot') + (f.draft ? `<div class="warnbar">${ic('gallery-add-linear', 22)}<span>Bu tovar ${ITYPES[f.source] || 'hisob dasturi'}dan keldi. Rasm qo'shib saqlasangiz — botda ko'rinadi.</span></div>` : '') +
-    (synced ? `<div class="icard"><div class="ist"><span class="dot"></span>${ITYPES[f.source] || f.source} bilan bog'langan</div><small>Narx va qoldiq u yerdan avtomatik yangilanadi.${f.qty != null ? ` Qoldiq: <b>${f.qty} ta</b>` : ''}${f.stock ? ' · ' + Object.entries(f.stock).map(([k, v]) => `${esc(k)}: ${v}`).join(', ') : ''}</small></div>` : '') + `<div class="form">
+    return title(f.id ? 'Tahrirlash' : 'Yangi mahsulot') + `<div class="form">
     <div class="fld"><label>Rasmlar — birinchisi asosiy. Asosiy qilish uchun rasmni bosing</label><div class="thumbs-edit">${f.images.map((u, i) => `<div ${bg(u)} data-mainimg="${i}" class="${i ? '' : 'main'}">${i ? '' : '<em>Asosiy</em>'}<button data-rmimg="${i}">×</button></div>`).join('')}
     <label class="upl">+<input type="file" accept="image/*" multiple data-upload="product"></label></div></div>
     <div class="fld"><label>Nomi</label><input id="p_name" value="${esc(f.name)}" placeholder="Kurtka Puffer / Qora"></div>
@@ -925,7 +911,7 @@ V.admin = async (c) => {
     ${f.id ? `<button class="btn ghost" data-delp="${f.id}" style="color:var(--red)">${ic('trash-bin-minimalistic-linear', 18)} Mahsulotni o'chirish</button>` : ''}
     </div><div style="height:90px"></div>`;
   }
-  return title(ASEC[tab]?.[0] || (tab === 'drafts' ? 'Rasm kutayotgan tovarlar' : 'Admin panel')) + await adminSection(tab);
+  return title(ASEC[tab]?.[0] || 'Admin panel') + await adminSection(tab);
 };
 V.admin.buy = c => c.tab === 'product' ? `<div class="buy"><button class="btn lg" id="p_save">${AD.form?.draft ? 'Saqlash va botga chiqarish' : AD.form?.id ? 'Saqlash' : "Qo'shish"}</button></div>` : '';
 async function adminSection(tab) {
@@ -968,12 +954,6 @@ async function adminSection(tab) {
     (list.map(b => `<div class="order"><div class="hd"><span style="font-size:14px;font-weight:600">${esc((b.text || 'Rasm').slice(0, 60))}</span><span class="badge ${b.status === 'done' ? 'done' : b.status === 'error' ? 'cancel' : 'new'}">${b.status === 'done' ? 'Tugadi' : b.status === 'error' ? 'Xato' : 'Yuborilmoqda'}</span></div>
       <small>${date(b.created_at)} · ${b.sent}/${b.total} yuborildi${b.failed ? ` · ${b.failed} ta yetmadi` : ''}</small><div class="prog"><i style="width:${b.total ? Math.round((b.sent + b.failed) / b.total * 100) : 0}%"></i></div></div>`).join('') || '<div class="empty">Hali rassilka yo\'q</div>');
   }
-  if (tab === 'integ') body = await integSection();
-  if (tab === 'drafts') {
-    try { AD.drafts = await api('/admin/drafts'); } catch { AD.drafts = []; }
-    body = `<p class="mute" style="padding:0 16px 12px;font-size:14px">Hisob dasturidan kelgan yangi tovarlar. Rasm qo'shib saqlang — botda ko'rinadi.</p>` +
-      (AD.drafts.map(p => `<div class="arow" data-dedit="${p.id}"><div class="im" ${bg(imgs(p)[0], 160)}></div><div class="tx">${esc(p.name)}<small>${som(p.price)}${p.qty != null ? ' · qoldiq ' + p.qty : ''}${p.sizes?.length ? ' · ' + esc(p.sizes.join(', ')) : ''}</small></div><span class="chev">${I.chev}</span></div>`).join('') || `<div class="empty">Rasm kutayotgan tovar yo'q ✓</div>`);
-  }
   if (tab === 'settings') {
     let st = {}; try { st = await api('/admin/settings'); } catch {}
     const me = tg.initDataUnsafe?.user?.id || '';
@@ -990,90 +970,6 @@ async function adminSection(tab) {
   return body;
 }
 
-
-/* ===== INTEGRATSIYA: 1C, BILLZ, YesPOS, Excel ===== */
-const IOPT = [
-  ['auto_publish', 'Rasmi bor yangi tovarlar darhol chiqsin', "O'chiq bo'lsa, yangi tovarlar \"Rasm kutmoqda\" ro'yxatiga tushadi"],
-  ['update_prices', 'Narxlarni yangilash', 'Narx va chegirma hisob dasturidan olinadi'],
-  ['hide_missing', "Ro'yxatda yo'q tovarlar — \"Sotuvda yo'q\"", "To'liq yuklashda dasturda qolmagan tovarlar yashiriladi"],
-  ['create_categories', 'Yangi kategoriyalarni yaratish', 'Dasturdagi guruhlar botda kategoriya bo\'ladi'],
-  ['update_names', 'Nomlarni ham yangilash', "O'chiq bo'lsa, botdagi chiroyli nomlar saqlanib qoladi"],
-];
-const copyBtn = (v, lbl) => `<button class="cpy" data-copy="${esc(v)}"><span>${lbl ? `<small class="mute" style="display:block;font-weight:500">${lbl}</small>` : ''}${esc(v)}</span>${ic('copy-linear', 18)}</button>`;
-const xlsBox = (hint) => `<div class="group" style="padding:14px;display:grid;gap:10px">
-  <b>Excel yoki CSV fayldan yuklash</b><p class="mute" style="font-size:13px">${hint}</p>
-  <p class="mute" style="font-size:13px">Ustunlar: <b>Nomi, Narx, Qoldiq</b> (majburiy) va ixtiyoriy <b>Artikul, Shtrix-kod, O'lcham, Rang, Kategoriya, Eski narx, Rasm</b>. Ruscha nomlar ham tushuniladi (Наименование, Цена, Остаток, Размер...). Bir tovarning har o'lchami alohida qatorda bo'lishi mumkin.</p>
-  <div class="swrow"><span><b>Faylda yo'q tovarlarni yashirish</b><small>To'liq ro'yxat yuklasangiz yoqing</small></span>${sw('id="ix_hide"', AD.ixHide)}</div>
-  <label class="btn lg" style="position:relative">${ic('upload-minimalistic-linear', 20)} Fayl tanlash<input type="file" accept=".xlsx,.csv,.xls,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" data-upload="xls" style="position:absolute;inset:0;opacity:0"></label>
-  <button class="btn ghost" data-link="${location.origin}/shablon.csv">${ic('download-minimalistic-linear', 18)} Namuna faylni yuklab olish</button></div>`;
-const ONEC_STEPS = [
-  "1C'da: <b>Администрирование → Обмен данными → Обмен с сайтами</b> (УТ / Розница / УНФ'da \"Обмен с сайтом\") ni oching va yoqing",
-  "<b>Создать → Обмен товарами</b>. Сайт адрес, логин va парольни pastdagidan nusxa olib qo'ying",
-  "<b>Выгружать: товары, цены, остатки</b>. Тип цен — Розничная. Kerak bo'lsa <b>картинки</b>ni ham belgilang",
-  "<b>Обмен заказами</b>ni yoqing — botdagi buyurtmalar 1C'ga \"Заказ клиента\" bo'lib tushadi",
-  "<b>Расписание</b>: har 15 daqiqa. \"Выполнить обмен\" bilan sinab ko'ring — natija pastdagi tarixda chiqadi",
-];
-const readInteg = () => {
-  const c = AD.ig?.cfg; if (!c) return;
-  for (const [k] of IOPT) if ($('io_' + k)) c[k] = $('io_' + k).checked;
-  const v = id => $(id) ? $(id).value.trim() : undefined;
-  [['ig_int', 'interval'], ['ig_btok', 'billz_token'], ['ig_login', 'onec_login'], ['ig_pass', 'onec_password'], ['ig_ptype', 'onec_price_type'], ['ig_url', 'api_url'], ['ig_atok', 'api_token'], ['ig_hdr', 'api_header']]
-    .forEach(([id, k]) => { const x = v(id); if (x !== undefined) c[k] = x; });
-  if ($('ig_shop')) { c.billz_shop_id = $('ig_shop').value; c.billz_shop_name = $('ig_shop').selectedOptions[0]?.textContent || ''; }
-  if ($('ix_hide')) AD.ixHide = $('ix_hide').checked;
-};
-async function integSection() {
-  if (!AD.ig || AD.igFresh) { try { AD.ig = await api('/admin/integration'); } catch (e) { return `<div class="empty">${esc(e.message)}</div>`; } AD.igFresh = false; }
-  const { cfg: c, logs, drafts, linked, onec_url, last_run } = AD.ig;
-  const t = c.type, last = logs[0];
-  const auto = t === 'billz' || (t === 'yespos' && c.yespos_mode === 'api');
-  const cnt = Object.values(linked || {}).reduce((a, b) => a + b, 0);
-  let h = `<div class="icard"><div class="ist"><span class="dot ${t === 'none' ? 'off' : last && !last.ok ? 'err' : ''}"></span>${t === 'none' ? "Integratsiya o'chiq" : ITYPES[t] + ' ulangan'}</div>
-    <small>${t === 'none' ? "Mahsulotlar qo'lda kiritiladi. Pastdan dasturni tanlang." : `${cnt} ta tovar bog'langan${last ? ` · oxirgi: ${ago(last.created_at)}` : ''}${auto ? ` · har ${c.interval} daqiqada` : ''}`}${last && !last.ok ? `<br><b style="color:var(--red)">Xato: ${esc(last.message)}</b>` : ''}</small>
-    ${auto ? `<div class="acts"><button class="btn sm" id="ig_run">${ic('refresh-linear', 16)} Hozir yangilash</button><button class="btn sm line" id="ig_test">Ulanishni tekshirish</button></div>` : ''}</div>`;
-  if (drafts) h += `<button class="warnbar" data-anav="drafts">${ic('gallery-add-linear', 22)}<span style="flex:1">${drafts} ta yangi tovar rasm kutmoqda</span>${I.chev}</button>`;
-  h += `<div class="h2" style="font-size:17px">Hisob dasturi</div><div class="chips">${Object.entries(ITYPES).map(([k, n]) => `<button class="chip ${t === k ? 'on' : ''}" data-itype="${k}">${n}</button>`).join('')}</div><div class="form">`;
-  if (t === 'none') h += `<p class="mute" style="font-size:14px">Do'kon qaysi dasturda ishlasa, o'shani tanlang — narx va qoldiqlar botga o'zi tushadi:</p>
-    <div class="group">${li(ic('document-text-linear', 20), 'Excel', "Har qanday dasturdan eksport qilingan fayl", 'data-itype="excel"')}${li(ic('server-linear', 20), '1C', "Обмен с сайтом — avtomatik, 2 tomonlama", 'data-itype="onec"')}${li(ic('cloud-linear', 20), 'BILLZ', 'API kalit orqali — avtomatik', 'data-itype="billz"')}${li(ic('shop-linear', 20), 'YesPOS', 'Excel eksport yoki API', 'data-itype="yespos"')}</div>`;
-  if (t === 'excel') h += xlsBox("Ombor/kassa dasturidan (1C, BILLZ, YesPOS, Regos, Optimo...) tovarlar qoldig'ini Excel'ga chiqaring va shu yerga yuklang. Mavjud tovarlar artikul, shtrix-kod yoki nomi bo'yicha topilib yangilanadi.");
-  if (t === 'onec') h += `<div class="group" style="padding:14px;display:grid;gap:10px"><b>1C'ni ulash (5 daqiqa)</b><ol class="steps">${ONEC_STEPS.map(x => `<li>${x}</li>`).join('')}</ol>
-    ${copyBtn(onec_url, 'Сайт адреси')}${c.onec_login ? copyBtn(c.onec_login, 'Логин') + copyBtn(c.onec_password, 'Пароль') : `<p class="mute" style="font-size:13px">Login va parol "Saqlash"dan keyin avtomatik yaratiladi.</p>`}</div>
-    <div class="fld"><label>Login</label><input id="ig_login" value="${esc(c.onec_login)}" placeholder="brozzo"></div>
-    <div class="fld"><label>Parol</label><input id="ig_pass" value="${esc(c.onec_password)}" placeholder="avtomatik yaratiladi"></div>
-    <div class="fld"><label>Narx turi (ixtiyoriy)</label><input id="ig_ptype" value="${esc(c.onec_price_type)}" placeholder="Розничная"></div>`;
-  if (t === 'billz') h += `<div class="group" style="padding:14px;display:grid;gap:8px"><b>BILLZ'ni ulash</b><ol class="steps"><li>BILLZ qo'llab-quvvatlash xizmatidan yoki <b>Настройки → Интеграции</b> bo'limidan <b>secret token</b> (integratsiya kaliti) oling</li><li>Kalitni pastga qo'ying, "Saqlash" va "Ulanishni tekshirish"ni bosing</li><li>Bir nechta filial bo'lsa — Brozzo do'konini tanlang</li></ol></div>
-    <div class="fld"><label>BILLZ secret token</label><input id="ig_btok" value="${esc(c.billz_token)}" placeholder="kalitni shu yerga qo'ying" autocomplete="off"></div>
-    <div class="fld"><label>Do'kon (filial)</label><select id="ig_shop"><option value="">Barcha do'konlar yig'indisi</option>${(AD.shops || (c.billz_shop_id ? [{ id: c.billz_shop_id, name: c.billz_shop_name || c.billz_shop_id }] : [])).map(s => `<option value="${esc(s.id)}" ${s.id === c.billz_shop_id ? 'selected' : ''}>${esc(s.name)}</option>`).join('')}</select></div>`;
-  if (t === 'yespos') {
-    h += `<div class="chips" style="padding:0">${[['excel', 'Excel orqali'], ['api', 'API orqali']].map(([k, n]) => `<button class="chip ${c.yespos_mode === k ? 'on' : ''}" data-ymode="${k}">${n}</button>`).join('')}</div>`;
-    h += c.yespos_mode === 'api'
-      ? `<div class="group" style="padding:14px"><p class="mute" style="font-size:13px">YesPOS ochiq API hujjatini e'lon qilmagan. API manzili va kalitini YesPOS qo'llab-quvvatlash xizmatidan so'rang (t.me/yespos_support, +998 33 283 33 33). Bot JSON ro'yxatdagi nom, narx, qoldiq, o'lcham va artikul maydonlarini o'zi taniydi.</p></div>
-        <div class="fld"><label>API manzili (https://...)</label><input id="ig_url" value="${esc(c.api_url)}" placeholder="https://..."></div>
-        <div class="fld"><label>API kalit / token</label><input id="ig_atok" value="${esc(c.api_token)}" autocomplete="off"></div>
-        <div class="fld"><label>Kalit sarlavhasi (ixtiyoriy)</label><input id="ig_hdr" value="${esc(c.api_header)}" placeholder="Authorization"></div>`
-      : xlsBox("YesPOS'da: <b>Ombor → Mahsulotlar (Qoldiqlar) → Excel'ga eksport</b>. Faylni shu yerga yuklang — narx va qoldiqlar yangilanadi.");
-  }
-  if (auto) h += `<div class="fld"><label>Yangilash oralig'i (daqiqa)</label><input id="ig_int" inputmode="numeric" value="${esc(c.interval)}"></div>`;
-  if (t !== 'none') h += `<div class="h2" style="font-size:16px;padding:6px 4px 0">Qoidalar</div>` + IOPT.map(([k, n, d]) => `<div class="swrow"><span><b>${n}</b><small>${d}</small></span>${sw(`id="io_${k}"`, !!c[k])}</div>`).join('');
-  h += `<button class="btn lg" id="ig_save">Saqlash</button></div>`;
-  if (logs.length) h += `<div class="h2" style="font-size:17px">Tarix</div><div class="icard">${logs.map(l => `<div class="ilog"><span class="dot ${l.ok ? '' : 'err'}" style="margin-top:4px;width:8px;height:8px;border-radius:50%;flex:none;background:${l.ok ? '#22c55e' : '#ef4444'}"></span><div><b>${ITYPES[l.source] || l.source} · ${ago(l.created_at)}</b><br><span class="mute">${l.ok ? `+${l.added} yangi · ${l.updated} yangilandi${l.hidden ? ` · ${l.hidden} yashirildi` : ''} — ` : ''}${esc(l.message || '')}</span></div></div>`).join('')}</div>`;
-  return h + '<div style="height:20px"></div>';
-}
-async function previewImport(file) {
-  if (file.size > 12 * 1024 * 1024) return tg.showAlert('Fayl juda katta (12 MB gacha)');
-  readInteg(); toast("Fayl o'qilmoqda...");
-  const data = await new Promise((ok, no) => { const r = new FileReader(); r.onload = () => ok(r.result); r.onerror = no; r.readAsDataURL(file); });
-  const body = { data, name: file.name, hide_missing: !!AD.ixHide };
-  let r; try { r = await api('/admin/import', { method: 'POST', body: JSON.stringify({ ...body, dry: true }) }); } catch (e) { return tg.showAlert(e.message); }
-  AD.ix = body;
-  sheet(`<div class="h2" style="padding-top:4px">Yuklashdan oldin tekshiring</div><div class="form">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div class="pv"><span class="n">${r.added}</span>yangi tovar</div><div class="pv"><span class="n">${r.updated}</span>yangilanadi</div>
-    <div class="pv"><span class="n">${r.unchanged}</span>o'zgarishsiz</div><div class="pv"><span class="n">${r.hidden}</span>yashiriladi</div></div>
-    ${r.skipped ? `<p class="mute" style="font-size:13px">${r.skipped} ta qator o'tkazib yuboriladi (narxi yo'q yoki qoldig'i 0 bo'lgan yangi tovar).</p>` : ''}
-    ${r.new_categories?.length ? `<p class="mute" style="font-size:13px">Yangi kategoriyalar: <b>${r.new_categories.map(esc).join(', ')}</b></p>` : ''}
-    ${(r.sample || []).map(x => `<div class="ilog"><div><b>${x.act === 'new' ? '🆕' : '🔄'} ${esc(x.name)}</b><br><span class="mute">${som(x.price)}${x.qty != null ? ' · qoldiq ' + x.qty : ''}${x.sizes?.length ? ' · ' + esc(x.sizes.join(', ')) : ''}</span></div></div>`).join('')}
-    <button class="btn lg" id="ix_go">Tasdiqlash va yuklash</button><button class="btn ghost" id="ix_no">Bekor qilish</button></div>`);
-}
 
 /* ===== map ===== */
 function withMaps(fn) {
@@ -1262,7 +1158,7 @@ function reviewSheet(pid) {
 }
 
 document.addEventListener('click', async e => {
-  const t = e.target.closest('button, [data-open], [data-go], [data-anav], [data-aedit], [data-mainimg], [data-dedit]'); if (!t) return;
+  const t = e.target.closest('button, [data-open], [data-go], [data-anav], [data-aedit], [data-mainimg]'); if (!t) return;
   const d = t.dataset;
   if (d.fav) { e.stopPropagation(); return toggleFav(d.fav); }
   if (d.add) { e.stopPropagation(); addToCart(+d.add); if (cur().v !== 'product') render(); return; }
@@ -1327,33 +1223,6 @@ document.addEventListener('click', async e => {
     return d.ost === 'cancel' ? tg.showConfirm('Buyurtma bekor qilinsinmi? Mijozga xabar boradi.', ok => ok && doit()) : doit();
   }
   if (d.apcat != null) { AD.pcat = +d.apcat; return render(); }
-  if (d.itype) { readInteg(); AD.ig.cfg.type = d.itype; return render(); }
-  if (d.ymode) { readInteg(); AD.ig.cfg.yespos_mode = d.ymode; return render(); }
-  if (d.copy) { navigator.clipboard?.writeText(d.copy).then(() => toast('Nusxa olindi ✓'), () => tg.showAlert(d.copy)); return haptic(); }
-  if (d.dedit) { const p = (AD.drafts || []).find(x => x.id === +d.dedit); if (p) { AD.form = formFrom(p); return go('admin', { tab: 'product' }); } return; }
-  if (t.id === 'ig_save') {
-    readInteg(); t.disabled = true;
-    try { await api('/admin/integration', { method: 'PUT', body: JSON.stringify(AD.ig.cfg) }); AD.igFresh = true; toast('Saqlandi ✓'); haptic('medium'); render(); } catch (err) { tg.showAlert(err.message); t.disabled = false; }
-    return;
-  }
-  if (t.id === 'ig_test' || t.id === 'ig_run') {
-    readInteg(); t.disabled = true; const old = t.innerHTML; t.innerHTML = tr('Kuting...');
-    try {
-      await api('/admin/integration', { method: 'PUT', body: JSON.stringify(AD.ig.cfg) });
-      if (t.id === 'ig_test') { const r = await api('/admin/integration/test', { method: 'POST' }); if (r.shops) AD.shops = r.shops; toast(r.message); }
-      else { const r = await api('/admin/integration/run', { method: 'POST' }); await load(); toast(`✓ +${r.added} yangi, ${r.updated} yangilandi`); }
-      AD.igFresh = true; render();
-    } catch (err) { tg.showAlert(err.message); AD.igFresh = true; render(); }
-    return;
-  }
-  if (t.id === 'ix_no') { AD.ix = null; return closeSheet(); }
-  if (t.id === 'ix_go') {
-    t.disabled = true; t.textContent = tr('Yuklanmoqda...');
-    try { const r = await api('/admin/import', { method: 'POST', body: JSON.stringify(AD.ix) }); AD.ix = null; closeSheet(); await load(); AD.igFresh = true; render(); haptic('medium');
-      tg.showAlert(`Tayyor ✓\n${r.added} ta yangi tovar${r.added && !AD.ig?.cfg?.auto_publish ? ' (rasm kutmoqda)' : ''}\n${r.updated} ta yangilandi${r.hidden ? `\n${r.hidden} ta yashirildi` : ''}`); }
-    catch (err) { t.disabled = false; t.textContent = tr('Tasdiqlash va yuklash'); tg.showAlert(err.message); }
-    return;
-  }
   if (d.aedit) { AD.form = formFrom(prod(d.aedit)); return go('admin', { tab: 'product' }); }
   if (d.dup) { const p = prod(d.dup); AD.form = { ...formFrom(p), id: null }; toast('Nusxa olindi — o\'zgartirib saqlang'); return go('admin', { tab: 'product' }); }
   if (d.pfcat) { AD.form.category_id = +AD.form.category_id === +d.pfcat ? '' : +d.pfcat; document.querySelectorAll('[data-pfcat]').forEach(b => b.classList.toggle('on', +b.dataset.pfcat === +AD.form.category_id)); return haptic(); }
@@ -1425,7 +1294,6 @@ document.addEventListener('change', async e => {
     if (k === 'story') AD.story.images.push(...await uploadFiles(files));
     if (k === 'bc') { const [url] = await uploadFiles(files.slice(0, 1)); AD.bc.image = url; }
     if (k === 'banner') { e.target.value = ''; return openCrop(files[0], 3, 1, 1500, $('b_prod').value); }
-    if (k === 'xls') { e.target.value = ''; return previewImport(files[0]); }
     render();
   } catch (err) { tg.showAlert(err.message); }
 });

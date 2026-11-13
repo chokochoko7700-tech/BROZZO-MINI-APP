@@ -413,9 +413,6 @@ app.put('/api/admin/settings', A, wrap(async (req, res) => {
   res.json(await settings(true));
 }));
 
-// Hisob dasturlari bilan integratsiya (1C, BILLZ, YesPOS, Excel)
-require('./lib/integration')({ app, db, A, wrap, dropCatalog, bot, notifyChats, BASE, BUCKET, tooMany, clientIp });
-
 // Statistika
 app.get('/api/admin/stats', A, wrap(async (_, res) => {
   const since = new Date(Date.now() - 30 * 864e5).toISOString();
