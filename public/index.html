@@ -985,6 +985,23 @@ async function render() {
   v.after?.(c);
 }
 
+/* ===== avtomatik yangilanish: yangi versiya chiqsa ilova o'zi qayta yuklanadi ===== */
+let APP_VER = null, verT = 0;
+async function checkVersion() {
+  if (!APP_VER || Date.now() - verT < 30000) return; verT = Date.now();
+  try {
+    const c = await api('/config');
+    if (c.ver && c.ver !== APP_VER) {
+      const busy = cur().v === 'checkout' || cur().v === 'admin' || searching;
+      if (busy) return; // buyurtma yoki admin ishida xalaqit bermaymiz
+      location.reload();
+    }
+  } catch {}
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden) checkVersion(); });
+try { tg.onEvent?.('activated', checkVersion); } catch {}
+setInterval(checkVersion, 5 * 60 * 1000);
+
 /* ===== boot ===== */
 async function load() {
   const c = await api('/catalog'); D = c;
@@ -994,7 +1011,7 @@ async function load() {
   render();
   const [fav, profile, addrs, seen, recent] = await Promise.all(['fav', 'profile', 'addrs', 'seen', 'recent'].map(k => store.get(k)));
   U = { fav: fav || [], profile: profile || {}, addrs: addrs || [], seen: seen || [], recent: recent || [] };
-  api('/config').then(c => yKey = c.yandexKey).catch(() => {});
+  api('/config').then(c => { yKey = c.yandexKey; APP_VER = c.ver; }).catch(() => {});
   try {
     const [me] = await Promise.all([api('/me'), load()]);
     isAdmin = me.isAdmin;

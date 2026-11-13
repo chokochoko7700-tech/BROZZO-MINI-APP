@@ -56,7 +56,7 @@ const isUrl = (u) => typeof u === 'string' && /^https:\/\/[^\s"'()<>]+$/.test(u)
 const urls = (a) => (Array.isArray(a) ? a.filter(isUrl).slice(0, 12) : []);
 const som = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " so'm";
 
-app.get('/api/config', (_, res) => res.json({ yandexKey: YANDEX_KEY || '' }));
+app.get('/api/config', (_, res) => { res.setHeader('Cache-Control', 'no-store'); res.json({ yandexKey: YANDEX_KEY || '', ver: VER }); });
 app.get('/api/me', auth, (req, res) => res.json({ isAdmin: req.isAdmin }));
 
 app.get('/api/catalog', auth, wrap(async (_, res) => {
