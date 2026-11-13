@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
 <style>
 :root{--bg:#f6f6f3;--card:#fff;--ink:#111;--mute:#8d8d87;--line:#e6e6e1;--soft:#f0f0ec;--y:#f2c200;--red:#e0322b;--nav:76px}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -90,7 +91,8 @@ input[type=search]::-webkit-search-cancel-button,input[type=search]::-webkit-sea
 .card .pr s{display:block;font-size:13px;font-weight:500;color:var(--mute);margin-bottom:1px}
 .card .add{margin-top:auto}
 .heart{position:absolute;right:10px;top:10px;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.72);display:grid;place-items:center;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
-.heart.on svg{fill:var(--red);stroke:var(--red)}
+iconify-icon{display:inline-block;flex:none;vertical-align:middle}
+.heart.on{color:var(--red)}
 .sale{position:absolute;left:10px;top:10px;background:var(--y);font-weight:800;font-size:13px;padding:5px 9px;border-radius:8px}
 .btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;height:48px;border-radius:14px;background:var(--ink);color:#fff;font-weight:700;font-size:16px}
 .btn.lg{height:56px;font-size:17px;border-radius:16px}
@@ -236,7 +238,7 @@ nav .cnt{position:absolute;top:-4px;left:calc(50% + 8px);background:var(--ink);c
 <body>
 <div class="top" id="top">
   <div class="lg" style="background-image:url(/logo.png)"></div>
-  <div class="srow" id="srow"><div class="sbox"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8d8d87" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+  <div class="srow" id="srow"><div class="sbox"><iconify-icon icon="solar:magnifer-linear" width="22" height="22" style="color:#8d8d87"></iconify-icon>
   <input id="q" type="search" enterkeyhint="search" placeholder="Mahsulot qidirish" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"><button class="x hide" id="qx" aria-label="Tozalash">×</button></div><button class="cancel" id="qc">Bekor</button></div>
 </div>
 <main id="main"></main>
@@ -281,21 +283,26 @@ async function api(p, o = {}) {
 }
 
 /* ===== icons ===== */
+const ic = (n, s = 24, st = '') => `<iconify-icon icon="solar:${n}" width="${s}" height="${s}"${st ? ` style="${st}"` : ''}></iconify-icon>`;
 const I = {
-  home: '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>',
-  grid: '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2"/></svg>',
-  cart: (s = 30) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 3.5h2.2l2.4 11.2a1.5 1.5 0 0 0 1.5 1.2h8.7a1.5 1.5 0 0 0 1.5-1.1L20.8 7H6"/><circle cx="9.5" cy="19.8" r="1.3"/><circle cx="17" cy="19.8" r="1.3"/></svg>`,
-  user: '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="4.2"/><path d="M4 21c.8-4 4.2-6.2 8-6.2s7.2 2.2 8 6.2" stroke-linecap="round"/></svg>',
-  heart: (s = 22) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 20.5s-8-4.7-8-11a4.5 4.5 0 0 1 8-2.8 4.5 4.5 0 0 1 8 2.8c0 6.3-8 11-8 11z"/></svg>`,
-  star: (s = 24, f) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="${f ? '#f2b200' : 'none'}" stroke="${f ? '#f2b200' : 'currentColor'}" stroke-width="1.7" stroke-linejoin="round"><path d="m12 3 2.7 5.6 6.1.8-4.5 4.2 1.1 6.1L12 16.8l-5.4 2.9 1.1-6.1-4.5-4.2 6.1-.8z"/></svg>`,
-  pin: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>',
-  phone: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M5 3.5h3.2l1.6 4.2-2.1 1.4a11 11 0 0 0 7.2 7.2l1.4-2.1 4.2 1.6V19a1.5 1.5 0 0 1-1.6 1.5C10.3 20 4 13.7 3.5 5.1A1.5 1.5 0 0 1 5 3.5z"/></svg>',
-  chev: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m9 5 7 7-7 7"/></svg>',
-  shield: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3 4.5 6v5.5c0 4.6 3.2 8.3 7.5 9.5 4.3-1.2 7.5-4.9 7.5-9.5V6z"/></svg>',
+  home: ic('home-2-linear', 28), homeOn: ic('home-2-bold', 28),
+  grid: ic('widget-2-linear', 28), gridOn: ic('widget-2-bold', 28),
+  cart: (s = 28) => ic('cart-large-minimalistic-linear', s), cartOn: ic('cart-large-minimalistic-bold', 28),
+  user: ic('user-linear', 28), userOn: ic('user-bold', 28),
+  heart: (s = 22, on) => ic(on ? 'heart-bold' : 'heart-linear', s),
+  star: (s = 24, f) => ic(f ? 'star-bold' : 'star-linear', s, f ? 'color:#f2b200' : ''),
+  pin: ic('map-point-linear', 24),
+  phone: ic('phone-linear', 24),
+  chev: ic('alt-arrow-right-linear', 22),
+  shield: ic('shield-check-linear', 24),
   tg: '<svg width="58" height="58" viewBox="0 0 58 58"><circle cx="29" cy="29" r="29" fill="#229ED9"/><path d="M14 28.5 41.5 18c1.3-.5 2.4.3 2 2.2l-4.7 22c-.3 1.5-1.3 1.9-2.6 1.2l-7.2-5.3-3.5 3.3c-.4.4-.7.7-1.4.7l.5-7.3 13.3-12c.6-.5-.1-.8-.9-.3L20.6 32.8l-7-2.2c-1.6-.5-1.6-1.6.4-2.1z" fill="#fff"/></svg>',
   ig: '<svg width="58" height="58" viewBox="0 0 58 58"><defs><linearGradient id="ig" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#feda75"/><stop offset=".35" stop-color="#fa7e1e"/><stop offset=".65" stop-color="#d62976"/><stop offset="1" stop-color="#4f5bd5"/></linearGradient></defs><rect width="58" height="58" rx="16" fill="url(#ig)"/><rect x="15" y="15" width="28" height="28" rx="8.5" fill="none" stroke="#fff" stroke-width="3.2"/><circle cx="29" cy="29" r="6.6" fill="none" stroke="#fff" stroke-width="3.2"/><circle cx="37.4" cy="20.6" r="2" fill="#fff"/></svg>',
-  box: '<svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M3.5 7.5 12 3l8.5 4.5v9L12 21l-8.5-4.5z"/><path d="M3.5 7.5 12 12l8.5-4.5M12 12v9"/></svg>',
-  gear: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 2.8v2.4M12 18.8v2.4M4.9 4.9l1.7 1.7M17.4 17.4l1.7 1.7M2.8 12h2.4M18.8 12h2.4M4.9 19.1l1.7-1.7M17.4 6.6l1.7-1.7"/></svg>',
+  box: ic('box-linear', 56, 'display:block;margin:0 auto 12px;opacity:.4'),
+  gear: ic('settings-linear', 24),
+  search: ic('magnifer-linear', 22, 'color:#8d8d87'),
+  history: ic('history-linear', 20),
+  chat: ic('chat-round-dots-linear', 24),
+  bag: ic('bag-4-linear', 24),
 };
 const starsHtml = (r, s = 16) => `<span class="stars">${[1, 2, 3, 4, 5].map(i => I.star(s, i <= Math.round(r))).join('')}</span>`;
 
@@ -341,7 +348,7 @@ function card(p) {
   const inCart = cart.some(i => i.id === p.id);
   return `<div class="card"><div class="im" ${bg(imgs(p)[0])} data-open="${p.id}">
     ${off ? `<span class="sale">−${off}%</span>` : ''}
-    <button class="heart ${isFav(p.id) ? 'on' : ''}" data-fav="${p.id}">${I.heart()}</button></div>
+    <button class="heart ${isFav(p.id) ? 'on' : ''}" data-fav="${p.id}">${I.heart(22, isFav(p.id))}</button></div>
     <div class="body" data-open="${p.id}"><div class="nm">${esc(p.name)}</div>
     <div class="pr">${off ? `<s>${som(p.old_price)}</s>` : ''}${som(p.price)}</div>
     <button class="btn add ${inCart ? 'done' : ''}" data-add="${p.id}">${I.cart(22)} ${inCart ? 'Savatda' : 'Savatga'}</button></div></div>`;
@@ -428,7 +435,7 @@ V.search = () => {
   if (!q.trim()) {
     const rec = U.recent || [];
     return (rec.length ? `<div class="h2 row" style="font-size:20px">Oxirgi qidiruvlar <small><button data-clrrec="1" style="color:var(--mute);font-weight:600">Tozalash</button></small></div>
-      ${rec.map(r => `<button class="recent" data-rec="${esc(r)}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>${esc(r)}</span></button>`).join('')}` : '') +
+      ${rec.map(r => `<button class="recent" data-rec="${esc(r)}">${I.history}<span>${esc(r)}</span></button>`).join('')}` : '') +
       `<div class="h2" style="font-size:20px">Kategoriyalar</div><div class="chips" style="flex-wrap:wrap">${D.categories.map(c => `<button class="chip" data-go="cat" data-id="${c.id}">${esc(c.name)}</button>`).join('')}</div>`;
   }
   const list = searchList(q);
@@ -448,7 +455,7 @@ V.product = ({ id }) => {
   ${im.length > 1 ? `<div style="position:relative"><div class="dots" id="gdots" style="bottom:36px">${im.map((_, i) => `<i class="${i ? '' : 'on'}"></i>`).join('')}</div></div>` : ''}</div>
   <div class="pinfo">
     <div style="display:flex;gap:12px;align-items:flex-start"><h1 style="flex:1">${esc(p.name)}</h1>
-    <button class="heart ${isFav(p.id) ? 'on' : ''}" style="position:static;background:var(--soft)" data-fav="${p.id}">${I.heart()}</button></div>
+    <button class="heart ${isFav(p.id) ? 'on' : ''}" style="position:static;background:var(--soft)" data-fav="${p.id}">${I.heart(22, isFav(p.id))}</button></div>
     <div class="pr">${som(p.price)}${off ? `<s>${som(p.old_price)}</s>` : ''}</div>
     <div class="rate">${starsHtml(p.rating || 0)} ${p.reviews ? `${p.rating} · ${p.reviews} ta sharh` : 'Sharhlar yo\'q'}</div>
     ${p.sizes?.length ? `<div class="lbl">O'lcham</div><div class="sizes">${p.sizes.map(s => `<button class="sz ${sel === s ? 'on' : ''}" data-size="${esc(s)}">${esc(s)}</button>`).join('')}</div>` : ''}
@@ -472,7 +479,7 @@ V.product.after = async ({ id }) => {
 
 V.cart = () => {
   const items = cart.filter(i => prod(i.id));
-  if (!items.length) return title('Savat') + `<div class="empty">${I.cart(56)}<br>Savat bo'sh<br><br><button class="btn" style="max-width:240px;margin:0 auto" data-go="catalog">Katalogga o'tish</button></div>`;
+  if (!items.length) return title('Savat') + `<div class="empty">${ic('cart-large-minimalistic-linear', 64, 'display:block;margin:0 auto 12px;opacity:.4')}Savat bo'sh<br><br><button class="btn" style="max-width:240px;margin:0 auto" data-go="catalog">Katalogga o'tish</button></div>`;
   return title('Savat') + cart.map((i, n) => { const p = prod(i.id); if (!p) return ''; return `
   <div class="ci"><div class="im" ${bg(imgs(p)[0])} data-open="${p.id}"></div><div class="tx"><b>${esc(p.name)}</b>
   ${i.size ? `<small>O'lcham: ${esc(i.size)}</small>` : ''}<div class="p">${som(p.price * i.qty)}</div>
@@ -509,9 +516,9 @@ V.profile = () => {
   return title('Profil') + `<div class="user"><div class="av" ${u.photo_url ? bg(u.photo_url) : ''}>${u.photo_url ? '' : esc(nm[0] || 'B')}</div>
   <div><b>${esc(nm)}</b><span class="mute">${u.username ? '@' + esc(u.username) : esc(U.profile.phone || '')}</span></div></div>
   <div class="h2">Xaridlar</div><div class="group">
-  ${li(I.cart(26), 'Xaridlarim', '', 'data-go="orders"')}${li(I.heart(24), 'Sevimlilar', U.fav.length ? U.fav.length + ' ta' : '', 'data-go="favs"')}${li(I.star(24), 'Sharhlarim', '', 'data-go="myreviews"')}</div>
+  ${li(I.bag, 'Xaridlarim', '', 'data-go="orders"')}${li(I.heart(24), 'Sevimlilar', U.fav.length ? U.fav.length + ' ta' : '', 'data-go="favs"')}${li(I.star(24), 'Sharhlarim', '', 'data-go="myreviews"')}</div>
   <div class="h2">Men haqimda</div><div class="group">
-  ${li(I.user.replace(/30/g, 26), "Ma'lumotlarim", "ism, telefon, tug'ilgan sana", 'data-go="mydata"')}${li(I.pin, 'Manzillarim', U.addrs.length ? U.addrs.length + ' ta manzil' : '', 'data-go="addrs"')}${li(I.phone, 'Yordam', 'Telegram, telefon', 'data-help="1"')}</div>
+  ${li(ic('user-id-linear', 24), "Ma'lumotlarim", "ism, telefon, tug'ilgan sana", 'data-go="mydata"')}${li(I.pin, 'Manzillarim', U.addrs.length ? U.addrs.length + ' ta manzil' : '', 'data-go="addrs"')}${li(I.chat, 'Yordam', 'Telegram, telefon', 'data-help="1"')}</div>
   <div class="h2">Huquqiy ma'lumot</div><div class="group">${li(I.phone, 'Kontaktlar', "Sotuvchi bilan bog'lanish", 'data-go="contacts"')}</div>
   ${isAdmin ? `<div class="h2">Boshqaruv</div><div class="group">${li(I.gear, 'Admin panel', 'Mahsulot, buyurtma, banner, istoriya', 'data-go="admin"')}</div>` : ''}
   <button class="logout" id="logout">Ma'lumotlarni tozalash</button>
@@ -549,7 +556,7 @@ V.mydata = () => { const p = U.profile; const u = tg.initDataUnsafe?.user || {};
   <button class="btn lg" id="d_save">Saqlash</button></div>`; };
 
 V.addrs = () => title('Manzillarim') + `<div class="form">${U.addrs.map((a, i) => `<div class="addr"><span class="ic">${I.pin}</span><span class="tx"><b>${esc(a.title || 'Manzil')}</b><small>${esc(a.text)}</small></span><button class="btn sm ghost" data-deladdr="${i}">O'chirish</button></div>`).join('')
-  || `<div class="empty">${I.pin}<br>Saqlangan manzil yo'q</div>`}<button class="btn lg" data-go="addr">+ Manzil qo'shish</button></div>`;
+  || `<div class="empty">${ic('map-point-linear', 56, 'display:block;margin:0 auto 12px;opacity:.4')}Saqlangan manzil yo'q</div>`}<button class="btn lg" data-go="addr">+ Manzil qo'shish</button></div>`;
 
 V.addr = () => title('Yangi manzil') + `<div class="form"><div id="map"></div>
   <div class="fld"><label>Nomi</label><input id="a_title" placeholder="Uy, Ish..."></div>
@@ -703,7 +710,7 @@ function addToCart(id, size) {
 function toggleFav(id) {
   id = +id; U.fav = isFav(id) ? U.fav.filter(x => x !== id) : [...U.fav, id];
   store.set('fav', U.fav); haptic();
-  document.querySelectorAll(`[data-fav="${id}"]`).forEach(b => b.classList.toggle('on', isFav(id)));
+  document.querySelectorAll(`[data-fav="${id}"]`).forEach(b => { b.classList.toggle('on', isFav(id)); b.innerHTML = I.heart(22, isFav(id)); });
   if (cur().v === 'favs') render();
 }
 function help() {
@@ -875,8 +882,8 @@ $('main').addEventListener('touchmove', () => { if (searching && document.active
 /* ===== render ===== */
 function navBar() {
   const root = stack[0].v, n = cartCount();
-  $('nav').innerHTML = [['home', I.home, 'Bosh sahifa'], ['catalog', I.grid, 'Katalog'], ['cart', I.cart(), 'Savat'], ['profile', I.user, 'Profil']]
-    .map(([v, ic, t]) => `<button data-tab="${v}" class="${root === v ? 'on' : ''}">${ic}${t}${v === 'cart' && n ? `<span class="cnt">${n}</span>` : ''}</button>`).join('');
+  $('nav').innerHTML = [['home', I.home, I.homeOn, 'Bosh sahifa'], ['catalog', I.grid, I.gridOn, 'Katalog'], ['cart', I.cart(), I.cartOn, 'Savat'], ['profile', I.user, I.userOn, 'Profil']]
+    .map(([v, i0, i1, t]) => `<button data-tab="${v}" class="${root === v ? 'on' : ''}">${root === v ? i1 : i0}${t}${v === 'cart' && n ? `<span class="cnt">${n}</span>` : ''}</button>`).join('');
 }
 let rid = 0;
 async function render() {
