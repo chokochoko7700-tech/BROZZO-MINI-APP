@@ -232,13 +232,99 @@ nav .cnt{position:absolute;top:-4px;left:calc(50% + 8px);background:var(--ink);c
 .toast.on{opacity:1}
 .skel{background:linear-gradient(90deg,#ececE8,#f6f6f3,#ececE8);background-size:200% 100%;animation:sk 1.2s infinite}
 @keyframes sk{to{background-position:-200% 0}}
+
+/* ===== ixcham o'lchamlar (One23 bilan bir xil) ===== */
+:root{--nav:62px}
+body{font-size:15px}
+.top{padding:8px 16px 10px}
+.top .lg{width:26px;height:26px;margin-bottom:8px}
+.sbox{height:42px;border-radius:14px;padding:0 14px;gap:8px}
+.sbox input{font-size:16px}
+.cancel{font-size:15px}
+.h1{font-size:24px;padding:18px 16px 12px;letter-spacing:-.02em}
+.h2{font-size:21px;padding:22px 16px 12px}
+.h2 small{font-size:13px}
+.mq{height:42px}
+.mq div{font-size:15px}
+.st{width:76px}
+.st .ring{width:76px;height:76px;border-width:2.5px;padding:3px}
+.st b{font-size:13px;margin-top:6px}
+.stories{gap:12px}
+.bwrap{margin-top:18px}
+.banner{border-radius:18px}
+.dots{bottom:10px;padding:6px 9px}
+.dots i{width:6px;height:6px}.dots i.on{width:18px}
+.chip{height:34px;padding:0 13px;font-size:14px}
+.grid{gap:10px}
+.card{border-radius:16px}
+.card .body{padding:10px 10px 10px}
+.card .nm{font-size:14px;line-height:1.3}
+.card .pr{font-size:16px;margin:6px 0 10px}
+.card .pr s{font-size:12px}
+.heart{width:34px;height:34px;right:8px;top:8px}
+.sale{font-size:12px;padding:4px 7px}
+.btn{height:40px;border-radius:12px;font-size:14px;gap:6px}
+.btn.lg{height:50px;font-size:16px;border-radius:14px}
+.btn.sm{height:34px;font-size:13px;padding:0 12px}
+.empty{font-size:15px;padding:32px 24px}
+.cats{gap:10px}
+.cat{border-radius:16px}
+.cat b{font-size:17px;left:12px;bottom:10px}
+.cat small{font-size:12px}
+.pinfo{padding:18px 16px 8px;border-radius:20px 20px 0 0}
+.pinfo h1{font-size:20px}
+.pinfo .pr{font-size:23px;margin-top:8px}
+.pinfo .pr s{font-size:15px}
+.rate{font-size:13px}
+.lbl{font-size:14px;margin:18px 0 8px}
+.sz{min-width:48px;height:40px;font-size:14px;border-radius:11px}
+.desc{font-size:15px}
+.group{border-radius:18px}
+.li{gap:14px;padding:12px 14px}
+.li .ic{width:40px;height:40px;border-radius:11px}
+.li .tx b{font-size:16px}
+.li .tx small{font-size:13px;margin-top:1px}
+.user{gap:12px}
+.user .av{width:50px;height:50px;font-size:20px}
+.user b{font-size:17px}
+.logout{height:52px;border-radius:18px;font-size:16px;margin-top:24px}
+.ver{font-size:12px;padding:24px 0 8px}
+.ci{border-radius:16px;padding:10px;gap:10px}
+.ci .im{width:72px}
+.ci .tx b{font-size:14px}
+.ci .tx .p{font-size:15px}
+.qty button{width:30px;height:30px;font-size:17px;border-radius:9px}
+.sum{border-radius:18px;padding:14px}
+.sum div{font-size:14px}
+.sum .t{font-size:18px}
+.fld label{font-size:13px}
+.fld input,.fld textarea,.fld select{padding:12px 14px;border-radius:13px;font-size:16px}
+.seg button{height:40px;font-size:14px}
+.addr{padding:12px 14px;border-radius:14px}
+.order{border-radius:16px;padding:14px}
+.order .hd{font-size:15px}
+.order small{font-size:13px}
+.brand .lg{width:64px;height:64px}
+.brand p{font-size:15px;line-height:1.6;margin-top:16px}
+.socials button{width:46px;height:46px}
+.socials svg{width:46px;height:46px}
+.copy{font-size:13px}
+nav{padding:7px 4px calc(6px + env(safe-area-inset-bottom));border-radius:24px 24px 0 0}
+nav button{font-size:12px;gap:3px}
+nav .cnt{min-width:17px;height:17px;font-size:10px;top:-3px}
+.recent{font-size:15px;padding:12px 16px}
+.shit b{font-size:14px}
+.shit .im{width:50px}
+.shit .p{font-size:14px}
+.arow{border-radius:14px}
+.arow .tx{font-size:14px}
 @media (max-width:360px){.card .nm{font-size:14px}.card .pr{font-size:17px}.btn{font-size:14px;gap:6px}.h1{font-size:27px}}
 </style>
 </head>
 <body>
 <div class="top" id="top">
   <div class="lg" style="background-image:url(/logo.png)"></div>
-  <div class="srow" id="srow"><div class="sbox"><iconify-icon icon="solar:magnifer-linear" width="22" height="22" style="color:#8d8d87"></iconify-icon>
+  <div class="srow" id="srow"><div class="sbox"><iconify-icon icon="solar:magnifer-linear" width="19" height="19" style="color:#8d8d87"></iconify-icon>
   <input id="q" type="search" enterkeyhint="search" placeholder="Mahsulot qidirish" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"><button class="x hide" id="qx" aria-label="Tozalash">×</button></div><button class="cancel" id="qc">Bekor</button></div>
 </div>
 <main id="main"></main>
@@ -285,24 +371,24 @@ async function api(p, o = {}) {
 /* ===== icons ===== */
 const ic = (n, s = 24, st = '') => `<iconify-icon icon="solar:${n}" width="${s}" height="${s}"${st ? ` style="${st}"` : ''}></iconify-icon>`;
 const I = {
-  home: ic('home-2-linear', 28), homeOn: ic('home-2-bold', 28),
-  grid: ic('widget-2-linear', 28), gridOn: ic('widget-2-bold', 28),
-  cart: (s = 28) => ic('cart-large-minimalistic-linear', s), cartOn: ic('cart-large-minimalistic-bold', 28),
-  user: ic('user-linear', 28), userOn: ic('user-bold', 28),
-  heart: (s = 22, on) => ic(on ? 'heart-bold' : 'heart-linear', s),
+  home: ic('home-2-linear', 24), homeOn: ic('home-2-bold', 24),
+  grid: ic('widget-2-linear', 24), gridOn: ic('widget-2-bold', 24),
+  cart: (s = 24) => ic('cart-large-minimalistic-linear', s), cartOn: ic('cart-large-minimalistic-bold', 24),
+  user: ic('user-linear', 24), userOn: ic('user-bold', 24),
+  heart: (s = 19, on) => ic(on ? 'heart-bold' : 'heart-linear', s),
   star: (s = 24, f) => ic(f ? 'star-bold' : 'star-linear', s, f ? 'color:#f2b200' : ''),
-  pin: ic('map-point-linear', 24),
-  phone: ic('phone-linear', 24),
-  chev: ic('alt-arrow-right-linear', 22),
+  pin: ic('map-point-linear', 20),
+  phone: ic('phone-linear', 20),
+  chev: ic('alt-arrow-right-linear', 18),
   shield: ic('shield-check-linear', 24),
   tg: '<svg width="58" height="58" viewBox="0 0 58 58"><circle cx="29" cy="29" r="29" fill="#229ED9"/><path d="M14 28.5 41.5 18c1.3-.5 2.4.3 2 2.2l-4.7 22c-.3 1.5-1.3 1.9-2.6 1.2l-7.2-5.3-3.5 3.3c-.4.4-.7.7-1.4.7l.5-7.3 13.3-12c.6-.5-.1-.8-.9-.3L20.6 32.8l-7-2.2c-1.6-.5-1.6-1.6.4-2.1z" fill="#fff"/></svg>',
   ig: '<svg width="58" height="58" viewBox="0 0 58 58"><defs><linearGradient id="ig" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#feda75"/><stop offset=".35" stop-color="#fa7e1e"/><stop offset=".65" stop-color="#d62976"/><stop offset="1" stop-color="#4f5bd5"/></linearGradient></defs><rect width="58" height="58" rx="16" fill="url(#ig)"/><rect x="15" y="15" width="28" height="28" rx="8.5" fill="none" stroke="#fff" stroke-width="3.2"/><circle cx="29" cy="29" r="6.6" fill="none" stroke="#fff" stroke-width="3.2"/><circle cx="37.4" cy="20.6" r="2" fill="#fff"/></svg>',
   box: ic('box-linear', 56, 'display:block;margin:0 auto 12px;opacity:.4'),
-  gear: ic('settings-linear', 24),
+  gear: ic('settings-linear', 20),
   search: ic('magnifer-linear', 22, 'color:#8d8d87'),
   history: ic('history-linear', 20),
-  chat: ic('chat-round-dots-linear', 24),
-  bag: ic('bag-4-linear', 24),
+  chat: ic('chat-round-dots-linear', 20),
+  bag: ic('bag-4-linear', 20),
 };
 const starsHtml = (r, s = 16) => `<span class="stars">${[1, 2, 3, 4, 5].map(i => I.star(s, i <= Math.round(r))).join('')}</span>`;
 
@@ -348,10 +434,10 @@ function card(p) {
   const inCart = cart.some(i => i.id === p.id);
   return `<div class="card"><div class="im" ${bg(imgs(p)[0])} data-open="${p.id}">
     ${off ? `<span class="sale">−${off}%</span>` : ''}
-    <button class="heart ${isFav(p.id) ? 'on' : ''}" data-fav="${p.id}">${I.heart(22, isFav(p.id))}</button></div>
+    <button class="heart ${isFav(p.id) ? 'on' : ''}" data-fav="${p.id}">${I.heart(19, isFav(p.id))}</button></div>
     <div class="body" data-open="${p.id}"><div class="nm">${esc(p.name)}</div>
     <div class="pr">${off ? `<s>${som(p.old_price)}</s>` : ''}${som(p.price)}</div>
-    <button class="btn add ${inCart ? 'done' : ''}" data-add="${p.id}">${I.cart(22)} ${inCart ? 'Savatda' : 'Savatga'}</button></div></div>`;
+    <button class="btn add ${inCart ? 'done' : ''}" data-add="${p.id}">${I.cart(18)} ${inCart ? 'Savatda' : 'Savatga'}</button></div></div>`;
 }
 const grid = list => `<div class="grid">${list.length ? list.map(card).join('') : `<div class="empty">${I.box}Hozircha mahsulot yo'q</div>`}</div>`;
 const skel = () => `<div class="grid">${'<div class="card"><div class="im skel"></div><div class="body"><div class="skel" style="height:16px;border-radius:6px"></div><div class="skel" style="height:22px;width:60%;border-radius:6px;margin:12px 0"></div><div class="skel" style="height:48px;border-radius:14px"></div></div></div>'.repeat(4)}</div>`;
@@ -455,7 +541,7 @@ V.product = ({ id }) => {
   ${im.length > 1 ? `<div style="position:relative"><div class="dots" id="gdots" style="bottom:36px">${im.map((_, i) => `<i class="${i ? '' : 'on'}"></i>`).join('')}</div></div>` : ''}</div>
   <div class="pinfo">
     <div style="display:flex;gap:12px;align-items:flex-start"><h1 style="flex:1">${esc(p.name)}</h1>
-    <button class="heart ${isFav(p.id) ? 'on' : ''}" style="position:static;background:var(--soft)" data-fav="${p.id}">${I.heart(22, isFav(p.id))}</button></div>
+    <button class="heart ${isFav(p.id) ? 'on' : ''}" style="position:static;background:var(--soft)" data-fav="${p.id}">${I.heart(19, isFav(p.id))}</button></div>
     <div class="pr">${som(p.price)}${off ? `<s>${som(p.old_price)}</s>` : ''}</div>
     <div class="rate">${starsHtml(p.rating || 0)} ${p.reviews ? `${p.rating} · ${p.reviews} ta sharh` : 'Sharhlar yo\'q'}</div>
     ${p.sizes?.length ? `<div class="lbl">O'lcham</div><div class="sizes">${p.sizes.map(s => `<button class="sz ${sel === s ? 'on' : ''}" data-size="${esc(s)}">${esc(s)}</button>`).join('')}</div>` : ''}
@@ -466,7 +552,7 @@ V.product = ({ id }) => {
   </div>`;
 };
 V.product.buy = ({ id }) => { const p = prod(id); if (!p) return ''; const inCart = cart.filter(i => i.id === p.id).reduce((a, i) => a + i.qty, 0);
-  return `<div class="buy"><button class="btn lg" data-addp="${p.id}">${I.cart(24)} Savatga qo'shish · ${som(p.price)}${inCart ? ` (${inCart})` : ''}</button></div>`; };
+  return `<div class="buy"><button class="btn lg" data-addp="${p.id}">${I.cart(20)} Savatga qo'shish · ${som(p.price)}${inCart ? ` (${inCart})` : ''}</button></div>`; };
 V.product.after = async ({ id }) => {
   const g = $('gal'), d = $('gdots');
   if (g && d) g.onscroll = () => { const i = Math.round(g.scrollLeft / g.clientWidth); [...d.children].forEach((x, k) => x.classList.toggle('on', k === i)); };
@@ -516,9 +602,9 @@ V.profile = () => {
   return title('Profil') + `<div class="user"><div class="av" ${u.photo_url ? bg(u.photo_url) : ''}>${u.photo_url ? '' : esc(nm[0] || 'B')}</div>
   <div><b>${esc(nm)}</b><span class="mute">${u.username ? '@' + esc(u.username) : esc(U.profile.phone || '')}</span></div></div>
   <div class="h2">Xaridlar</div><div class="group">
-  ${li(I.bag, 'Xaridlarim', '', 'data-go="orders"')}${li(I.heart(24), 'Sevimlilar', U.fav.length ? U.fav.length + ' ta' : '', 'data-go="favs"')}${li(I.star(24), 'Sharhlarim', '', 'data-go="myreviews"')}</div>
+  ${li(I.bag, 'Xaridlarim', '', 'data-go="orders"')}${li(I.heart(20), 'Sevimlilar', U.fav.length ? U.fav.length + ' ta' : '', 'data-go="favs"')}${li(I.star(20), 'Sharhlarim', '', 'data-go="myreviews"')}</div>
   <div class="h2">Men haqimda</div><div class="group">
-  ${li(ic('user-id-linear', 24), "Ma'lumotlarim", "ism, telefon, tug'ilgan sana", 'data-go="mydata"')}${li(I.pin, 'Manzillarim', U.addrs.length ? U.addrs.length + ' ta manzil' : '', 'data-go="addrs"')}${li(I.chat, 'Yordam', 'Telegram, telefon', 'data-help="1"')}</div>
+  ${li(ic('user-id-linear', 20), "Ma'lumotlarim", "ism, telefon, tug'ilgan sana", 'data-go="mydata"')}${li(I.pin, 'Manzillarim', U.addrs.length ? U.addrs.length + ' ta manzil' : '', 'data-go="addrs"')}${li(I.chat, 'Yordam', 'Telegram, telefon', 'data-help="1"')}</div>
   <div class="h2">Huquqiy ma'lumot</div><div class="group">${li(I.phone, 'Kontaktlar', "Sotuvchi bilan bog'lanish", 'data-go="contacts"')}</div>
   ${isAdmin ? `<div class="h2">Boshqaruv</div><div class="group">${li(I.gear, 'Admin panel', 'Mahsulot, buyurtma, banner, istoriya', 'data-go="admin"')}</div>` : ''}
   <button class="logout" id="logout">Ma'lumotlarni tozalash</button>
@@ -566,8 +652,8 @@ V.addr.after = () => mapPicker('map', cur());
 
 V.contacts = () => title('Kontaktlar') + `<div class="group">
   ${li(I.phone, SHOP.phoneTxt, "Qo'ng'iroq qilish", 'data-call="1"')}
-  ${li(I.tg.replace(/58/g, 30), 'Telegram', 't.me/brozzomens', `data-tglink="${SHOP.telegram}"`)}
-  ${li(I.ig.replace(/width="58" height="58"/, 'width="30" height="30"'), 'Instagram', '@_brozzo_premium', `data-link="${SHOP.instagram}"`)}</div>
+  ${li(I.tg.replace(/width="58" height="58"/, 'width="24" height="24"'), 'Telegram', 't.me/brozzomens', `data-tglink="${SHOP.telegram}"`)}
+  ${li(I.ig.replace(/width="58" height="58"/, 'width="24" height="24"'), 'Instagram', '@_brozzo_premium', `data-link="${SHOP.instagram}"`)}</div>
   <div class="h2">Do'kon</div><div class="group" style="padding:16px"><b style="font-size:18px">${esc(SHOP.address)}</b><p class="mute" style="margin-top:6px">Ish vaqti: ${SHOP.hours}</p>
   <div id="map" style="margin-top:14px;height:240px"></div>
   <button class="btn" style="margin-top:14px" data-link="https://yandex.uz/maps/?pt=${SHOP.coords[1]},${SHOP.coords[0]}&z=17&l=map">Yo'l ko'rsatish</button></div>`;
@@ -710,12 +796,12 @@ function addToCart(id, size) {
 function toggleFav(id) {
   id = +id; U.fav = isFav(id) ? U.fav.filter(x => x !== id) : [...U.fav, id];
   store.set('fav', U.fav); haptic();
-  document.querySelectorAll(`[data-fav="${id}"]`).forEach(b => { b.classList.toggle('on', isFav(id)); b.innerHTML = I.heart(22, isFav(id)); });
+  document.querySelectorAll(`[data-fav="${id}"]`).forEach(b => { b.classList.toggle('on', isFav(id)); b.innerHTML = I.heart(19, isFav(id)); });
   if (cur().v === 'favs') render();
 }
 function help() {
   sheet(`<div class="h2" style="padding-top:6px">Yordam</div><div class="group">
-  ${li(I.tg.replace(/58/g, 30), 'Telegram orqali yozish', 't.me/brozzomens', `data-tglink="${SHOP.telegram}"`)}
+  ${li(I.tg.replace(/width="58" height="58"/, 'width="24" height="24"'), 'Telegram orqali yozish', 't.me/brozzomens', `data-tglink="${SHOP.telegram}"`)}
   ${li(I.phone, "Qo'ng'iroq qilish", SHOP.phoneTxt, 'data-call="1"')}
   ${li(I.pin, "Do'kon manzili", SHOP.hours, 'data-go="contacts"')}</div>`);
 }
