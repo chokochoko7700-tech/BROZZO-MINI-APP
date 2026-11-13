@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const compression = require('compression');
 const { createClient } = require('@supabase/supabase-js');
+const { adjustStock } = require('./lib/sync');
 
 const { BOT_TOKEN, SUPABASE_URL, SUPABASE_SERVICE_KEY, ADMIN_ID, YANDEX_KEY } = process.env;
 const BASE = process.env.PUBLIC_URL || process.env.RENDER_EXTERNAL_URL;
@@ -16,7 +17,7 @@ const BUCKET = 'media';
 
 const app = express();
 app.use(compression());
-app.use(express.json({ limit: '8mb' }));
+app.use(express.json({ limit: '20mb' }));
 
 /* ===== TEZLIK: index.html ichiga katalog va ikonkalar qo'shib yuboriladi (qo'shimcha so'rovsiz ochiladi) ===== */
 const HTML_PATH = path.join(__dirname, 'public', 'index.html');
@@ -47,7 +48,7 @@ async function getCatalog(force) {
   catP = (async () => {
     const [c, p, b, s, r] = await Promise.all([
       db.from('categories').select('*').order('sort'),
-      db.from('products').select('*').eq('active', true).order('created_at', { ascending: false }),
+      db.from('products').select('*').eq('active', true).eq('draft', false).order('created_at', { ascending: false }),
       db.from('banners').select('*').eq('active', true).order('sort').order('id', { ascending: false }),
       db.from('stories').select('*').eq('active', true).order('sort').order('id', { ascending: false }),
       db.from('reviews').select('product_id,rating'),
@@ -173,7 +174,7 @@ app.post('/api/orders', auth, wrap(async (req, res) => {
     location = { lat: +b.location.lat, lng: +b.location.lng };
 
   const ids = [...new Set(b.items.slice(0, 50).map((i) => Number(i.id)))];
-  const { data: prods } = await db.from('products').select('id,name,price,image').in('id', ids).eq('active', true).eq('sold_out', false);
+  const { data: prods } = await db.from('products').select('id,name,price,image,stock,qty').in('id', ids).eq('active', true).eq('draft', false).eq('sold_out', false);
   const map = Object.fromEntries((prods || []).map((p) => [p.id, p]));
   const lines = [];
   let total = 0;
@@ -181,6 +182,10 @@ app.post('/api/orders', auth, wrap(async (req, res) => {
     const p = map[Number(i.id)];
     if (!p) continue;
     const qty = Math.max(1, Math.min(20, Number(i.qty) || 1));
+    const size = str(i.size, 20);
+    // Qoldiq hisob dasturidan kelgan bo'lsa — tekshiramiz
+    const left = p.stock && size && p.stock[size] != null ? p.stock[size] : p.qty;
+    if (left != null && left < qty) return res.status(409).json({ error: left > 0 ? `"${p.name}"${size ? ' (' + size + ')' : ''} — faqat ${left} ta qoldi` : `"${p.name}"${size ? ' (' + size + ')' : ''} tugab qoldi` });
     lines.push({ id: p.id, name: p.name, price: p.price, qty, size: str(i.size, 20), image: p.image });
     total += p.price * qty;
   }
@@ -195,6 +200,7 @@ app.post('/api/orders', auth, wrap(async (req, res) => {
     delivery, location, comment: str(b.comment, 300), items: lines, total, delivery_fee: fee,
   }).select().single();
   if (error) throw error;
+  adjustStock(db, lines, -1).then(dropCatalog, (e) => console.error('Qoldiq', e));
 
   const text = `🛍 Yangi buyurtma #${order.id}\n👤 ${name}\n📞 ${phone}\n` +
     (delivery === 'pickup' ? "🏬 Do'kondan olib ketadi\n" : `🚚 Yetkazish: ${address}\n`) +
@@ -260,7 +266,7 @@ function productRow(b) {
     name: str(b.name, 140), price: num(b.price), old_price: num(b.old_price),
     category_id: num(b.category_id), description: str(b.description, 2000),
     sizes: (Array.isArray(b.sizes) ? b.sizes : String(b.sizes || '').split(',')).map((s) => String(s).trim()).filter(Boolean).slice(0, 15),
-    images, image: images[0] || null, sold_out: !!b.sold_out,
+    images, image: images[0] || null, sold_out: !!b.sold_out, sku: str(b.sku, 60), barcode: str(b.barcode, 60),
   };
 }
 app.post('/api/admin/products', A, wrap(async (req, res) => {
@@ -273,6 +279,7 @@ app.post('/api/admin/products', A, wrap(async (req, res) => {
 app.patch('/api/admin/products/:id', A, wrap(async (req, res) => {
   const row = productRow(req.body || {});
   if (!row.name || !(row.price >= 0)) return res.status(400).json({ error: 'Nom va narx kerak' });
+  if (req.body?.publish) row.draft = false;
   const { data, error } = await db.from('products').update(row).eq('id', num(req.params.id)).select().single();
   if (error) throw error;
   res.json(data);
@@ -351,7 +358,10 @@ app.get('/api/admin/orders', A, wrap(async (_, res) => {
 const STATUS = { confirmed: '✅ tasdiqlandi', done: '📦 yetkazildi', cancel: '❌ bekor qilindi' };
 app.patch('/api/admin/orders/:id', A, wrap(async (req, res) => {
   const status = ['new', 'confirmed', 'done', 'cancel'].includes(req.body?.status) ? req.body.status : 'new';
+  const { data: prev } = await db.from('orders').select('status,items').eq('id', num(req.params.id)).single();
   const { data } = await db.from('orders').update({ status }).eq('id', num(req.params.id)).select('id,tg_id').single();
+  // Bekor qilinsa — qoldiq qaytadi; qayta ochilsa — yana ayiriladi
+  if (prev && (prev.status === 'cancel') !== (status === 'cancel')) adjustStock(db, prev.items || [], status === 'cancel' ? 1 : -1).catch(() => {});
   if (data && STATUS[status]) bot('sendMessage', { chat_id: data.tg_id, text: `Buyurtmangiz #${data.id} ${STATUS[status]}.` });
   res.json({ ok: true });
 }));
@@ -374,6 +384,9 @@ app.put('/api/admin/settings', A, wrap(async (req, res) => {
   if (error) throw error;
   res.json(await settings(true));
 }));
+
+// Hisob dasturlari bilan integratsiya (1C, BILLZ, YesPOS, Excel)
+require('./lib/integration')({ app, db, A, wrap, dropCatalog, bot, notifyChats, BASE, BUCKET });
 
 // Statistika
 app.get('/api/admin/stats', A, wrap(async (_, res) => {

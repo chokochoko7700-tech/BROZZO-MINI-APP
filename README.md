@@ -30,3 +30,10 @@ Mahsulotga to'g'ridan-to'g'ri havola: `t.me/<bot>/<app>?startapp=p_<id>`.
 - Mahsulot: "Sotuvda yo'q" belgisi. Istoriya: mahsulotga bog'lash ("Sotib olish" tugmasi).
 - Rozilik belgisi + Maxfiylik siyosati sahifasi. UZ / RU tili (Profil → Til; Telegram tili ruscha bo'lsa avtomatik).
 - Demo mahsulotlar `public/demo/` rasmlari bilan (Brozzo Instagram'idan).
+
+## Integratsiya (v4) — Admin panel → Integratsiya
+- **Excel/CSV**: istalgan dasturdan eksport qilingan fayl. Ustunlar: Nomi, Narx, Qoldiq (+ Artikul, Shtrix-kod, O'lcham, Rang, Kategoriya, Eski narx, Rasm). Ruscha nomlar ham tanadi. Namuna: `/shablon.csv`.
+- **1C** (CommerceML 2, "Обмен с сайтом"): manzil `https://<sayt>/1c_exchange`, login/parol admin panelda. Tovar, narx, qoldiq, rasmlar keladi; botdagi buyurtmalar 1C'ga "Заказ" bo'lib ketadi.
+- **BILLZ**: secret token → `api-admin.billz.ai` (har N daqiqada avtomatik).
+- **YesPOS**: Excel eksport yoki API manzil+kalit (universal JSON).
+- Yangi tovar rasmsiz kelsa — "Rasm kutmoqda" ro'yxatiga tushadi. Bot buyurtmasi qoldiqni kamaytiradi, bekor qilinsa qaytaradi.
