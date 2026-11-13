@@ -25,7 +25,24 @@ svg{flex:none}
 .sbox{display:flex;align-items:center;gap:10px;height:50px;padding:0 16px;border:1px solid var(--line);border-radius:16px;background:#fafaf8}
 .sbox input{flex:1;font-size:17px;min-width:0}
 .sbox input::placeholder{color:var(--mute)}
-.sbox .x{color:var(--mute);font-size:22px;line-height:1;padding:4px}
+.sbox .x{color:#fff;background:#b9b9b3;width:22px;height:22px;border-radius:50%;font-size:15px;line-height:22px;text-align:center;flex:none}
+.srow{display:flex;align-items:center;gap:12px}
+.srow .sbox{flex:1;min-width:0;transition:.2s}
+input[type=search]::-webkit-search-cancel-button,input[type=search]::-webkit-search-decoration{-webkit-appearance:none;display:none}
+.srow.focus .sbox{border-color:var(--ink);background:#fff}
+.cancel{font-weight:600;font-size:16px;display:none;flex:none;padding:6px 0}
+.srow.focus .cancel{display:block}
+.recent{display:flex;align-items:center;gap:12px;width:100%;padding:14px 16px;text-align:left;font-size:17px;border-bottom:1px solid var(--line)}
+.recent span{flex:1}
+.recent svg{color:var(--mute)}
+.sres{padding:0 16px}
+.shit{display:flex;gap:12px;align-items:center;width:100%;text-align:left;padding:10px 0;border-bottom:1px solid var(--line)}
+.shit .im{width:58px;aspect-ratio:5/6;border-radius:12px;background:var(--soft) center/cover;flex:none}
+.shit .tx{flex:1;min-width:0}
+.shit b{display:block;font-weight:600;font-size:16px;line-height:1.3}
+.shit b mark{background:#fff1a8;color:inherit;border-radius:3px}
+.shit small{display:block;color:var(--mute);font-size:13px;margin-top:2px}
+.shit .p{font-weight:800;font-size:16px;white-space:nowrap}
 
 /* typography */
 .h1{font-size:31px;font-weight:800;letter-spacing:-.025em;line-height:1.15;padding:22px 16px 16px}
@@ -180,7 +197,6 @@ nav button.on{color:var(--ink)}
 nav .cnt{position:absolute;top:-4px;left:calc(50% + 8px);background:var(--ink);color:#fff;font-size:12px;font-weight:700;min-width:20px;height:20px;border-radius:99px;display:grid;place-items:center;padding:0 5px;border:2px solid #fff}
 
 /* floating help */
-.fab{position:fixed;right:16px;bottom:calc(var(--nav) + 20px + env(safe-area-inset-bottom));width:66px;height:66px;border-radius:50%;background:#fff url(/logo.png) center/cover;box-shadow:0 6px 22px rgba(0,0,0,.22);z-index:25;border:3px solid #fff}
 
 /* story viewer */
 #sv{position:fixed;inset:0;background:#000;z-index:60;display:none}
@@ -220,12 +236,11 @@ nav .cnt{position:absolute;top:-4px;left:calc(50% + 8px);background:var(--ink);c
 <body>
 <div class="top" id="top">
   <div class="lg" style="background-image:url(/logo.png)"></div>
-  <div class="sbox"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8d8d87" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-  <input id="q" type="search" placeholder="Mahsulot qidirish" autocomplete="off"><button class="x hide" id="qx">×</button></div>
+  <div class="srow" id="srow"><div class="sbox"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8d8d87" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+  <input id="q" type="search" enterkeyhint="search" placeholder="Mahsulot qidirish" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"><button class="x hide" id="qx" aria-label="Tozalash">×</button></div><button class="cancel" id="qc">Bekor</button></div>
 </div>
 <main id="main"></main>
 <div id="buy"></div>
-<button class="fab" id="fab" aria-label="Yordam"></button>
 <nav id="nav"></nav>
 <div id="sv"><div class="img"></div><div class="bars"></div><div class="hd"><div class="c"></div><span></span><button class="x">×</button></div></div>
 <div id="sheet"><div class="in"><div class="grab"></div><div id="sin"></div></div></div>
@@ -314,10 +329,10 @@ let stack = [{ v: 'home' }];
 const cur = () => stack[stack.length - 1];
 function go(v, p = {}) {
   if (TABS.includes(v)) stack = [{ v, ...p }]; else stack.push({ v, ...p });
-  q = ''; $('q').value = ''; $('qx').classList.add('hide');
+  endSearch(true);
   render(); window.scrollTo(0, 0);
 }
-function back() { if (stack.length > 1) { stack.pop(); render(); window.scrollTo(0, 0); } }
+function back() { if (searching) { endSearch(); return render(); } if (stack.length > 1) { stack.pop(); render(); window.scrollTo(0, 0); } }
 tg.BackButton.onClick(back);
 
 /* ===== components ===== */
@@ -391,10 +406,37 @@ V.cat = ({ id, sort = 'new' }) => {
     .map(([k, t]) => `<button class="chip ${sort === k ? 'on' : ''}" data-sort="${k}">${t}</button>`).join('')}</div>${grid(list)}`;
 };
 
+/* qidiruv: katta-kichik harf, o'/o‘/o`, kirill↔lotin, x↔h farqi yo'q; so'zlar istalgan tartibda */
+const CYR = { а: 'a', б: 'b', в: 'v', г: 'g', д: 'd', е: 'e', ё: 'yo', ж: 'j', з: 'z', и: 'i', й: 'y', к: 'k', л: 'l', м: 'm', н: 'n', о: 'o', п: 'p', р: 'r', с: 's', т: 't', у: 'u', ф: 'f', х: 'x', ц: 's', ч: 'ch', ш: 'sh', щ: 'sh', ъ: '', ы: 'i', ь: '', э: 'e', ю: 'yu', я: 'ya', ў: 'o', қ: 'q', ғ: 'g', ҳ: 'h' };
+const norm = s => String(s || '').toLowerCase().replace(/[а-яёўқғҳ]/g, c => CYR[c] ?? c).replace(/[‘’ʻʼ`´']/g, '').replace(/x/g, 'h').replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
+function searchList(raw) {
+  const words = norm(raw).split(' ').filter(Boolean); if (!words.length) return [];
+  const cat = Object.fromEntries(D.categories.map(c => [c.id, c.name]));
+  return D.products.map(p => {
+    const name = norm(p.name), hay = name + ' ' + norm(cat[p.category_id]) + ' ' + norm(p.description) + ' ' + norm((p.sizes || []).join(' '));
+    if (!words.every(w => hay.includes(w))) return null;
+    const score = (name.startsWith(words[0]) ? 0 : name.split(' ').some(t => t.startsWith(words[0])) ? 1 : 2);
+    return { p, score };
+  }).filter(Boolean).sort((a, b) => a.score - b.score).map(x => x.p);
+}
+function mark(name, raw) {
+  const w = raw.trim().split(/\s+/).filter(x => x.length > 1).map(x => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  const h = esc(name); if (!w.length) return h;
+  try { return h.replace(new RegExp('(' + w.join('|') + ')', 'gi'), '<mark>$1</mark>'); } catch { return h; }
+}
 V.search = () => {
-  const s = q.toLowerCase().trim();
-  const list = D.products.filter(p => (p.name + ' ' + (p.description || '')).toLowerCase().includes(s));
-  return `<div class="h2 row">Qidiruv <small>${list.length} ta</small></div>` + grid(list);
+  if (!q.trim()) {
+    const rec = U.recent || [];
+    return (rec.length ? `<div class="h2 row" style="font-size:20px">Oxirgi qidiruvlar <small><button data-clrrec="1" style="color:var(--mute);font-weight:600">Tozalash</button></small></div>
+      ${rec.map(r => `<button class="recent" data-rec="${esc(r)}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>${esc(r)}</span></button>`).join('')}` : '') +
+      `<div class="h2" style="font-size:20px">Kategoriyalar</div><div class="chips" style="flex-wrap:wrap">${D.categories.map(c => `<button class="chip" data-go="cat" data-id="${c.id}">${esc(c.name)}</button>`).join('')}</div>`;
+  }
+  const list = searchList(q);
+  if (!list.length) return `<div class="empty">${I.box}«${esc(q.trim())}» bo'yicha hech narsa topilmadi.<br>Boshqa so'z bilan urinib ko'ring.</div>
+    <div class="chips" style="flex-wrap:wrap;justify-content:center">${D.categories.map(c => `<button class="chip" data-go="cat" data-id="${c.id}">${esc(c.name)}</button>`).join('')}</div>`;
+  const cat = Object.fromEntries(D.categories.map(c => [c.id, c.name]));
+  return `<div class="h2 row" style="font-size:20px;padding-top:16px">Natijalar <small>${list.length} ta</small></div><div class="sres">` +
+    list.map(p => `<button class="shit" data-sopen="${p.id}"><div class="im" ${bg(imgs(p)[0])}></div><div class="tx"><b>${mark(p.name, q)}</b><small>${esc(cat[p.category_id] || '')}${p.sizes?.length ? ' · ' + esc(p.sizes.join(', ')) : ''}</small></div><span class="p">${som(p.price)}</span></button>`).join('') + '</div>';
 };
 
 V.product = ({ id }) => {
@@ -690,6 +732,9 @@ document.addEventListener('click', async e => {
     if (p.sizes?.length > 1 && !s) { toast("O'lchamni tanlang"); return tg.HapticFeedback?.notificationOccurred('error'); }
     addToCart(p.id, s || p.sizes?.[0]); return render();
   }
+  if (d.sopen) { saveRecent(q); return go('product', { id: +d.sopen }); }
+  if (d.rec) { q = d.rec; $('q').value = q; $('qx').classList.remove('hide'); return showSearch(); }
+  if (d.clrrec) { U.recent = []; store.set('recent', []); return showSearch(); }
   if (d.open) { closeSheet(); return go('product', { id: +d.open }); }
   if (d.go) { closeSheet(); return go(d.go, d.id != null ? { id: +d.id } : {}); }
   if (d.tab) return go(d.tab);
@@ -701,7 +746,7 @@ document.addEventListener('click', async e => {
   if (d.link) return tg.openLink(d.link);
   if (d.tglink) return tg.openTelegramLink(d.tglink);
   if (d.call) return tg.openLink?.('tel:' + SHOP.phone) || (location.href = 'tel:' + SHOP.phone);
-  if (d.help || t.id === 'fab') return help();
+  if (d.help) return help();
   if (d.review) return reviewSheet(d.review);
   if (d.dlv) { saveCheckoutFields(); cur().delivery = d.dlv; return render(); }
   if (d.pick != null) { saveCheckoutFields(); cur().addr = +d.pick; return render(); }
@@ -724,7 +769,7 @@ document.addEventListener('click', async e => {
     U.addrs.push({ title: $('a_title').value.trim() || 'Manzil', text, loc: cur().loc || null }); store.set('addrs', U.addrs); toast('Saqlandi ✓'); return back();
   }
   if (t.id === 'logout') return tg.showConfirm("Sevimlilar, manzillar va savat tozalansinmi?", ok => { if (!ok) return;
-    ['fav', 'profile', 'addrs', 'seen'].forEach(k => store.del(k)); U = { fav: [], profile: {}, addrs: [], seen: [] }; cart = []; saveCart(); go('home'); });
+    ['fav', 'profile', 'addrs', 'seen', 'recent'].forEach(k => store.del(k)); U = { fav: [], profile: {}, addrs: [], seen: [], recent: [] }; cart = []; saveCart(); go('home'); });
 
   /* admin */
   if (d.atab) { cur().tab = d.atab; return render(); }
@@ -799,11 +844,33 @@ async function placeOrder(btn) {
 }
 
 /* search */
+let searching = false, sT;
+const showSearch = () => { $('main').innerHTML = V.search(); $('buy').innerHTML = ''; };
+function startSearch() {
+  if (searching) return; searching = true;
+  $('srow').classList.add('focus'); tg.BackButton.show();
+  showSearch(); window.scrollTo(0, 0);
+}
+function endSearch(silent) {
+  searching = false; q = ''; $('q').value = ''; $('qx').classList.add('hide');
+  $('srow').classList.remove('focus'); $('q').blur();
+  if (!silent) window.scrollTo(0, 0);
+}
+function saveRecent(s) {
+  s = String(s || '').trim(); if (s.length < 2) return;
+  U.recent = [s, ...(U.recent || []).filter(x => x.toLowerCase() !== s.toLowerCase())].slice(0, 8); store.set('recent', U.recent);
+}
+$('q').addEventListener('focus', startSearch);
 $('q').addEventListener('input', e => {
   q = e.target.value; $('qx').classList.toggle('hide', !q);
-  if (q.trim()) { $('main').innerHTML = V.search(); $('buy').innerHTML = ''; } else render();
+  clearTimeout(sT); sT = setTimeout(() => { showSearch(); window.scrollTo(0, 0); }, 120);
 });
-$('qx').onclick = () => { q = ''; $('q').value = ''; $('qx').classList.add('hide'); render(); };
+$('q').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); saveRecent(q); $('q').blur(); } });
+$('qx').addEventListener('pointerdown', e => e.preventDefault()); // klaviatura yopilmasin
+$('qx').onclick = () => { q = ''; $('q').value = ''; $('qx').classList.add('hide'); showSearch(); $('q').focus(); };
+$('qc').onclick = () => { endSearch(); render(); };
+// natijalarni aylantirganda klaviatura yopiladi
+$('main').addEventListener('touchmove', () => { if (searching && document.activeElement === $('q')) $('q').blur(); }, { passive: true });
 
 /* ===== render ===== */
 function navBar() {
@@ -814,10 +881,10 @@ function navBar() {
 let rid = 0;
 async function render() {
   const c = cur(), my = ++rid, v = V[c.v];
-  stack.length > 1 ? tg.BackButton.show() : tg.BackButton.hide();
+  if (searching) { navBar(); return showSearch(); }
+  stack.length > 1 || searching ? tg.BackButton.show() : tg.BackButton.hide();
   navBar();
   $('top').classList.toggle('hide', c.v === 'product' || c.v === 'admin');
-  $('fab').classList.toggle('hide', !['home', 'catalog', 'profile'].includes(c.v));
   const html = await v(c);
   if (my !== rid) return;
   $('main').innerHTML = html;
@@ -832,8 +899,8 @@ async function load() {
 }
 (async () => {
   render();
-  const [fav, profile, addrs, seen] = await Promise.all(['fav', 'profile', 'addrs', 'seen'].map(k => store.get(k)));
-  U = { fav: fav || [], profile: profile || {}, addrs: addrs || [], seen: seen || [] };
+  const [fav, profile, addrs, seen, recent] = await Promise.all(['fav', 'profile', 'addrs', 'seen', 'recent'].map(k => store.get(k)));
+  U = { fav: fav || [], profile: profile || {}, addrs: addrs || [], seen: seen || [], recent: recent || [] };
   api('/config').then(c => yKey = c.yandexKey).catch(() => {});
   try {
     const [me] = await Promise.all([api('/me'), load()]);
