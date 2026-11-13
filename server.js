@@ -131,7 +131,7 @@ function verify(initData) {
   try { return JSON.parse(p.get('user')); } catch { return null; }
 }
 // Sozlamalar (adminlar, buyurtma guruhi, yetkazish narxi) — bazada, 30 soniya keshlanadi
-const DEF = { admins: [], notify_chat: null, delivery_fee: 0, free_from: 0 };
+const DEF = { admins: [], notify_chat: null, delivery_fee: 0, free_from: 0, snow: true };
 let SET = { ...DEF }, setAt = 0;
 async function settings(force) {
   if (!force && Date.now() - setAt < 30000) return SET;
@@ -169,7 +169,7 @@ const som = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " so'm";
 app.get('/api/config', async (_, res) => {
   res.setHeader('Cache-Control', 'no-store');
   const s = await settings().catch(() => DEF);
-  res.json({ yandexKey: YANDEX_KEY || '', ver: VER, delivery_fee: +s.delivery_fee || 0, free_from: +s.free_from || 0 });
+  res.json({ yandexKey: YANDEX_KEY || '', ver: VER, delivery_fee: +s.delivery_fee || 0, free_from: +s.free_from || 0, snow: s.snow !== false });
 });
 app.get('/api/me', auth, (req, res) => res.json({ isAdmin: req.isAdmin }));
 
@@ -401,6 +401,7 @@ app.put('/api/admin/settings', A, wrap(async (req, res) => {
     { key: 'notify_chat', value: /^-?\d+$/.test(String(b.notify_chat || '').trim()) ? String(b.notify_chat).trim() : null },
     { key: 'delivery_fee', value: Math.max(0, num(b.delivery_fee) || 0) },
     { key: 'free_from', value: Math.max(0, num(b.free_from) || 0) },
+    { key: 'snow', value: b.snow !== false },
   ].map((r) => ({ ...r, updated_at: new Date().toISOString() }));
   const { error } = await db.from('settings').upsert(rows);
   if (error) throw error;

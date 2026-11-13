@@ -206,6 +206,8 @@ nav .cnt{position:absolute;top:-4px;left:calc(50% + 8px);background:var(--ink);c
 /* story viewer */
 #sv{position:fixed;inset:0;background:#000;z-index:60;display:none}
 #sv.on{display:block}
+#snow{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:4;opacity:0;transition:opacity 1.2s}
+#snow.on{opacity:1}
 #sv .img{position:absolute;inset:0;background:#000 center/cover no-repeat;transition:background-image .15s}
 #sv .sh{position:absolute;left:0;right:0;z-index:1;pointer-events:none}
 #sv .sh.t{top:0;height:calc(210px + var(--st,0px));background:linear-gradient(180deg,rgba(0,0,0,.88) 0%,rgba(0,0,0,.62) 38%,rgba(0,0,0,.22) 72%,rgba(0,0,0,0) 100%)}
@@ -422,7 +424,7 @@ html.fs #sv .hd{top:calc(var(--st) + 20px)}
 <main id="main"></main>
 <div id="buy"></div>
 <nav id="nav"></nav>
-<div id="sv"><div class="img"></div><div class="sh t"></div><div class="sh b"></div><div class="bars"></div><div class="hd"><div class="c"></div><span></span><button class="x">×</button></div><div id="svp"></div></div>
+<canvas id="snow" aria-hidden="true"></canvas><div id="sv"><div class="img"></div><div class="sh t"></div><div class="sh b"></div><div class="bars"></div><div class="hd"><div class="c"></div><span></span><button class="x">×</button></div><div id="svp"></div></div>
 <div id="sheet"><div class="in"><div class="grab"></div><div id="sin"></div></div></div>
 <div class="toast" id="toast"></div>
 
@@ -979,6 +981,7 @@ async function adminSection(tab) {
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
     <div class="fld"><label>Yetkazish narxi</label><input id="st_fee" inputmode="numeric" value="${esc(st.delivery_fee || '')}" placeholder="0 — kelishiladi"></div>
     <div class="fld"><label>Bepul yetkazish (dan)</label><input id="st_free" inputmode="numeric" value="${esc(st.free_from || '')}" placeholder="masalan 1000000"></div></div>
+    <div class="swrow"><span><b>Qishki qor effekti ❄</b><small>Bosh sahifada yengil qor yog'adi (noyabr–fevral)</small></span>${sw('id="st_snow"', st.snow !== false)}</div>
     <button class="btn lg" id="st_save">Saqlash</button></div>`;
   }
   return body;
@@ -1384,8 +1387,8 @@ document.addEventListener('click', async e => {
       try { await api('/admin/broadcast', { method: 'POST', body: JSON.stringify({ text, image: AD.bc.image, product_id: $('bc_prod').value }) }); AD.bc = { image: null }; toast('Yuborish boshlandi ✓'); render(); } catch (err) { tg.showAlert(err.message); } });
   }
   if (t.id === 'st_save') {
-    const body = { admins: $('st_admins').value.split(/[,\s]+/).filter(Boolean), notify_chat: $('st_chat').value.trim(), delivery_fee: $('st_fee').value.replace(/\s/g, ''), free_from: $('st_free').value.replace(/\s/g, '') };
-    try { const r = await api('/admin/settings', { method: 'PUT', body: JSON.stringify(body) }); CFG.delivery_fee = +r.delivery_fee || 0; CFG.free_from = +r.free_from || 0; toast('Saqlandi ✓'); render(); } catch (err) { tg.showAlert(err.message); }
+    const body = { admins: $('st_admins').value.split(/[,\s]+/).filter(Boolean), notify_chat: $('st_chat').value.trim(), delivery_fee: $('st_fee').value.replace(/\s/g, ''), free_from: $('st_free').value.replace(/\s/g, ''), snow: $('st_snow').checked };
+    try { const r = await api('/admin/settings', { method: 'PUT', body: JSON.stringify(body) }); CFG.delivery_fee = +r.delivery_fee || 0; CFG.free_from = +r.free_from || 0; CFG.snow = r.snow !== false; toast('Saqlandi ✓'); render(); } catch (err) { tg.showAlert(err.message); }
     return;
   }
   if (t.id === 's_save') {
@@ -1504,8 +1507,39 @@ function navBar() {
     return `<button data-tab="${v}" class="${root === v ? 'on' : ''}">${root === v ? i1 : i0}${t}${c ? `<span class="cnt">${c}</span>` : ''}</button>`; }).join('');
 }
 let rid = 0;
+/* ===== QISH: bosh sahifada juda yengil qor (noyabr–fevral, admin o'chirishi mumkin) ===== */
+const SNOW = { on: false, f: [], raf: 0, ctx: null, w: 0, h: 0 };
+const isWinter = () => [10, 11, 0, 1].includes(new Date().getMonth());
+function snowSync() {
+  const want = CFG.snow !== false && isWinter() && cur().v === 'home' && !searching && !document.hidden && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const cv = $('snow'); if (!cv) return;
+  cv.classList.toggle('on', want);
+  if (want && !SNOW.on) {
+    SNOW.on = true; const dpr = Math.min(2, devicePixelRatio || 1);
+    SNOW.w = innerWidth; SNOW.h = innerHeight; cv.width = SNOW.w * dpr; cv.height = SNOW.h * dpr;
+    SNOW.ctx = cv.getContext('2d'); SNOW.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    if (!SNOW.f.length) for (let i = 0; i < 26; i++) SNOW.f.push({ x: Math.random() * SNOW.w, y: Math.random() * SNOW.h, r: 1.4 + Math.random() * 2.2, v: .25 + Math.random() * .45, s: Math.random() * 6.28, a: .35 + Math.random() * .45 });
+    const tick = () => {
+      if (!SNOW.on) return;
+      const g = SNOW.ctx; g.clearRect(0, 0, SNOW.w, SNOW.h);
+      for (const p of SNOW.f) {
+        p.y += p.v; p.s += .012; p.x += Math.sin(p.s) * .25;
+        if (p.y > SNOW.h + 5) { p.y = -5; p.x = Math.random() * SNOW.w; }
+        const gr = g.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r);
+        gr.addColorStop(0, `rgba(255,255,255,${p.a})`); gr.addColorStop(.6, `rgba(225,232,240,${p.a * .8})`); gr.addColorStop(1, 'rgba(170,185,205,0)');
+        g.fillStyle = gr; g.beginPath(); g.arc(p.x, p.y, p.r, 0, 6.29); g.fill();
+      }
+      SNOW.raf = requestAnimationFrame(tick);
+    };
+    tick();
+  } else if (!want && SNOW.on) { SNOW.on = false; cancelAnimationFrame(SNOW.raf); setTimeout(() => !SNOW.on && SNOW.ctx?.clearRect(0, 0, SNOW.w, SNOW.h), 1300); }
+}
+document.addEventListener('visibilitychange', snowSync);
+addEventListener('resize', () => { if (SNOW.on) { SNOW.on = false; cancelAnimationFrame(SNOW.raf); snowSync(); } });
+
 async function render() {
   const c = cur(), my = ++rid, v = V[c.v];
+  setTimeout(snowSync, 0);
   if (searching) { navBar(); return showSearch(); }
   stack.length > 1 || searching ? tg.BackButton.show() : tg.BackButton.hide();
   navBar();
@@ -1547,7 +1581,7 @@ async function load() {
   navBar(); render();
   const [fav, profile, addrs, seen, recent] = await Promise.all(['fav', 'profile', 'addrs', 'seen', 'recent'].map(k => store.get(k)));
   U = { fav: fav || [], profile: profile || {}, addrs: addrs || [], seen: seen || [], recent: recent || [] };
-  api('/config').then(c => { yKey = c.yandexKey; APP_VER = c.ver; CFG = { delivery_fee: +c.delivery_fee || 0, free_from: +c.free_from || 0 }; if (loaded) render(); }).catch(() => {});
+  api('/config').then(c => { yKey = c.yandexKey; APP_VER = c.ver; CFG = { delivery_fee: +c.delivery_fee || 0, free_from: +c.free_from || 0, snow: c.snow !== false }; if (loaded) render(); }).catch(() => {});
   try {
     const [me] = await Promise.all([api('/me'), loaded ? null : load()]);
     isAdmin = me.isAdmin; if (isAdmin) refreshAdminBadge();
