@@ -16,7 +16,26 @@ const db = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 const BUCKET = 'media';
 
 const app = express();
+app.disable('x-powered-by');
+app.set('trust proxy', 1);
 app.use(compression());
+// Xavfsizlik sarlavhalari (Telegram ichida ochilishiga xalaqit bermaydi)
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(self)');
+  next();
+});
+// Oddiy so'rov cheklovchi (spam va parol tanlashdan himoya)
+const HITS = new Map();
+function tooMany(key, max, ms) {
+  const now = Date.now(), a = (HITS.get(key) || []).filter((t) => now - t < ms);
+  a.push(now); HITS.set(key, a);
+  if (HITS.size > 20000) for (const [k, v] of HITS) if (!v.some((t) => now - t < 3600e3)) HITS.delete(k);
+  return a.length > max;
+}
+const clientIp = (req) => String(req.get('x-forwarded-for') || req.socket?.remoteAddress || '').split(',')[0].trim();
 app.use(express.json({ limit: '20mb' }));
 
 /* ===== TEZLIK: index.html ichiga katalog va ikonkalar qo'shib yuboriladi (qo'shimcha so'rovsiz ochiladi) ===== */
@@ -56,7 +75,7 @@ async function getCatalog(force) {
     if (c.error || p.error) throw c.error || p.error;
     const rating = {};
     for (const x of r.data || []) { const o = (rating[x.product_id] ||= { sum: 0, n: 0 }); o.sum += x.rating; o.n++; }
-    const products = (p.data || []).map((x) => ({
+    const products = (p.data || []).map(({ external_id, synced_at, ...x }) => ({
       ...x, rating: rating[x.id] ? +(rating[x.id].sum / rating[x.id].n).toFixed(1) : null, reviews: rating[x.id]?.n || 0,
     }));
     CAT = { categories: c.data || [], products, banners: b.data || [], stories: s.data || [] };
@@ -161,12 +180,14 @@ app.get('/api/catalog', wrap(async (_, res) => {
 
 // Buyurtma: narxlar serverda qayta hisoblanadi
 app.post('/api/orders', auth, wrap(async (req, res) => {
+  if (tooMany('o' + req.user.id, 6, 10 * 60000)) return res.status(429).json({ error: "Juda ko'p buyurtma. Birozdan keyin urinib ko'ring" });
   const b = req.body || {};
   const name = str(b.name, 80), phone = str(b.phone, 30);
   const delivery = b.delivery === 'pickup' ? 'pickup' : 'delivery';
   const address = str(b.address, 300);
   if (!name || !phone || !Array.isArray(b.items) || !b.items.length)
     return res.status(400).json({ error: 'Ism, telefon va mahsulot kerak' });
+  if (!/^\+?[\d\s()-]{7,20}$/.test(phone)) return res.status(400).json({ error: "Telefon raqami noto'g'ri" });
   if (delivery === 'delivery' && !address) return res.status(400).json({ error: 'Manzilni kiriting' });
   if (b.agree !== true) return res.status(400).json({ error: 'Shartlarga rozilik bering' });
   let location = null;
@@ -232,6 +253,7 @@ app.get('/api/my/reviews', auth, wrap(async (req, res) => {
   res.json(data || []);
 }));
 app.post('/api/reviews', auth, invalidate, wrap(async (req, res) => {
+  if (tooMany('r' + req.user.id, 10, 10 * 60000)) return res.status(429).json({ error: "Juda ko'p urinish" });
   const b = req.body || {};
   const rating = Math.max(1, Math.min(5, num(b.rating) || 5));
   const product_id = num(b.product_id);
@@ -386,7 +408,7 @@ app.put('/api/admin/settings', A, wrap(async (req, res) => {
 }));
 
 // Hisob dasturlari bilan integratsiya (1C, BILLZ, YesPOS, Excel)
-require('./lib/integration')({ app, db, A, wrap, dropCatalog, bot, notifyChats, BASE, BUCKET });
+require('./lib/integration')({ app, db, A, wrap, dropCatalog, bot, notifyChats, BASE, BUCKET, tooMany, clientIp });
 
 // Statistika
 app.get('/api/admin/stats', A, wrap(async (_, res) => {
@@ -457,6 +479,7 @@ app.get('/api/admin/broadcasts', A, wrap(async (_, res) => {
 
 // Bot webhook
 app.post(`/webhook/${SECRET}`, (req, res) => {
+  if (req.get('x-telegram-bot-api-secret-token') !== SECRET) return res.sendStatus(403);
   res.sendStatus(200);
   const u = req.body || {};
   // Bot guruhga qo'shilsa — guruh ID'sini aytadi (buyurtmalar guruhi uchun)
@@ -483,7 +506,7 @@ app.post(`/webhook/${SECRET}`, (req, res) => {
 app.listen(process.env.PORT || 3000, async () => {
   console.log('Brozzo server ishga tushdi');
   if (BASE && BOT_TOKEN) {
-    await bot('setWebhook', { url: `${BASE}/webhook/${SECRET}`, allowed_updates: ['message', 'my_chat_member'] });
+    await bot('setWebhook', { url: `${BASE}/webhook/${SECRET}`, secret_token: SECRET, allowed_updates: ['message', 'my_chat_member'] });
     await bot('setChatMenuButton', { menu_button: { type: 'web_app', text: "Do'kon", web_app: { url: APP_URL } } });
   }
 });
