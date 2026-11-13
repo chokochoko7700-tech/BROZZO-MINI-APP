@@ -981,7 +981,6 @@ async function adminSection(tab) {
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
     <div class="fld"><label>Yetkazish narxi</label><input id="st_fee" inputmode="numeric" value="${esc(st.delivery_fee || '')}" placeholder="0 — kelishiladi"></div>
     <div class="fld"><label>Bepul yetkazish (dan)</label><input id="st_free" inputmode="numeric" value="${esc(st.free_from || '')}" placeholder="masalan 1000000"></div></div>
-    <div class="swrow"><span><b>Qishki qor effekti ❄</b><small>Bosh sahifada yengil qor yog'adi (noyabr–fevral)</small></span>${sw('id="st_snow"', st.snow !== false)}</div>
     <button class="btn lg" id="st_save">Saqlash</button></div>`;
   }
   return body;
@@ -1387,8 +1386,8 @@ document.addEventListener('click', async e => {
       try { await api('/admin/broadcast', { method: 'POST', body: JSON.stringify({ text, image: AD.bc.image, product_id: $('bc_prod').value }) }); AD.bc = { image: null }; toast('Yuborish boshlandi ✓'); render(); } catch (err) { tg.showAlert(err.message); } });
   }
   if (t.id === 'st_save') {
-    const body = { admins: $('st_admins').value.split(/[,\s]+/).filter(Boolean), notify_chat: $('st_chat').value.trim(), delivery_fee: $('st_fee').value.replace(/\s/g, ''), free_from: $('st_free').value.replace(/\s/g, ''), snow: $('st_snow').checked };
-    try { const r = await api('/admin/settings', { method: 'PUT', body: JSON.stringify(body) }); CFG.delivery_fee = +r.delivery_fee || 0; CFG.free_from = +r.free_from || 0; CFG.snow = r.snow !== false; toast('Saqlandi ✓'); render(); } catch (err) { tg.showAlert(err.message); }
+    const body = { admins: $('st_admins').value.split(/[,\s]+/).filter(Boolean), notify_chat: $('st_chat').value.trim(), delivery_fee: $('st_fee').value.replace(/\s/g, ''), free_from: $('st_free').value.replace(/\s/g, '') };
+    try { const r = await api('/admin/settings', { method: 'PUT', body: JSON.stringify(body) }); CFG.delivery_fee = +r.delivery_fee || 0; CFG.free_from = +r.free_from || 0; toast('Saqlandi ✓'); render(); } catch (err) { tg.showAlert(err.message); }
     return;
   }
   if (t.id === 's_save') {
@@ -1507,11 +1506,12 @@ function navBar() {
     return `<button data-tab="${v}" class="${root === v ? 'on' : ''}">${root === v ? i1 : i0}${t}${c ? `<span class="cnt">${c}</span>` : ''}</button>`; }).join('');
 }
 let rid = 0;
-/* ===== QISH: bosh sahifada juda yengil qor (noyabr–fevral, admin o'chirishi mumkin) ===== */
+/* ===== QISH: bosh sahifada juda yengil qor — 2027-yil 1-fevralgacha, keyin o'zi o'chadi ===== */
 const SNOW = { on: false, f: [], raf: 0, ctx: null, w: 0, h: 0 };
-const isWinter = () => [10, 11, 0, 1].includes(new Date().getMonth());
+const SNOW_UNTIL = new Date(2027, 1, 1); // 1-fevral 00:00 — shu paytdan qor ko'rinmaydi
+const isWinter = () => new Date() < SNOW_UNTIL;
 function snowSync() {
-  const want = CFG.snow !== false && isWinter() && cur().v === 'home' && !searching && !document.hidden && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const want = isWinter() && cur().v === 'home' && !searching && !document.hidden && !matchMedia('(prefers-reduced-motion: reduce)').matches;
   const cv = $('snow'); if (!cv) return;
   cv.classList.toggle('on', want);
   if (want && !SNOW.on) {
@@ -1581,7 +1581,7 @@ async function load() {
   navBar(); render();
   const [fav, profile, addrs, seen, recent] = await Promise.all(['fav', 'profile', 'addrs', 'seen', 'recent'].map(k => store.get(k)));
   U = { fav: fav || [], profile: profile || {}, addrs: addrs || [], seen: seen || [], recent: recent || [] };
-  api('/config').then(c => { yKey = c.yandexKey; APP_VER = c.ver; CFG = { delivery_fee: +c.delivery_fee || 0, free_from: +c.free_from || 0, snow: c.snow !== false }; if (loaded) render(); }).catch(() => {});
+  api('/config').then(c => { yKey = c.yandexKey; APP_VER = c.ver; CFG = { delivery_fee: +c.delivery_fee || 0, free_from: +c.free_from || 0 }; if (loaded) render(); }).catch(() => {});
   try {
     const [me] = await Promise.all([api('/me'), loaded ? null : load()]);
     isAdmin = me.isAdmin; if (isAdmin) refreshAdminBadge();
