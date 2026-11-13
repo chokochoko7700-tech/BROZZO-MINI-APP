@@ -4,6 +4,9 @@ const { createClient } = require('@supabase/supabase-js');
 
 const { BOT_TOKEN, SUPABASE_URL, SUPABASE_SERVICE_KEY, ADMIN_ID, YANDEX_KEY } = process.env;
 const BASE = process.env.PUBLIC_URL || process.env.RENDER_EXTERNAL_URL;
+// Har deployda havola o'zgaradi — Telegram eski sahifani keshdan ko'rsatmaydi
+const VER = (process.env.RENDER_GIT_COMMIT || String(Date.now())).slice(0, 7);
+const APP_URL = BASE ? `${BASE.replace(/\/$/, '')}/?v=${VER}` : null;
 const SECRET = crypto.createHash('sha256').update(BOT_TOKEN || '').digest('hex').slice(0, 32);
 const db = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 const BUCKET = 'media';
@@ -254,7 +257,7 @@ app.post(`/webhook/${SECRET}`, (req, res) => {
     bot('sendMessage', {
       chat_id: m.chat.id,
       text: "BROZZO* — premium erkaklar kiyimi.\nKatalog, chegirmalar va buyurtma — pastdagi tugmada 👇",
-      reply_markup: { inline_keyboard: [[{ text: "🛍 Do'konni ochish", web_app: { url: BASE } }]] },
+      reply_markup: { inline_keyboard: [[{ text: "🛍 Do'konni ochish", web_app: { url: APP_URL } }]] },
     });
   }
 });
@@ -263,6 +266,6 @@ app.listen(process.env.PORT || 3000, async () => {
   console.log('Brozzo server ishga tushdi');
   if (BASE && BOT_TOKEN) {
     await bot('setWebhook', { url: `${BASE}/webhook/${SECRET}` });
-    await bot('setChatMenuButton', { menu_button: { type: 'web_app', text: "Do'kon", web_app: { url: BASE } } });
+    await bot('setChatMenuButton', { menu_button: { type: 'web_app', text: "Do'kon", web_app: { url: APP_URL } } });
   }
 });
