@@ -1,5 +1,8 @@
 const express = require('express');
 const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
+const compression = require('compression');
 const { createClient } = require('@supabase/supabase-js');
 
 const { BOT_TOKEN, SUPABASE_URL, SUPABASE_SERVICE_KEY, ADMIN_ID, YANDEX_KEY } = process.env;
@@ -12,10 +15,74 @@ const db = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 const BUCKET = 'media';
 
 const app = express();
+app.use(compression());
 app.use(express.json({ limit: '8mb' }));
+
+/* ===== TEZLIK: index.html ichiga katalog va ikonkalar qo'shib yuboriladi (qo'shimcha so'rovsiz ochiladi) ===== */
+const HTML_PATH = path.join(__dirname, 'public', 'index.html');
+const HTML = fs.readFileSync(HTML_PATH, 'utf8');
+// Ilovada ishlatilgan Solar ikonkalari nomlari HTML'dan avtomatik yig'iladi
+const ICON_NAMES = [...new Set([...HTML.matchAll(/['"]([a-z0-9]+(?:-[a-z0-9]+)*-(?:linear|bold))['"]/g)].map((m) => m[1]))];
+let ICONS = {}, iconsAt = 0;
+async function loadIcons() {
+  if (Date.now() - iconsAt < 5 * 60000 && Object.keys(ICONS).length) return;
+  iconsAt = Date.now();
+  try {
+    const r = await fetch(`https://api.iconify.design/solar.json?icons=${ICON_NAMES.join(',')}`);
+    const j = await r.json();
+    const out = {};
+    for (const [k, v] of Object.entries(j.icons || {})) out[k] = [v.body, v.width || j.width || 24, v.height || j.height || 24];
+    for (const [k, v] of Object.entries(j.aliases || {})) if (out[v.parent]) out[k] = out[v.parent];
+    if (Object.keys(out).length) ICONS = out;
+    console.log('Ikonkalar yuklandi:', Object.keys(ICONS).length, '/', ICON_NAMES.length);
+  } catch (e) { console.error('Ikonkalar yuklanmadi', e.message); }
+}
+loadIcons();
+
+// Katalog keshi (20 soniya); admin o'zgartirsa darhol yangilanadi
+let CAT = null, catAt = 0, catP = null;
+async function getCatalog(force) {
+  if (!force && CAT && Date.now() - catAt < 20000) return CAT;
+  if (catP) return catP;
+  catP = (async () => {
+    const [c, p, b, s, r] = await Promise.all([
+      db.from('categories').select('*').order('sort'),
+      db.from('products').select('*').eq('active', true).order('created_at', { ascending: false }),
+      db.from('banners').select('*').eq('active', true).order('sort').order('id', { ascending: false }),
+      db.from('stories').select('*').eq('active', true).order('sort').order('id', { ascending: false }),
+      db.from('reviews').select('product_id,rating'),
+    ]);
+    if (c.error || p.error) throw c.error || p.error;
+    const rating = {};
+    for (const x of r.data || []) { const o = (rating[x.product_id] ||= { sum: 0, n: 0 }); o.sum += x.rating; o.n++; }
+    const products = (p.data || []).map((x) => ({
+      ...x, rating: rating[x.id] ? +(rating[x.id].sum / rating[x.id].n).toFixed(1) : null, reviews: rating[x.id]?.n || 0,
+    }));
+    CAT = { categories: c.data || [], products, banners: b.data || [], stories: s.data || [] };
+    catAt = Date.now();
+    return CAT;
+  })().finally(() => { catP = null; });
+  return catP;
+}
+const dropCatalog = () => { CAT = null; };
+const invalidate = (req, res, next) => { if (req.method !== 'GET') res.on('finish', () => { if (res.statusCode < 400) dropCatalog(); }); next(); };
+
+const safeJson = (o) => JSON.stringify(o).replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
+
+app.get(['/', '/index.html'], async (_, res) => {
+  let cat = null;
+  try { cat = await getCatalog(); } catch {}
+  if (!Object.keys(ICONS).length) loadIcons();
+  const inject = `<script>window.__ICONS=${safeJson(ICONS)};window.__CAT=${cat ? safeJson(cat) : 'null'};</script>`;
+  res.setHeader('Cache-Control', 'no-cache, must-revalidate');
+  res.type('html').send(HTML.replace('</head>', inject + '</head>'));
+});
 app.use(express.static('public', {
   maxAge: '1h',
-  setHeaders: (res, file) => { if (file.endsWith('.html')) res.setHeader('Cache-Control', 'no-cache, must-revalidate'); },
+  setHeaders: (res, file) => {
+    if (file.endsWith('.html')) res.setHeader('Cache-Control', 'no-cache, must-revalidate');
+    else if (file.includes(`${path.sep}demo${path.sep}`) || file.endsWith('logo.png')) res.setHeader('Cache-Control', 'public, max-age=604800');
+  },
 }));
 // UptimeRobot shu manzilni tekshiradi: server uxlamaydi, Supabase ham faol qoladi
 app.get('/health', async (_, res) => {
@@ -86,25 +153,9 @@ app.get('/api/config', async (_, res) => {
 });
 app.get('/api/me', auth, (req, res) => res.json({ isAdmin: req.isAdmin }));
 
-app.get('/api/catalog', auth, wrap(async (_, res) => {
-  const [c, p, b, s, r] = await Promise.all([
-    db.from('categories').select('*').order('sort'),
-    db.from('products').select('*').eq('active', true).order('created_at', { ascending: false }),
-    db.from('banners').select('*').eq('active', true).order('sort').order('id', { ascending: false }),
-    db.from('stories').select('*').eq('active', true).order('sort').order('id', { ascending: false }),
-    db.from('reviews').select('product_id,rating'),
-  ]);
-  const rating = {};
-  for (const x of r.data || []) {
-    const o = (rating[x.product_id] ||= { sum: 0, n: 0 });
-    o.sum += x.rating; o.n++;
-  }
-  const products = (p.data || []).map((x) => ({
-    ...x,
-    rating: rating[x.id] ? +(rating[x.id].sum / rating[x.id].n).toFixed(1) : null,
-    reviews: rating[x.id]?.n || 0,
-  }));
-  res.json({ categories: c.data || [], products, banners: b.data || [], stories: s.data || [] });
+app.get('/api/catalog', wrap(async (_, res) => {
+  res.setHeader('Cache-Control', 'no-cache');
+  res.json(await getCatalog());
 }));
 
 // Buyurtma: narxlar serverda qayta hisoblanadi
@@ -174,7 +225,7 @@ app.get('/api/my/reviews', auth, wrap(async (req, res) => {
   const { data } = await db.from('reviews').select('*').eq('tg_id', req.user.id).order('created_at', { ascending: false });
   res.json(data || []);
 }));
-app.post('/api/reviews', auth, wrap(async (req, res) => {
+app.post('/api/reviews', auth, invalidate, wrap(async (req, res) => {
   const b = req.body || {};
   const rating = Math.max(1, Math.min(5, num(b.rating) || 5));
   const product_id = num(b.product_id);
@@ -189,7 +240,7 @@ app.post('/api/reviews', auth, wrap(async (req, res) => {
 }));
 
 // ===== Admin =====
-const A = [auth, adminOnly];
+const A = [auth, adminOnly, invalidate];
 
 app.post('/api/admin/upload', A, wrap(async (req, res) => {
   const m = /^data:(image\/(webp|jpeg|png));base64,([A-Za-z0-9+/=]+)$/.exec(req.body?.data || '');

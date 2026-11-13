@@ -6,9 +6,11 @@
 <title>BROZZO*</title>
 <link rel="icon" href="/logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://images.pexels.com">
+<link rel="preconnect" href="https://sjrbonuivjznpazuwwhw.supabase.co">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400&display=swap" onload="this.onload=null;this.rel='stylesheet'">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
 <style>
 :root{--bg:#f6f6f3;--card:#fff;--ink:#111;--mute:#8d8d87;--line:#e6e6e1;--soft:#f0f0ec;--y:#f2c200;--red:#e0322b;--nav:76px}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -91,7 +93,8 @@ input[type=search]::-webkit-search-cancel-button,input[type=search]::-webkit-sea
 .card .pr s{display:block;font-size:13px;font-weight:500;color:var(--mute);margin-bottom:1px}
 .card .add{margin-top:auto}
 .heart{position:absolute;right:10px;top:10px;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.72);display:grid;place-items:center;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
-iconify-icon{display:inline-block;flex:none;vertical-align:middle}
+iconify-icon,svg.si{display:inline-block;flex:none;vertical-align:middle}
+[data-bg]{background-color:var(--soft)}
 .heart.on{color:var(--red)}
 .sale{position:absolute;left:10px;top:10px;background:var(--y);font-weight:800;font-size:13px;padding:5px 9px;border-radius:8px}
 .btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;height:48px;border-radius:14px;background:var(--ink);color:#fff;font-weight:700;font-size:16px}
@@ -398,7 +401,7 @@ html.fs #sv .hd{top:calc(var(--st) + 20px)}
 <body>
 <div class="top" id="top">
   <div class="lg" style="background-image:url(/logo.png)"></div>
-  <div class="srow" id="srow"><div class="sbox"><iconify-icon icon="solar:magnifer-linear" width="19" height="19" style="color:#8d8d87"></iconify-icon>
+  <div class="srow" id="srow"><div class="sbox"><span id="sicon"></span>
   <input id="q" type="search" enterkeyhint="search" placeholder="Mahsulot qidirish" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"><button class="x hide" id="qx" aria-label="Tozalash">×</button></div><button class="cancel" id="qc">Bekor</button></div>
 </div>
 <main id="main"></main>
@@ -467,7 +470,13 @@ function setLang(l) { try { localStorage.setItem('bz_lang', l); } catch {} locat
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const som = n => String(Math.round(n || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " so'm";
-const bg = u => u ? `style="background-image:url('${esc(u)}')"` : '';
+// Rasm o'lchami: Pexels rasmlari kerakli kenglikda so'raladi (kichik kartochkaga kichik rasm)
+const sized = (u, w) => !w || !/images\.pexels\.com/.test(u) ? u : u.replace(/([?&])w=\d+/, `$1w=${w}`).replace(/([?&])h=\d+/, `$1h=${Math.round(w * 1.2)}`);
+// Lazy: rasm faqat ekranga yaqinlashganda yuklanadi
+const bg = (u, w) => u ? `data-bg="${esc(sized(u, w))}"` : '';
+const lazyIO = 'IntersectionObserver' in window ? new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { const el = e.target; el.style.backgroundImage = `url("${el.dataset.bg}")`; el.removeAttribute('data-bg'); lazyIO.unobserve(el); } }), { rootMargin: '400px 300px' }) : null;
+const lazyScan = root => (root.querySelectorAll ? root.querySelectorAll('[data-bg]') : []).forEach(el => lazyIO ? lazyIO.observe(el) : (el.style.backgroundImage = `url("${el.dataset.bg}")`, el.removeAttribute('data-bg')));
+new MutationObserver(ms => { for (const m of ms) m.addedNodes.forEach(n => { if (n.nodeType === 1) { if (n.dataset?.bg) lazyScan(n.parentNode || n); else lazyScan(n); } }); }).observe(document.documentElement, { childList: true, subtree: true });
 const date = d => new Date(d).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
 const haptic = t => { try { tg.HapticFeedback?.impactOccurred(t || 'light'); } catch {} };
 let toastT; const toast = m => { const t = $('toast'); t.textContent = m; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 1800); };
@@ -479,7 +488,14 @@ async function api(p, o = {}) {
 }
 
 /* ===== icons ===== */
-const ic = (n, s = 24, st = '') => `<iconify-icon icon="solar:${n}" width="${s}" height="${s}"${st ? ` style="${st}"` : ''}></iconify-icon>`;
+const ICONS = window.__ICONS || {};
+let iconifyLoading = false;
+function ic(n, s = 24, st = '') {
+  const d = ICONS[n];
+  if (d) return `<svg class="si" width="${s}" height="${s}" viewBox="0 0 ${d[1]} ${d[2]}" fill="none"${st ? ` style="${st}"` : ''} aria-hidden="true">${d[0]}</svg>`;
+  if (!iconifyLoading) { iconifyLoading = true; const sc = document.createElement('script'); sc.src = 'https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js'; sc.async = true; document.head.appendChild(sc); }
+  return `<iconify-icon icon="solar:${n}" width="${s}" height="${s}"${st ? ` style="${st}"` : ''}></iconify-icon>`;
+}
 const I = {
   home: ic('home-2-linear', 24), homeOn: ic('home-2-bold', 24),
   grid: ic('widget-2-linear', 24), gridOn: ic('widget-2-bold', 24),
@@ -522,6 +538,8 @@ let isAdmin = false, yKey = '', q = '', loaded = false, CFG = { delivery_fee: 0,
 const feeFor = sum => (CFG.free_from && sum >= CFG.free_from) ? 0 : (CFG.delivery_fee || 0);
 const saveCart = () => { try { localStorage.setItem('bz_cart', JSON.stringify(cart)); } catch {} navBar(); };
 const prod = id => D.products.find(p => p.id === +id);
+const isSaleCat = c => !!c && /chegirma|скидк|sale|aksiya|акци/i.test(c.name);
+const inCat = (p, c) => isSaleCat(c) ? p.old_price > p.price || p.category_id === c.id : p.category_id === c.id;
 const imgs = p => (p.images && p.images.length ? p.images : p.image ? [p.image] : []);
 const cartCount = () => cart.reduce((a, i) => a + i.qty, 0);
 const cartTotal = () => cart.reduce((a, i) => a + (prod(i.id)?.price || 0) * i.qty, 0);
@@ -543,7 +561,7 @@ tg.BackButton.onClick(back);
 function card(p) {
   const off = p.old_price > p.price ? Math.round((1 - p.price / p.old_price) * 100) : 0;
   const inCart = cart.some(i => i.id === p.id);
-  return `<div class="card ${p.sold_out ? 'so' : ''}"><div class="im" ${bg(imgs(p)[0])} data-open="${p.id}">
+  return `<div class="card ${p.sold_out ? 'so' : ''}"><div class="im" ${bg(imgs(p)[0], 480)} data-open="${p.id}">
     ${off ? `<span class="sale">−${off}%</span>` : ''}${p.sold_out ? `<span class="soldout">Sotuvda yo'q</span>` : ''}
     <button class="heart ${isFav(p.id) ? 'on' : ''}" data-fav="${p.id}">${I.heart(19, isFav(p.id))}</button></div>
     <div class="body" data-open="${p.id}"><div class="nm">${esc(p.name)}</div>
@@ -562,14 +580,14 @@ V.home = () => {
   if (!loaded) return `<div class="h1">${SHOP.name} — premium uslub</div>${skel()}`;
   const seen = new Set(U.seen);
   const st = D.stories.length ? `<div class="h2">Istoriyalar</div><div class="stories">${D.stories.map(s =>
-    `<button class="st ${seen.has(s.id) ? 'seen' : ''}" data-story="${s.id}"><div class="ring"><div ${bg(s.cover)}></div></div><b>${esc(s.title)}</b></button>`).join('')}</div>` : '';
+    `<button class="st ${seen.has(s.id) ? 'seen' : ''}" data-story="${s.id}"><div class="ring"><div ${bg(s.cover, 200)}></div></div><b>${esc(s.title)}</b></button>`).join('')}</div>` : '';
   const bn = D.banners.length ? `<div class="bwrap"><div class="banners" id="banners">${D.banners.map(b =>
     `<button class="banner" ${bg(b.image)} ${b.product_id ? `data-open="${b.product_id}"` : ''}></button>`).join('')}</div>
     ${D.banners.length > 1 ? `<div class="dots" id="dots">${D.banners.map((_, i) => `<i class="${i ? '' : 'on'}"></i>`).join('')}</div>` : ''}</div>` : '';
   const sale = D.products.filter(p => p.old_price > p.price);
-  const hc = D.categories.map(c => ({ c, img: imgs(D.products.find(p => p.category_id === c.id) || {})[0] })).filter(x => x.img);
+  const hc = D.categories.map(c => ({ c, img: imgs(D.products.find(p => inCat(p, c)) || {})[0] })).filter(x => x.img);
   const cats = hc.length ? `<div class="h2">Kategoriyalar</div><div class="hcats">${hc.map(({ c, img }) =>
-    `<button class="hcat" ${bg(img)} data-go="cat" data-id="${c.id}"><b>${esc(c.name)}</b><i>${ic('arrow-right-linear', 20)}</i></button>`).join('')}</div>` : '';
+    `<button class="hcat" ${bg(img, 480)} data-go="cat" data-id="${c.id}"><b>${esc(c.name)}</b><i>${ic('arrow-right-linear', 20)}</i></button>`).join('')}</div>` : '';
   const words = SHOP.marquee.map(tr).join(' • ') + ' • ';
   return `<div class="h1">${SHOP.name} — premium uslub</div>
   <div class="mq"><div><span>${esc(words.repeat(3))}</span><span>${esc(words.repeat(3))}</span></div></div>
@@ -596,16 +614,16 @@ function brand() {
 
 V.catalog = () => {
   if (!loaded) return title('Katalog') + skel();
-  const cover = c => imgs(D.products.find(p => p.category_id === c.id) || {})[0];
-  const cnt = c => D.products.filter(p => p.category_id === c.id).length;
+  const cover = c => imgs(D.products.find(p => inCat(p, c)) || {})[0];
+  const cnt = c => D.products.filter(p => inCat(p, c)).length;
   return title('Katalog') + `<div class="cats">
-    <button class="cat" ${bg(imgs(D.products[0] || {})[0])} data-go="cat" data-id="0"><b>Barchasi<small>${D.products.length} ta mahsulot</small></b></button>
-    ${D.categories.map(c => `<button class="cat" ${bg(cover(c))} data-go="cat" data-id="${c.id}"><b>${esc(c.name)}<small>${cnt(c)} ta mahsulot</small></b></button>`).join('')}</div>`;
+    <button class="cat" ${bg(imgs(D.products[0] || {})[0], 480)} data-go="cat" data-id="0"><b>Barchasi<small>${D.products.length} ta mahsulot</small></b></button>
+    ${D.categories.map(c => `<button class="cat" ${bg(cover(c), 480)} data-go="cat" data-id="${c.id}"><b>${esc(c.name)}<small>${cnt(c)} ta mahsulot</small></b></button>`).join('')}</div>`;
 };
 
 V.cat = ({ id, sort = 'new' }) => {
   const c = D.categories.find(x => x.id === +id);
-  let list = D.products.filter(p => !+id || p.category_id === +id);
+  let list = D.products.filter(p => !+id || inCat(p, c));
   if (sort === 'cheap') list = [...list].sort((a, b) => a.price - b.price);
   if (sort === 'exp') list = [...list].sort((a, b) => b.price - a.price);
   if (sort === 'sale') list = list.filter(p => p.old_price > p.price);
@@ -643,7 +661,7 @@ V.search = () => {
     <div class="chips" style="flex-wrap:wrap;justify-content:center">${D.categories.map(c => `<button class="chip" data-go="cat" data-id="${c.id}">${esc(c.name)}</button>`).join('')}</div>`;
   const cat = Object.fromEntries(D.categories.map(c => [c.id, c.name]));
   return `<div class="h2 row" style="font-size:20px;padding-top:16px">Natijalar <small>${list.length} ta</small></div><div class="sres">` +
-    list.map(p => `<button class="shit" data-sopen="${p.id}"><div class="im" ${bg(imgs(p)[0])}></div><div class="tx"><b>${mark(p.name, q)}</b><small>${esc(cat[p.category_id] || '')}${p.sizes?.length ? ' · ' + esc(p.sizes.join(', ')) : ''}</small></div><span class="p">${som(p.price)}</span></button>`).join('') + '</div>';
+    list.map(p => `<button class="shit" data-sopen="${p.id}"><div class="im" ${bg(imgs(p)[0], 160)}></div><div class="tx"><b>${mark(p.name, q)}</b><small>${esc(cat[p.category_id] || '')}${p.sizes?.length ? ' · ' + esc(p.sizes.join(', ')) : ''}</small></div><span class="p">${som(p.price)}</span></button>`).join('') + '</div>';
 };
 
 V.product = ({ id }) => {
@@ -651,7 +669,7 @@ V.product = ({ id }) => {
   const off = p.old_price > p.price;
   const im = imgs(p);
   const sel = cur().size;
-  return `<div style="margin-top:-1px"><div class="gal" id="gal">${(im.length ? im : ['']).map(u => `<div ${bg(u)}></div>`).join('')}</div>
+  return `<div style="margin-top:-1px"><div class="gal" id="gal">${(im.length ? im : ['']).map(u => `<div ${bg(u, 1000)}></div>`).join('')}</div>
   ${im.length > 1 ? `<div style="position:relative"><div class="dots" id="gdots" style="bottom:36px">${im.map((_, i) => `<i class="${i ? '' : 'on'}"></i>`).join('')}</div></div>` : ''}</div>
   <div class="pinfo">
     <div style="display:flex;gap:12px;align-items:flex-start"><h1 style="flex:1">${esc(p.name)}</h1>
@@ -682,7 +700,7 @@ V.cart = () => {
   const items = cart.filter(i => prod(i.id));
   if (!items.length) return title('Savat') + `<div class="empty">${ic('cart-large-minimalistic-linear', 64, 'display:block;margin:0 auto 12px;opacity:.4')}Savat bo'sh<br><br><button class="btn" style="max-width:240px;margin:0 auto" data-go="catalog">Katalogga o'tish</button></div>`;
   return title('Savat') + cart.map((i, n) => { const p = prod(i.id); if (!p) return ''; return `
-  <div class="ci"><div class="im" ${bg(imgs(p)[0])} data-open="${p.id}"></div><div class="tx"><b>${esc(p.name)}</b>
+  <div class="ci"><div class="im" ${bg(imgs(p)[0], 240)} data-open="${p.id}"></div><div class="tx"><b>${esc(p.name)}</b>
   ${i.size ? `<small>O'lcham: ${esc(i.size)}</small>` : ''}<div class="p">${som(p.price * i.qty)}</div>
   <div class="qty"><button data-dec="${n}">−</button><span>${i.qty}</span><button data-inc="${n}">+</button></div></div></div>`; }).join('') +
   `<div class="sum"><div><span class="mute">Mahsulotlar (${cartCount()})</span><span>${som(cartTotal())}</span></div>
@@ -735,7 +753,7 @@ V.orders = async () => {
   let o = []; try { o = await api('/my/orders'); } catch {}
   return title('Xaridlarim') + (o.length ? o.map(x => `<div class="order"><div class="hd"><span>#${x.id}</span><span class="badge ${x.status}">${st[x.status] || x.status}</span></div>
   <small>${date(x.created_at)} · ${x.items.reduce((a, i) => a + i.qty, 0)} ta mahsulot</small>
-  <div class="thumbs">${x.items.map(i => `<div ${bg(i.image)}></div>`).join('')}</div>
+  <div class="thumbs">${x.items.map(i => `<div ${bg(i.image, 160)}></div>`).join('')}</div>
   <div style="display:flex;justify-content:space-between;font-weight:800;font-size:17px;margin-top:8px"><span>Jami</span><span>${som(x.total)}</span></div>
   <button class="btn sm ghost" style="margin-top:12px;width:100%" data-repeat="${x.id}">Qayta buyurtma</button></div>`).join('')
   : `<div class="empty">${I.box}Hali xarid qilmagansiz</div>`);
@@ -818,7 +836,7 @@ function aplist() {
   const qq = norm(AD.pq);
   const list = D.products.filter(p => (!AD.pcat || p.category_id === AD.pcat) && (!qq || norm(p.name).includes(qq)));
   const cat = Object.fromEntries(D.categories.map(c => [c.id, c.name]));
-  return list.map(p => `<div class="arow"><div class="im" ${bg(imgs(p)[0])} data-aedit="${p.id}"></div>
+  return list.map(p => `<div class="arow"><div class="im" ${bg(imgs(p)[0], 160)} data-aedit="${p.id}"></div>
     <div class="tx" data-aedit="${p.id}">${esc(p.name)}<small>${som(p.price)}${cat[p.category_id] ? ' · ' + esc(cat[p.category_id]) : ''}</small></div>
     <div class="swl">${sw(`data-sold="${p.id}"`, !p.sold_out)}<small>${p.sold_out ? "Yo'q" : 'Sotuvda'}</small></div>
     <button class="ibtn" data-dup="${p.id}" aria-label="Nusxa">${ic('copy-linear', 18)}</button></div>`).join('') || `<div class="empty">Hech narsa topilmadi</div>`;
@@ -849,7 +867,7 @@ V.admin = async (c) => {
       .map(([k, t]) => `<button class="chip ${f === k ? 'on' : ''}" data-ostf="${k}">${t} <span class="cc">${cnt(k)}</span></button>`).join('')}</div>` +
       (list.map(o => `<div class="order"><div class="hd"><span>#${o.id} · ${esc(o.name)}</span><span class="badge ${o.status}">${OST[o.status]}</span></div>
       <small>${ago(o.created_at)} · ${o.delivery === 'pickup' ? "🏬 Olib ketadi" : '🚚 ' + esc(o.address || '')}${o.comment ? '<br>💬 ' + esc(o.comment) : ''}</small>
-      <div class="thumbs">${o.items.map(i => `<div ${bg(i.image)}></div>`).join('')}</div>
+      <div class="thumbs">${o.items.map(i => `<div ${bg(i.image, 160)}></div>`).join('')}</div>
       <small>${o.items.map(i => esc(i.name) + (i.size ? ' / ' + esc(i.size) : '') + ' × ' + i.qty).join('<br>')}</small>
       <div style="font-weight:800;margin-top:8px">${som(o.total)}${o.delivery_fee ? ` <span class="mute" style="font-weight:500;font-size:13px">(yetkazish ${som(o.delivery_fee)})</span>` : ''}</div>
       <div class="oact"><a class="btn sm line" href="tel:${esc(String(o.phone).replace(/[^\d+]/g, ''))}">${ic('phone-linear', 16)} ${esc(o.phone)}</a>
@@ -1380,12 +1398,14 @@ async function load() {
   cart = cart.filter(i => prod(i.id)); loaded = true;
 }
 (async () => {
-  render();
+  $('sicon').outerHTML = ic('magnifer-linear', 19, 'color:#8d8d87');
+  if (window.__CAT) { D = window.__CAT; loaded = true; cart = cart.filter(i => prod(i.id)); } // katalog sahifa bilan birga keldi — darhol ko'rsatamiz
+  navBar(); render();
   const [fav, profile, addrs, seen, recent] = await Promise.all(['fav', 'profile', 'addrs', 'seen', 'recent'].map(k => store.get(k)));
   U = { fav: fav || [], profile: profile || {}, addrs: addrs || [], seen: seen || [], recent: recent || [] };
   api('/config').then(c => { yKey = c.yandexKey; APP_VER = c.ver; CFG = { delivery_fee: +c.delivery_fee || 0, free_from: +c.free_from || 0 }; if (loaded) render(); }).catch(() => {});
   try {
-    const [me] = await Promise.all([api('/me'), load()]);
+    const [me] = await Promise.all([api('/me'), loaded ? null : load()]);
     isAdmin = me.isAdmin; if (isAdmin) refreshAdminBadge();
   } catch (e) {
     $('main').innerHTML = `<div class="empty">${I.box}${esc(e.message)}<br><br><button class="btn" style="max-width:220px;margin:0 auto" onclick="location.reload()">Qayta urinish</button></div>`;
