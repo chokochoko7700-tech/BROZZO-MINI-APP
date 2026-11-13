@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: brozzo-mini-app
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: BOT_TOKEN
+        sync: false
+      - key: SUPABASE_URL
+        value: https://sjrbonuivjznpazuwwhw.supabase.co
+      - key: SUPABASE_SERVICE_KEY
+        sync: false
+      - key: ADMIN_ID
+        value: "8893295978"
+      - key: YANDEX_KEY
+        sync: false
