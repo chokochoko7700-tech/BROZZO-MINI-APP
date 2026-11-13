@@ -10,7 +10,10 @@ const BUCKET = 'media';
 
 const app = express();
 app.use(express.json({ limit: '8mb' }));
-app.use(express.static('public', { maxAge: '10m' }));
+app.use(express.static('public', {
+  maxAge: '1h',
+  setHeaders: (res, file) => { if (file.endsWith('.html')) res.setHeader('Cache-Control', 'no-cache, must-revalidate'); },
+}));
 app.get('/health', (_, res) => res.send('ok'));
 
 const bot = (method, body) =>
