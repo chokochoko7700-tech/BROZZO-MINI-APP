@@ -206,9 +206,8 @@ nav .cnt{position:absolute;top:-4px;left:calc(50% + 8px);background:var(--ink);c
 /* story viewer */
 #sv{position:fixed;inset:0;background:#000;z-index:60;display:none}
 #sv.on{display:block}
-#santa{position:fixed;left:0;top:0;width:30px;height:34px;pointer-events:none;z-index:25;opacity:0;transition:opacity .5s;will-change:transform}
-#santa.on{opacity:1}#santa i{display:block;width:100%;height:100%;transform-origin:50% 100%}
-#santa .shadow{position:absolute;left:5px;right:5px;bottom:-2px;height:4px;border-radius:50%;background:rgba(0,0,0,.18);filter:blur(1px)}
+#snow{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:4;opacity:0;transition:opacity 1.2s}
+#snow.on{opacity:1}
 #sv .img{position:absolute;inset:0;background:#000 center/cover no-repeat;transition:background-image .15s}
 #sv .sh{position:absolute;left:0;right:0;z-index:1;pointer-events:none}
 #sv .sh.t{top:0;height:calc(210px + var(--st,0px));background:linear-gradient(180deg,rgba(0,0,0,.88) 0%,rgba(0,0,0,.62) 38%,rgba(0,0,0,.22) 72%,rgba(0,0,0,0) 100%)}
@@ -425,7 +424,7 @@ html.fs #sv .hd{top:calc(var(--st) + 20px)}
 <main id="main"></main>
 <div id="buy"></div>
 <nav id="nav"></nav>
-<div id="santa" aria-hidden="true"><span class="shadow"></span><i></i></div><div id="sv"><div class="img"></div><div class="sh t"></div><div class="sh b"></div><div class="bars"></div><div class="hd"><div class="c"></div><span></span><button class="x">×</button></div><div id="svp"></div></div>
+<canvas id="snow" aria-hidden="true"></canvas><div id="sv"><div class="img"></div><div class="sh t"></div><div class="sh b"></div><div class="bars"></div><div class="hd"><div class="c"></div><span></span><button class="x">×</button></div><div id="svp"></div></div>
 <div id="sheet"><div class="in"><div class="grab"></div><div id="sin"></div></div></div>
 <div class="toast" id="toast"></div>
 
@@ -982,7 +981,7 @@ async function adminSection(tab) {
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
     <div class="fld"><label>Yetkazish narxi</label><input id="st_fee" inputmode="numeric" value="${esc(st.delivery_fee || '')}" placeholder="0 — kelishiladi"></div>
     <div class="fld"><label>Bepul yetkazish (dan)</label><input id="st_free" inputmode="numeric" value="${esc(st.free_from || '')}" placeholder="masalan 1000000"></div></div>
-    <div class="swrow"><span><b>Yangi yil: sakrovchi Santa 🎅</b><small>Ekranda kichkina Santa sakrab yuradi. 2-yanvardan keyin o'zi o'chadi</small></span>${sw('id="st_santa"', st.santa !== false)}</div>
+    <div class="swrow"><span><b>Qishki qor effekti ❄</b><small>Bosh sahifada yengil qor yog'adi (noyabr–fevral)</small></span>${sw('id="st_snow"', st.snow !== false)}</div>
     <button class="btn lg" id="st_save">Saqlash</button></div>`;
   }
   return body;
@@ -1388,8 +1387,8 @@ document.addEventListener('click', async e => {
       try { await api('/admin/broadcast', { method: 'POST', body: JSON.stringify({ text, image: AD.bc.image, product_id: $('bc_prod').value }) }); AD.bc = { image: null }; toast('Yuborish boshlandi ✓'); render(); } catch (err) { tg.showAlert(err.message); } });
   }
   if (t.id === 'st_save') {
-    const body = { admins: $('st_admins').value.split(/[,\s]+/).filter(Boolean), notify_chat: $('st_chat').value.trim(), delivery_fee: $('st_fee').value.replace(/\s/g, ''), free_from: $('st_free').value.replace(/\s/g, ''), santa: $('st_santa').checked };
-    try { const r = await api('/admin/settings', { method: 'PUT', body: JSON.stringify(body) }); CFG.delivery_fee = +r.delivery_fee || 0; CFG.free_from = +r.free_from || 0; CFG.santa = r.santa !== false; toast('Saqlandi ✓'); render(); } catch (err) { tg.showAlert(err.message); }
+    const body = { admins: $('st_admins').value.split(/[,\s]+/).filter(Boolean), notify_chat: $('st_chat').value.trim(), delivery_fee: $('st_fee').value.replace(/\s/g, ''), free_from: $('st_free').value.replace(/\s/g, ''), snow: $('st_snow').checked };
+    try { const r = await api('/admin/settings', { method: 'PUT', body: JSON.stringify(body) }); CFG.delivery_fee = +r.delivery_fee || 0; CFG.free_from = +r.free_from || 0; CFG.snow = r.snow !== false; toast('Saqlandi ✓'); render(); } catch (err) { tg.showAlert(err.message); }
     return;
   }
   if (t.id === 's_save') {
@@ -1508,82 +1507,39 @@ function navBar() {
     return `<button data-tab="${v}" class="${root === v ? 'on' : ''}">${root === v ? i1 : i0}${t}${c ? `<span class="cnt">${c}</span>` : ''}</button>`; }).join('');
 }
 let rid = 0;
-/* ===== YANGI YIL: kichkina Santa yozuv, bo'lim va ikonkalar ustida sakrab yuradi (2-yanvargacha) ===== */
-const SANTA_SVG = `<svg viewBox="0 0 30 34" width="30" height="34"><path d="M8 13 Q11 2 21 4 Q26 5 27 10 L22 9 Q18 7 15 13Z" fill="#d62828"/><circle cx="27" cy="11" r="2.4" fill="#fff"/><rect x="6.5" y="11.5" width="17" height="3.6" rx="1.8" fill="#fff"/>
-<circle cx="15" cy="17.5" r="5" fill="#f6c9a8"/><circle cx="13" cy="16.8" r=".8" fill="#222"/><circle cx="17" cy="16.8" r=".8" fill="#222"/><circle cx="15" cy="18.3" r="1" fill="#e98b7a"/>
-<path d="M9.5 18.5 Q10 25 15 25.5 Q20 25 20.5 18.5 Q18 21.5 15 20.6 Q12 21.5 9.5 18.5Z" fill="#fff"/>
-<path d="M8 23 Q15 21 22 23 L23 30 L7 30Z" fill="#d62828"/><rect x="7" y="26" width="16" height="2.4" fill="#222"/><rect x="13.6" y="25.7" width="2.8" height="3" rx=".5" fill="none" stroke="#f2c200" stroke-width=".9"/>
-<rect x="8" y="30" width="5.5" height="3.6" rx="1.5" fill="#222"/><rect x="16.5" y="30" width="5.5" height="3.6" rx="1.5" fill="#222"/></svg>`;
-// Noyabr, dekabr va 1–2 yanvar; 3-yanvardan o'zi o'chadi
-const isHoliday = () => { const d = new Date(), m = d.getMonth(); return m === 10 || m === 11 || (m === 0 && d.getDate() <= 2); };
-const SANTA = { on: false, el: null, tgt: null, ox: 0, x: -40, y: 0, dir: 1, hop: null, rest: 0, raf: 0, land: 0 };
-const SANTA_VIEWS = ['home', 'catalog', 'cat', 'profile', 'favs'];
-function santaTargets() {
-  const sel = '#main .h1, #main .h2, #main .hcat, #main .st .ring, #main .card .im, #main .li .ic, #nav button';
-  return [...document.querySelectorAll(sel)].filter(e => { const r = santaRect(e); return r.width > 24 && r.top > 110 && r.top < innerHeight - 60 && r.left > -5 && r.right < innerWidth + 5; });
+/* ===== QISH: bosh sahifada juda yengil qor (noyabr–fevral, admin o'chirishi mumkin) ===== */
+const SNOW = { on: false, f: [], raf: 0, ctx: null, w: 0, h: 0 };
+const isWinter = () => [10, 11, 0, 1].includes(new Date().getMonth());
+function snowSync() {
+  const want = CFG.snow !== false && isWinter() && cur().v === 'home' && !searching && !document.hidden && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const cv = $('snow'); if (!cv) return;
+  cv.classList.toggle('on', want);
+  if (want && !SNOW.on) {
+    SNOW.on = true; const dpr = Math.min(2, devicePixelRatio || 1);
+    SNOW.w = innerWidth; SNOW.h = innerHeight; cv.width = SNOW.w * dpr; cv.height = SNOW.h * dpr;
+    SNOW.ctx = cv.getContext('2d'); SNOW.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    if (!SNOW.f.length) for (let i = 0; i < 26; i++) SNOW.f.push({ x: Math.random() * SNOW.w, y: Math.random() * SNOW.h, r: 1.4 + Math.random() * 2.2, v: .25 + Math.random() * .45, s: Math.random() * 6.28, a: .35 + Math.random() * .45 });
+    const tick = () => {
+      if (!SNOW.on) return;
+      const g = SNOW.ctx; g.clearRect(0, 0, SNOW.w, SNOW.h);
+      for (const p of SNOW.f) {
+        p.y += p.v; p.s += .012; p.x += Math.sin(p.s) * .25;
+        if (p.y > SNOW.h + 5) { p.y = -5; p.x = Math.random() * SNOW.w; }
+        const gr = g.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r);
+        gr.addColorStop(0, `rgba(255,255,255,${p.a})`); gr.addColorStop(.6, `rgba(225,232,240,${p.a * .8})`); gr.addColorStop(1, 'rgba(170,185,205,0)');
+        g.fillStyle = gr; g.beginPath(); g.arc(p.x, p.y, p.r, 0, 6.29); g.fill();
+      }
+      SNOW.raf = requestAnimationFrame(tick);
+    };
+    tick();
+  } else if (!want && SNOW.on) { SNOW.on = false; cancelAnimationFrame(SNOW.raf); setTimeout(() => !SNOW.on && SNOW.ctx?.clearRect(0, 0, SNOW.w, SNOW.h), 1300); }
 }
-function santaPick() {
-  const list = santaTargets().filter(e => e !== SANTA.tgt);
-  if (!list.length) return null;
-  // yaqinroq nishonlar ko'proq tanlanadi — sakrashlar tabiiy ko'rinadi
-  const near = list.map(e => { const r = santaRect(e); return [e, Math.hypot(r.left + r.width / 2 - SANTA.x, r.top - SANTA.y)]; }).sort((a, b) => a[1] - b[1]);
-  return near[Math.floor(Math.random() * Math.min(4, near.length))][0];
-}
-// Sarlavhalarda — harflarning o'zi ustiga (padding hisobga olinmaydi)
-const SR = document.createRange();
-function santaRect(e) {
-  if (e.matches('.h1, .h2')) { SR.selectNodeContents(e.firstChild?.nodeType === 3 ? e.firstChild : e); const r = SR.getClientRects()[0]; if (r) return { left: r.left, top: r.top + 3, width: r.width }; }
-  return e.getBoundingClientRect();
-}
-const santaPos = (e, ox) => { const r = santaRect(e); return [r.left + Math.min(Math.max(ox, 2), Math.max(2, r.width - 32)), r.top - 33]; };
-function santaJump(now) {
-  const t = santaPick(); if (!t) { SANTA.rest = now + 800; return; }
-  const r = santaRect(t), ox = 4 + Math.random() * Math.max(0, r.width - 40);
-  const [tx, ty] = santaPos(t, ox), d = Math.hypot(tx - SANTA.x, ty - SANTA.y);
-  SANTA.hop = { t, ox, fx: SANTA.x, fy: SANTA.y, t0: now, dur: Math.min(1100, 450 + d * 1.3), h: Math.min(140, 40 + d * .35) };
-  if (Math.abs(tx - SANTA.x) > 4) SANTA.dir = tx > SANTA.x ? 1 : -1;
-}
-function santaTick(now) {
-  if (!SANTA.on) return;
-  let sq = 1;
-  if (SANTA.hop) {
-    const h = SANTA.hop, k = Math.min(1, (now - h.t0) / h.dur);
-    if (!h.t.isConnected) { SANTA.hop = null; SANTA.tgt = null; santaJump(now); }
-    else {
-      const [tx, ty] = santaPos(h.t, h.ox), e = k < .5 ? 2 * k * k : 1 - (-2 * k + 2) ** 2 / 2;
-      SANTA.x = h.fx + (tx - h.fx) * e; SANTA.y = h.fy + (ty - h.fy) * k - Math.sin(Math.PI * k) * h.h;
-      if (k < .12) sq = 1 - k * 1.5; // sakrashdan oldin cho'kadi
-      if (k >= 1) { SANTA.tgt = h.t; SANTA.ox = h.ox; SANTA.hop = null; SANTA.land = now; SANTA.rest = now + 1300 + Math.random() * 2200; }
-    }
-  } else if (SANTA.tgt && SANTA.tgt.isConnected) {
-    [SANTA.x, SANTA.y] = santaPos(SANTA.tgt, SANTA.ox);
-    const r = santaRect(SANTA.tgt);
-    if (r.top < 60 || r.top > innerHeight - 50) SANTA.rest = 0; // aylantirilganda ekrandan chiqsa — boshqa joyga sakraydi
-    const since = now - SANTA.land; if (since < 220) sq = 1 - Math.sin(since / 220 * Math.PI) * .18; // qo'nish
-    if (now > SANTA.rest) santaJump(now);
-  } else if (now > SANTA.rest) {
-    if (!SANTA.tgt) { SANTA.x = Math.random() < .5 ? -40 : innerWidth + 10; SANTA.y = innerHeight * .45; }
-    SANTA.tgt = null; santaJump(now);
-  }
-  SANTA.el.style.transform = `translate(${SANTA.x}px,${SANTA.y}px)`;
-  SANTA.el.lastChild.style.transform = `scaleX(${SANTA.dir * (1 + (1 - sq) * .6)}) scaleY(${sq})`;
-  SANTA.raf = requestAnimationFrame(santaTick);
-}
-function santaSync() {
-  const el = $('santa'); if (!el) return;
-  const want = CFG.santa !== false && isHoliday() && SANTA_VIEWS.includes(cur().v) && !searching && !document.hidden && !matchMedia('(prefers-reduced-motion: reduce)').matches;
-  el.classList.toggle('on', want);
-  if (want && !SANTA.on) {
-    SANTA.on = true; SANTA.el = el; if (!el.lastChild.innerHTML) el.lastChild.innerHTML = SANTA_SVG;
-    SANTA.tgt = null; SANTA.hop = null; SANTA.rest = performance.now() + 900; SANTA.raf = requestAnimationFrame(santaTick);
-  } else if (!want && SANTA.on) { SANTA.on = false; cancelAnimationFrame(SANTA.raf); }
-  else if (want && SANTA.tgt && !SANTA.tgt.isConnected) { SANTA.tgt = null; SANTA.rest = performance.now() + 400; } // sahifa almashdi
-}
-document.addEventListener('visibilitychange', santaSync);
+document.addEventListener('visibilitychange', snowSync);
+addEventListener('resize', () => { if (SNOW.on) { SNOW.on = false; cancelAnimationFrame(SNOW.raf); snowSync(); } });
 
 async function render() {
   const c = cur(), my = ++rid, v = V[c.v];
-  setTimeout(santaSync, 60);
+  setTimeout(snowSync, 0);
   if (searching) { navBar(); return showSearch(); }
   stack.length > 1 || searching ? tg.BackButton.show() : tg.BackButton.hide();
   navBar();
@@ -1625,7 +1581,7 @@ async function load() {
   navBar(); render();
   const [fav, profile, addrs, seen, recent] = await Promise.all(['fav', 'profile', 'addrs', 'seen', 'recent'].map(k => store.get(k)));
   U = { fav: fav || [], profile: profile || {}, addrs: addrs || [], seen: seen || [], recent: recent || [] };
-  api('/config').then(c => { yKey = c.yandexKey; APP_VER = c.ver; CFG = { delivery_fee: +c.delivery_fee || 0, free_from: +c.free_from || 0, santa: c.santa !== false }; if (loaded) render(); }).catch(() => {});
+  api('/config').then(c => { yKey = c.yandexKey; APP_VER = c.ver; CFG = { delivery_fee: +c.delivery_fee || 0, free_from: +c.free_from || 0, snow: c.snow !== false }; if (loaded) render(); }).catch(() => {});
   try {
     const [me] = await Promise.all([api('/me'), loaded ? null : load()]);
     isAdmin = me.isAdmin; if (isAdmin) refreshAdminBadge();
