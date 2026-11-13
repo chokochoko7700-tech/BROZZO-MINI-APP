@@ -362,6 +362,36 @@ html.fs #sv .hd{top:calc(var(--st) + 20px)}
 .crop img{position:absolute;left:0;top:0;max-width:none;user-select:none;-webkit-user-drag:none;pointer-events:none}
 .crop::after{content:"";position:absolute;inset:0;border-radius:18px;box-shadow:inset 0 0 0 2px rgba(255,255,255,.7);pointer-events:none}
 .zoom{width:100%;accent-color:#111}
+.atiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px 16px 0}
+.atile{position:relative;background:var(--card);border-radius:16px;padding:14px;text-align:left;display:flex;flex-direction:column;gap:2px;min-height:108px}
+.atile .ai{width:42px;height:42px;border-radius:12px;background:var(--soft);display:grid;place-items:center;margin-bottom:8px}
+.atile b{font-size:15px;font-weight:700}
+.atile small{font-size:12px;color:var(--mute)}
+.atile .cnt{position:absolute;top:12px;right:12px;background:var(--red);color:#fff;font-size:12px;font-weight:800;min-width:22px;height:22px;border-radius:99px;display:grid;place-items:center;padding:0 6px}
+.stat[data-anav]{cursor:pointer}
+.chip .cc{display:inline-block;min-width:18px;padding:0 5px;margin-left:4px;border-radius:99px;background:var(--soft);font-size:12px;font-weight:700;color:var(--mute)}
+.chip.on .cc{background:rgba(255,255,255,.2);color:#fff}
+.chips.wrap{flex-wrap:wrap;padding:0 0 8px;overflow:visible}
+.oact{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.oact .btn{flex:1 1 auto;width:auto;text-decoration:none}
+.ibtn{width:34px;height:34px;border-radius:10px;background:var(--soft);display:grid;place-items:center;flex:none}
+.arow{padding:8px 10px;gap:10px}
+.arow .tx{cursor:pointer}
+.swl{display:flex;flex-direction:column;align-items:center;gap:2px;flex:none}
+.swl small{font-size:10px;color:var(--mute);font-weight:600}
+.sw{position:relative;display:inline-block;width:44px;height:26px;flex:none}
+.sw input{opacity:0;width:0;height:0;position:absolute}
+.sw i{position:absolute;inset:0;border-radius:99px;background:#d6d6d0;transition:.2s}
+.sw i::after{content:"";position:absolute;left:3px;top:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:.2s}
+.sw input:checked+i{background:#1fa855}
+.sw input:checked+i::after{transform:translateX(18px)}
+.swrow{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.swrow b{display:block;font-size:15px}.swrow small{display:block;color:var(--mute);font-size:12px}
+.thumbs-edit div.main{box-shadow:0 0 0 2px var(--ink)}
+.thumbs-edit div em{position:absolute;left:4px;bottom:4px;font-style:normal;font-size:10px;font-weight:700;background:var(--ink);color:#fff;padding:2px 6px;border-radius:6px}
+.thumbs-edit div{cursor:pointer}
+.cname{width:100%;font-weight:600;font-size:15px;padding:2px 0;border-bottom:1px dashed transparent}
+.cname:focus{border-bottom-color:var(--ink)}
 @media (max-width:360px){.card .nm{font-size:14px}.card .pr{font-size:17px}.btn{font-size:14px;gap:6px}.h1{font-size:27px}}
 </style>
 </head>
@@ -403,7 +433,7 @@ const SHOP = {
 /* ===== til: o'zbekcha / ruscha ===== */
 let LANG = (() => { try { const l = localStorage.getItem('bz_lang'); if (l) return l; } catch {} return String(tg.initDataUnsafe?.user?.language_code || '').startsWith('ru') ? 'ru' : 'uz'; })();
 document.documentElement.lang = LANG;
-const RU = {"Bannerni joylashtiring":"Расположите баннер","Rasmni barmoq bilan suring, pastdagi polzunok bilan kattalashtiring. Ramka ichidagisi bosh sahifada aynan shunday ko'rinadi.":"Двигайте фото пальцем, увеличивайте ползунком. На главной будет видно именно то, что внутри рамки.","Banner qo'shildi ✓":"Баннер добавлен ✓","Yuklanmoqda...":"Загрузка...","Joriy joylashuvni belgilash":"Определить моё местоположение","Aniqlanmoqda...":"Определяем...","Joylashuv belgilandi ✓":"Местоположение отмечено ✓","Joylashuvga ruxsat berilmagan. Sozlamalarni ochasizmi?":"Нет доступа к геолокации. Открыть настройки?","Joylashuvni aniqlab bo'lmadi. Telefonda GPS yoqilganini tekshiring yoki xaritadan tanlang.":"Не удалось определить местоположение. Проверьте GPS или выберите на карте.","Kurtka":"Куртки","Ko'ylak":"Рубашки","Poyabzal":"Обувь","Atirlar":"Парфюм","Achki":"Очки","Shim":"Брюки","Kostyum":"Костюмы","Aksessuarlar":"Аксессуары","Bosh sahifa": "Главная", "Katalog": "Каталог", "Savat": "Корзина", "Profil": "Профиль", "Mahsulot qidirish": "Поиск товаров", "Bekor": "Отмена", "Natijalar": "Результаты", "Qidiruv": "Поиск", "Oxirgi qidiruvlar": "Недавние запросы", "Tozalash": "Очистить", "Boshqa so'z bilan urinib ko'ring.": "Попробуйте другой запрос.", "BROZZO* — premium uslub": "BROZZO* — премиальный стиль", "Istoriyalar": "Истории", "Kategoriyalar": "Категории", "Chegirmalar": "Скидки", "Chegirma": "Скидки", "Yangi kolleksiya": "Новые поступления", "Premium kiyim": "Премиальная одежда", "Yangi kolleksiya 2026/27": "Новая коллекция 2026/27", "Shahrisabz": "Шахрисабз", "BROZZO* — Shahrisabzdagi premium erkaklar kiyimi do'koni. Kurtka, ko'ylak, kostyum, poyabzal, atirlar va aksessuarlar — har bir buyum mato sifati, bichimi va o'lchamiga e'tibor bilan tanlangan. Yangi kolleksiya allaqachon sotuvda.": "BROZZO* — магазин премиальной мужской одежды в Шахрисабзе. Куртки, рубашки, костюмы, обувь, парфюм и аксессуары — каждая вещь подобрана с вниманием к качеству ткани, крою и размеру. Новая коллекция уже в продаже.", "KONTAKTLAR": "КОНТАКТЫ", "Kontaktlar": "Контакты", "© 2026 BROZZO*. Shahrisabz": "© 2026 BROZZO*. Шахрисабз", "Qo'ng'iroq qilish": "Позвонить", "Do'kon manzili": "Адрес магазина", "Do'kon": "Магазин", "Yo'l ko'rsatish": "Маршрут", "Shahrisabz shahar, Maqom plaza mehmonxonasi yonida, Jahon marketni ro'parasida": "г. Шахрисабз, рядом с гостиницей Maqom plaza, напротив Jahon market", "Barchasi": "Все", "Yangilari": "Новые", "Arzonroq": "Дешевле", "Qimmatroq": "Дороже", "Hozircha mahsulot yo'q": "Пока нет товаров", "Mahsulot topilmadi": "Товар не найден", "Savatga": "В корзину", "Savatda": "В корзине", "Sotuvda yo'q": "Нет в наличии", "Sotib olish": "Купить", "Savatga qo'shildi": "Добавлено в корзину", "Savatga qo'shildi ✓": "Добавлено в корзину ✓", "O'lcham": "Размер", "Tavsif": "Описание", "Sharhlar": "Отзывы", "Sharh yozish": "Написать отзыв", "Sharhlar yo'q": "Нет отзывов", "Birinchi bo'lib sharh qoldiring.": "Оставьте отзыв первым.", "Mahsulot haqida fikringiz": "Ваш отзыв о товаре", "Yuborish": "Отправить", "Rahmat! Sharh qabul qilindi": "Спасибо! Отзыв принят", "O'lchamni tanlang": "Выберите размер", "Savat bo'sh": "Корзина пуста", "Katalogga o'tish": "Перейти в каталог", "Yetkazib berish": "Доставка", "Kelishiladi": "По договорённости", "Bepul": "Бесплатно", "Jami": "Итого", "Rasmiylashtirish": "Оформление заказа", "Ism": "Имя", "Ismingiz": "Ваше имя", "Telefon": "Телефон", "Olib ketish": "Самовывоз", "Yangi manzil": "Новый адрес", "Xaritadan tanlang yoki yozing": "Выберите на карте или введите", "Manzil": "Адрес", "Shahar, ko'cha, uy, mo'ljal": "Город, улица, дом, ориентир", "Manzilni saqlash": "Сохранить адрес", "Izoh (ixtiyoriy)": "Комментарий (необязательно)", "Masalan: qo'ng'iroq qilib keling": "Например: позвоните перед приездом", "Buyurtma berish": "Оформить заказ", "Yuborilmoqda...": "Отправка...", "Buyurtma berish orqali": "Оформляя заказ, я соглашаюсь с", "maxfiylik siyosati va shartlar": "политикой конфиденциальности и условиями", "ga hamda ma'lumotlarim qayta ishlanishiga roziman": "и на обработку моих данных", "Shartlarga rozilik belgisini qo'ying": "Отметьте согласие с условиями", "Ism va telefon raqamini kiriting": "Введите имя и номер телефона", "Yetkazish manzilini kiriting": "Введите адрес доставки", "Manzilni kiriting": "Введите адрес", "Shartlarga rozilik bering": "Подтвердите согласие с условиями", "Ism, telefon va mahsulot kerak": "Нужны имя, телефон и товары", "Mahsulotlar topilmadi": "Товары не найдены", "Telegram orqali oching": "Откройте через Telegram", "Server xatosi": "Ошибка сервера", "Xatolik yuz berdi": "Произошла ошибка", "Qayta urinish": "Повторить", "Mehmon": "Гость", "Xaridlar": "Покупки", "Xaridlarim": "Мои покупки", "Sevimlilar": "Избранное", "Sharhlarim": "Мои отзывы", "Men haqimda": "Обо мне", "Ma'lumotlarim": "Мои данные", "ism, telefon, tug'ilgan sana": "имя, телефон, дата рождения", "Manzillarim": "Мои адреса", "Yordam": "Поддержка", "Telegram, telefon": "Telegram, телефон", "Sozlamalar": "Настройки", "Til": "Язык", "O'zbekcha": "O'zbekcha", "Huquqiy ma'lumot": "Правовая информация", "Sotuvchi bilan bog'lanish": "Связаться с продавцом", "Maxfiylik siyosati": "Политика конфиденциальности", "Shartlar va shaxsiy ma'lumotlar": "Условия и персональные данные", "Boshqaruv": "Управление", "Admin panel": "Админ-панель", "Mahsulot, buyurtma, banner, istoriya": "Товары, заказы, баннеры, истории", "Ma'lumotlarni tozalash": "Очистить данные", "Sevimlilar, manzillar va savat tozalansinmi?": "Очистить избранное, адреса и корзину?", "Yangi": "Новый", "Tasdiqlandi": "Подтверждён", "Yetkazildi": "Доставлен", "Bekor qilindi": "Отменён", "Qayta buyurtma": "Повторить заказ", "Hali xarid qilmagansiz": "У вас пока нет покупок", "Hali sharh yozmagansiz": "Вы ещё не писали отзывов", "Mahsulot": "Товар", "Email": "Email", "Tug'ilgan sana": "Дата рождения", "Telegram raqamini yuborish": "Отправить номер из Telegram", "Saqlash": "Сохранить", "Saqlandi ✓": "Сохранено ✓", "Raqam yuborildi": "Номер отправлен", "Raqam qo'shildi ✓": "Номер добавлен ✓", "Saqlangan manzil yo'q": "Нет сохранённых адресов", "+ Manzil qo'shish": "+ Добавить адрес", "O'chirish": "Удалить", "Nomi": "Название", "Uy, Ish...": "Дом, Работа...", "Telegram orqali yozish": "Написать в Telegram", "Telegram": "Telegram", "Instagram": "Instagram", "Buyurtmalar": "Заказы", "Statistika": "Статистика", "Mahsulotlar": "Товары", "Bannerlar": "Баннеры", "Rassilka": "Рассылка", "Tasdiqlash": "Подтвердить", "Buyurtma yo'q": "Заказов нет", "Tahrirlash": "Редактирование", "Yangi mahsulot": "Новый товар", "Rasmlar (birinchisi asosiy)": "Фото (первое — главное)", "Narx": "Цена", "Eski narx": "Старая цена", "chegirma": "скидка", "Kategoriya": "Категория", "O'lchamlar (vergul bilan)": "Размеры (через запятую)", "Sotuvda yo'q (tugagan)": "Нет в наличии (закончился)", "Qo'shish": "Добавить", "Bekor qilish": "Отмена", "Banner o'lchami: 3:1 (masalan 1500×500). Bosh sahifada aylanadi.": "Размер баннера: 3:1 (например 1500×500). Прокручивается на главной.", "Mahsulotga bog'lash (ixtiyoriy)": "Привязать к товару (необязательно)", "Rasm yuklash": "Загрузить фото", "Rasmlar (birinchisi — doira rasmi)": "Фото (первое — обложка круга)", "Mahsulotga bog'lash (\"Sotib olish\" tugmasi)": "Привязать к товару (кнопка «Купить»)", "Istoriya qo'shish": "Добавить историю", "Chegirma, Luk, Achki...": "Скидки, Образ, Очки...", "Yangi kategoriya": "Новая категория", "Masalan: Shim": "Например: Брюки", "Bugun": "Сегодня", "Yangi buyurtmalar": "Новые заказы", "javob kutmoqda": "ждут ответа", "Mijozlar": "Клиенты", "Eng ko'p sotilgan (30 kun)": "Топ продаж (30 дней)", "Hali sotuv yo'q": "Пока нет продаж", "Yuklab bo'lmadi": "Не удалось загрузить", "Rasm (ixtiyoriy)": "Фото (необязательно)", "Matn": "Текст", "Mahsulotga havola (ixtiyoriy)": "Ссылка на товар (необязательно)", "Oxirgi rassilkalar": "Последние рассылки", "Yangilash": "Обновить", "Tugadi": "Завершена", "Xato": "Ошибка", "Yuborilmoqda": "Отправляется", "Hali rassilka yo'q": "Рассылок пока нет", "Xabar barcha mijozlarga yuborilsinmi?": "Отправить сообщение всем клиентам?", "Yuborish boshlandi ✓": "Рассылка запущена ✓", "Matn yoki rasm kiriting": "Введите текст или добавьте фото", "Adminlar (Telegram ID, vergul bilan)": "Админы (Telegram ID через запятую)", "Buyurtmalar guruhi (chat ID)": "Группа для заказов (chat ID)", "Botni do'kon guruhiga qo'shing — bot guruh ID'sini yozib beradi. Bo'sh qolsa, buyurtmalar barcha adminlarga keladi.": "Добавьте бота в группу магазина — бот напишет ID группы. Если пусто, заказы приходят всем админам.", "Yetkazish narxi": "Стоимость доставки", "Bepul yetkazish (dan)": "Бесплатная доставка (от)", "0 — kelishiladi": "0 — по договорённости", "masalan 1000000": "например 1000000", "Masalan: 🔥 Yangi kolleksiya keldi! Barcha kurtkalarga −20% chegirma, faqat shu hafta.": "Например: 🔥 Новая коллекция! Скидка −20% на все куртки, только на этой неделе.", "Holat yangilandi, mijozga xabar ketdi": "Статус обновлён, клиент уведомлён", "Mahsulot o'chirilsinmi?": "Удалить товар?", "Banner o'chirilsinmi?": "Удалить баннер?", "Istoriya o'chirilsinmi?": "Удалить историю?", "Kategoriya o'chirilsinmi? Mahsulotlar o'chmaydi.": "Удалить категорию? Товары не удалятся.", "O'chirildi": "Удалено", "Qo'shildi ✓": "Добавлено ✓", "Nom va rasm kerak": "Нужны название и фото", "Nom va narx kerak": "Нужны название и цена", "Yuklandi ✓": "Загружено ✓", "Rasm formati noto'g'ri": "Неверный формат фото", "Rasm juda katta": "Фото слишком большое", "Ruxsat yo'q": "Нет доступа", "Rasm kerak": "Нужно фото", "Matn yoki rasm kerak": "Нужен текст или фото", "Nom kerak": "Нужно название"};
+const RU = {"Bugungi savdo":"Продажи сегодня","Tezkor amallar":"Быстрые действия","Mahsulot qo'shish":"Добавить товар","Banner qo'shish":"Добавить баннер","Rassilka yuborish":"Отправить рассылку","Mijozlarga xabar":"Сообщение клиентам","Adminlar, yetkazish":"Админы, доставка","Tasdiqlangan":"Подтверждённые","Yetkazilgan":"Доставленные","Hammasi":"Все","Bekor qilindi":"Отменён","Qayta ochish":"Открыть снова","Qayta ochildi":"Открыт снова","Yozish":"Написать","Xarita":"Карта","Bu bo'limda buyurtma yo'q":"В этом разделе нет заказов","Buyurtma bekor qilinsinmi? Mijozga xabar boradi.":"Отменить заказ? Клиент получит уведомление.","hozirgina":"только что","Yangi mahsulot":"Новый товар","Hech narsa topilmadi":"Ничего не найдено","Yo'q":"Нет","Sotuvda":"В продаже","Nusxa olindi — o'zgartirib saqlang":"Копия создана — измените и сохраните","Rasmlar — birinchisi asosiy. Asosiy qilish uchun rasmni bosing":"Фото — первое главное. Нажмите на фото, чтобы сделать главным","Asosiy":"Главное","Narx (so'm)":"Цена (сум)","chegirma bo'lsa":"если скидка","O'lchamlar — keraklilarini belgilang":"Размеры — отметьте нужные","Boshqa o'lcham (vergul bilan): 46, 48, One size":"Другой размер (через запятую): 46, 48, One size","Mato, rang, xususiyatlari":"Ткань, цвет, особенности","Sotuvda bor":"В наличии","O'chirsangiz, \"Sotuvda yo'q\" deb ko'rinadi":"Если выключить, будет «Нет в наличии»","Mahsulotni o'chirish":"Удалить товар","Mahsulot nomini kiriting":"Введите название товара","Narxni kiriting":"Введите цену","Sotuvda yo'q deb belgilandi":"Отмечено: нет в наличии","Sotuvga qaytarildi":"Снова в продаже","Admin":"Админ","Bannerni joylashtiring":"Расположите баннер","Rasmni barmoq bilan suring, pastdagi polzunok bilan kattalashtiring. Ramka ichidagisi bosh sahifada aynan shunday ko'rinadi.":"Двигайте фото пальцем, увеличивайте ползунком. На главной будет видно именно то, что внутри рамки.","Banner qo'shildi ✓":"Баннер добавлен ✓","Yuklanmoqda...":"Загрузка...","Joriy joylashuvni belgilash":"Определить моё местоположение","Aniqlanmoqda...":"Определяем...","Joylashuv belgilandi ✓":"Местоположение отмечено ✓","Joylashuvga ruxsat berilmagan. Sozlamalarni ochasizmi?":"Нет доступа к геолокации. Открыть настройки?","Joylashuvni aniqlab bo'lmadi. Telefonda GPS yoqilganini tekshiring yoki xaritadan tanlang.":"Не удалось определить местоположение. Проверьте GPS или выберите на карте.","Kurtka":"Куртки","Ko'ylak":"Рубашки","Poyabzal":"Обувь","Atirlar":"Парфюм","Achki":"Очки","Shim":"Брюки","Kostyum":"Костюмы","Aksessuarlar":"Аксессуары","Bosh sahifa": "Главная", "Katalog": "Каталог", "Savat": "Корзина", "Profil": "Профиль", "Mahsulot qidirish": "Поиск товаров", "Bekor": "Отмена", "Natijalar": "Результаты", "Qidiruv": "Поиск", "Oxirgi qidiruvlar": "Недавние запросы", "Tozalash": "Очистить", "Boshqa so'z bilan urinib ko'ring.": "Попробуйте другой запрос.", "BROZZO* — premium uslub": "BROZZO* — премиальный стиль", "Istoriyalar": "Истории", "Kategoriyalar": "Категории", "Chegirmalar": "Скидки", "Chegirma": "Скидки", "Yangi kolleksiya": "Новые поступления", "Premium kiyim": "Премиальная одежда", "Yangi kolleksiya 2026/27": "Новая коллекция 2026/27", "Shahrisabz": "Шахрисабз", "BROZZO* — Shahrisabzdagi premium erkaklar kiyimi do'koni. Kurtka, ko'ylak, kostyum, poyabzal, atirlar va aksessuarlar — har bir buyum mato sifati, bichimi va o'lchamiga e'tibor bilan tanlangan. Yangi kolleksiya allaqachon sotuvda.": "BROZZO* — магазин премиальной мужской одежды в Шахрисабзе. Куртки, рубашки, костюмы, обувь, парфюм и аксессуары — каждая вещь подобрана с вниманием к качеству ткани, крою и размеру. Новая коллекция уже в продаже.", "KONTAKTLAR": "КОНТАКТЫ", "Kontaktlar": "Контакты", "© 2026 BROZZO*. Shahrisabz": "© 2026 BROZZO*. Шахрисабз", "Qo'ng'iroq qilish": "Позвонить", "Do'kon manzili": "Адрес магазина", "Do'kon": "Магазин", "Yo'l ko'rsatish": "Маршрут", "Shahrisabz shahar, Maqom plaza mehmonxonasi yonida, Jahon marketni ro'parasida": "г. Шахрисабз, рядом с гостиницей Maqom plaza, напротив Jahon market", "Barchasi": "Все", "Yangilari": "Новые", "Arzonroq": "Дешевле", "Qimmatroq": "Дороже", "Hozircha mahsulot yo'q": "Пока нет товаров", "Mahsulot topilmadi": "Товар не найден", "Savatga": "В корзину", "Savatda": "В корзине", "Sotuvda yo'q": "Нет в наличии", "Sotib olish": "Купить", "Savatga qo'shildi": "Добавлено в корзину", "Savatga qo'shildi ✓": "Добавлено в корзину ✓", "O'lcham": "Размер", "Tavsif": "Описание", "Sharhlar": "Отзывы", "Sharh yozish": "Написать отзыв", "Sharhlar yo'q": "Нет отзывов", "Birinchi bo'lib sharh qoldiring.": "Оставьте отзыв первым.", "Mahsulot haqida fikringiz": "Ваш отзыв о товаре", "Yuborish": "Отправить", "Rahmat! Sharh qabul qilindi": "Спасибо! Отзыв принят", "O'lchamni tanlang": "Выберите размер", "Savat bo'sh": "Корзина пуста", "Katalogga o'tish": "Перейти в каталог", "Yetkazib berish": "Доставка", "Kelishiladi": "По договорённости", "Bepul": "Бесплатно", "Jami": "Итого", "Rasmiylashtirish": "Оформление заказа", "Ism": "Имя", "Ismingiz": "Ваше имя", "Telefon": "Телефон", "Olib ketish": "Самовывоз", "Yangi manzil": "Новый адрес", "Xaritadan tanlang yoki yozing": "Выберите на карте или введите", "Manzil": "Адрес", "Shahar, ko'cha, uy, mo'ljal": "Город, улица, дом, ориентир", "Manzilni saqlash": "Сохранить адрес", "Izoh (ixtiyoriy)": "Комментарий (необязательно)", "Masalan: qo'ng'iroq qilib keling": "Например: позвоните перед приездом", "Buyurtma berish": "Оформить заказ", "Yuborilmoqda...": "Отправка...", "Buyurtma berish orqali": "Оформляя заказ, я соглашаюсь с", "maxfiylik siyosati va shartlar": "политикой конфиденциальности и условиями", "ga hamda ma'lumotlarim qayta ishlanishiga roziman": "и на обработку моих данных", "Shartlarga rozilik belgisini qo'ying": "Отметьте согласие с условиями", "Ism va telefon raqamini kiriting": "Введите имя и номер телефона", "Yetkazish manzilini kiriting": "Введите адрес доставки", "Manzilni kiriting": "Введите адрес", "Shartlarga rozilik bering": "Подтвердите согласие с условиями", "Ism, telefon va mahsulot kerak": "Нужны имя, телефон и товары", "Mahsulotlar topilmadi": "Товары не найдены", "Telegram orqali oching": "Откройте через Telegram", "Server xatosi": "Ошибка сервера", "Xatolik yuz berdi": "Произошла ошибка", "Qayta urinish": "Повторить", "Mehmon": "Гость", "Xaridlar": "Покупки", "Xaridlarim": "Мои покупки", "Sevimlilar": "Избранное", "Sharhlarim": "Мои отзывы", "Men haqimda": "Обо мне", "Ma'lumotlarim": "Мои данные", "ism, telefon, tug'ilgan sana": "имя, телефон, дата рождения", "Manzillarim": "Мои адреса", "Yordam": "Поддержка", "Telegram, telefon": "Telegram, телефон", "Sozlamalar": "Настройки", "Til": "Язык", "O'zbekcha": "O'zbekcha", "Huquqiy ma'lumot": "Правовая информация", "Sotuvchi bilan bog'lanish": "Связаться с продавцом", "Maxfiylik siyosati": "Политика конфиденциальности", "Shartlar va shaxsiy ma'lumotlar": "Условия и персональные данные", "Boshqaruv": "Управление", "Admin panel": "Админ-панель", "Mahsulot, buyurtma, banner, istoriya": "Товары, заказы, баннеры, истории", "Ma'lumotlarni tozalash": "Очистить данные", "Sevimlilar, manzillar va savat tozalansinmi?": "Очистить избранное, адреса и корзину?", "Yangi": "Новый", "Tasdiqlandi": "Подтверждён", "Yetkazildi": "Доставлен", "Bekor qilindi": "Отменён", "Qayta buyurtma": "Повторить заказ", "Hali xarid qilmagansiz": "У вас пока нет покупок", "Hali sharh yozmagansiz": "Вы ещё не писали отзывов", "Mahsulot": "Товар", "Email": "Email", "Tug'ilgan sana": "Дата рождения", "Telegram raqamini yuborish": "Отправить номер из Telegram", "Saqlash": "Сохранить", "Saqlandi ✓": "Сохранено ✓", "Raqam yuborildi": "Номер отправлен", "Raqam qo'shildi ✓": "Номер добавлен ✓", "Saqlangan manzil yo'q": "Нет сохранённых адресов", "+ Manzil qo'shish": "+ Добавить адрес", "O'chirish": "Удалить", "Nomi": "Название", "Uy, Ish...": "Дом, Работа...", "Telegram orqali yozish": "Написать в Telegram", "Telegram": "Telegram", "Instagram": "Instagram", "Buyurtmalar": "Заказы", "Statistika": "Статистика", "Mahsulotlar": "Товары", "Bannerlar": "Баннеры", "Rassilka": "Рассылка", "Tasdiqlash": "Подтвердить", "Buyurtma yo'q": "Заказов нет", "Tahrirlash": "Редактирование", "Yangi mahsulot": "Новый товар", "Rasmlar (birinchisi asosiy)": "Фото (первое — главное)", "Narx": "Цена", "Eski narx": "Старая цена", "chegirma": "скидка", "Kategoriya": "Категория", "O'lchamlar (vergul bilan)": "Размеры (через запятую)", "Sotuvda yo'q (tugagan)": "Нет в наличии (закончился)", "Qo'shish": "Добавить", "Bekor qilish": "Отмена", "Banner o'lchami: 3:1 (masalan 1500×500). Bosh sahifada aylanadi.": "Размер баннера: 3:1 (например 1500×500). Прокручивается на главной.", "Mahsulotga bog'lash (ixtiyoriy)": "Привязать к товару (необязательно)", "Rasm yuklash": "Загрузить фото", "Rasmlar (birinchisi — doira rasmi)": "Фото (первое — обложка круга)", "Mahsulotga bog'lash (\"Sotib olish\" tugmasi)": "Привязать к товару (кнопка «Купить»)", "Istoriya qo'shish": "Добавить историю", "Chegirma, Luk, Achki...": "Скидки, Образ, Очки...", "Yangi kategoriya": "Новая категория", "Masalan: Shim": "Например: Брюки", "Bugun": "Сегодня", "Yangi buyurtmalar": "Новые заказы", "javob kutmoqda": "ждут ответа", "Mijozlar": "Клиенты", "Eng ko'p sotilgan (30 kun)": "Топ продаж (30 дней)", "Hali sotuv yo'q": "Пока нет продаж", "Yuklab bo'lmadi": "Не удалось загрузить", "Rasm (ixtiyoriy)": "Фото (необязательно)", "Matn": "Текст", "Mahsulotga havola (ixtiyoriy)": "Ссылка на товар (необязательно)", "Oxirgi rassilkalar": "Последние рассылки", "Yangilash": "Обновить", "Tugadi": "Завершена", "Xato": "Ошибка", "Yuborilmoqda": "Отправляется", "Hali rassilka yo'q": "Рассылок пока нет", "Xabar barcha mijozlarga yuborilsinmi?": "Отправить сообщение всем клиентам?", "Yuborish boshlandi ✓": "Рассылка запущена ✓", "Matn yoki rasm kiriting": "Введите текст или добавьте фото", "Adminlar (Telegram ID, vergul bilan)": "Админы (Telegram ID через запятую)", "Buyurtmalar guruhi (chat ID)": "Группа для заказов (chat ID)", "Botni do'kon guruhiga qo'shing — bot guruh ID'sini yozib beradi. Bo'sh qolsa, buyurtmalar barcha adminlarga keladi.": "Добавьте бота в группу магазина — бот напишет ID группы. Если пусто, заказы приходят всем админам.", "Yetkazish narxi": "Стоимость доставки", "Bepul yetkazish (dan)": "Бесплатная доставка (от)", "0 — kelishiladi": "0 — по договорённости", "masalan 1000000": "например 1000000", "Masalan: 🔥 Yangi kolleksiya keldi! Barcha kurtkalarga −20% chegirma, faqat shu hafta.": "Например: 🔥 Новая коллекция! Скидка −20% на все куртки, только на этой неделе.", "Holat yangilandi, mijozga xabar ketdi": "Статус обновлён, клиент уведомлён", "Mahsulot o'chirilsinmi?": "Удалить товар?", "Banner o'chirilsinmi?": "Удалить баннер?", "Istoriya o'chirilsinmi?": "Удалить историю?", "Kategoriya o'chirilsinmi? Mahsulotlar o'chmaydi.": "Удалить категорию? Товары не удалятся.", "O'chirildi": "Удалено", "Qo'shildi ✓": "Добавлено ✓", "Nom va rasm kerak": "Нужны название и фото", "Nom va narx kerak": "Нужны название и цена", "Yuklandi ✓": "Загружено ✓", "Rasm formati noto'g'ri": "Неверный формат фото", "Rasm juda katta": "Фото слишком большое", "Ruxsat yo'q": "Нет доступа", "Rasm kerak": "Нужно фото", "Matn yoki rasm kerak": "Нужен текст или фото", "Nom kerak": "Нужно название"};
 const RX = [[/^(\d+) ta mahsulot$/, "Товаров: $1"], [/^(\d+) ta$/, "$1 шт."], [/^(\d+) ta buyurtma$/, "Заказов: $1"], [/^(\d+) ta rasm$/, "Фото: $1"], [/^(\d+) ta tugagan$/, "нет в наличии: $1"], [/^(\d+) ta manzil$/, "Адресов: $1"], [/^(\d+) dona$/, "$1 шт."], [/^(\d+) kun$/, "$1 дней"], [/^\+(\d+) shu hafta$/, "+$1 за неделю"], [/^Mahsulotlar \((\d+)\)$/, "Товары ($1)"], [/^O'lcham: (.+)$/, "Размер: $1"], [/^Rasmiylashtirish · (.+)$/, "Оформить · $1"], [/^Savatga qo'shish · (.+)$/, "В корзину · $1"], [/^(.+) · Sotuvda yo'q$/, "$1 · Нет в наличии"], [/^(.+) dan yuqori buyurtmada yetkazish bepul$/, "Бесплатная доставка от $1"], [/^([\d.]+) · (\d+) ta sharh$/, "$1 · отзывов: $2"], [/^(.+) · (\d+) ta mahsulot$/, "$1 · товаров: $2"], [/^(.+) · (\d+)\/(\d+) yuborildi · (\d+) ta yetmadi$/, "$1 · отправлено $2/$3 · не доставлено: $4"], [/^(.+) · (\d+)\/(\d+) yuborildi$/, "$1 · отправлено $2/$3"], [/^(\d\d:\d\d) dan (\d\d:\d\d) gacha$/, "с $1 до $2"], [/^Ish vaqti: (\d\d:\d\d) dan (\d\d:\d\d) gacha$/, "Часы работы: с $1 до $2"], [/^«(.+)» bo'yicha hech narsa topilmadi\.$/, "По запросу «$1» ничего не найдено."], [/^Buyurtma #(\d+) qabul qilindi! Tez orada siz bilan bog'lanamiz\.$/, "Заказ #$1 принят! Мы скоро свяжемся с вами."], [/^Xabar botni ishga tushirgan barcha mijozlarga \((\d+) ta\) yuboriladi\..*$/, "Сообщение получат все клиенты, запустившие бота ($1). Под сообщением будет кнопка «Открыть магазин»."], [/^Asosiy admin: (\d+)\. Sizning ID:$/, "Главный админ: $1. Ваш ID:"], [/^\. Boshqa odam o'z ID'sini botga \/id yozib bilib oladi\.$/, ". Другой человек узнает свой ID, написав боту /id."], [/^Yuklanmoqda (\d+)\/(\d+)\.\.\.$/, "Загрузка $1/$2..."], [/^Banner #(\d+)$/, "Баннер #$1"], [/^(.+) do'koni$/, "Магазин $1"], [/^Ish vaqti: (.+)$/, "Часы работы: $1"], [/^(\d+)\. (.+)$/, "$1. $2"], [/^(.+) \(yetkazish (.+)\)$/, "$1 (доставка $2)"], [/^\(yetkazish (.+)\)$/, "(доставка $1)"]];
 function tr(str) {
   if (LANG !== 'ru' || !str) return str;
@@ -498,11 +528,11 @@ const cartTotal = () => cart.reduce((a, i) => a + (prod(i.id)?.price || 0) * i.q
 const isFav = id => U.fav.includes(+id);
 
 /* ===== router ===== */
-const TABS = ['home', 'catalog', 'cart', 'profile'];
+const TABS = ['home', 'catalog', 'cart', 'profile', 'admin'];
 let stack = [{ v: 'home' }];
 const cur = () => stack[stack.length - 1];
 function go(v, p = {}) {
-  if (TABS.includes(v)) stack = [{ v, ...p }]; else stack.push({ v, ...p });
+  if (TABS.includes(v) && !Object.keys(p).length) stack = [{ v }]; else stack.push({ v, ...p });
   endSearch(true);
   render(); window.scrollTo(0, 0);
 }
@@ -695,7 +725,7 @@ V.profile = () => {
   ${li(ic('user-id-linear', 20), "Ma'lumotlarim", "ism, telefon, tug'ilgan sana", 'data-go="mydata"')}${li(I.pin, 'Manzillarim', U.addrs.length ? U.addrs.length + ' ta manzil' : '', 'data-go="addrs"')}${li(I.chat, 'Yordam', 'Telegram, telefon', 'data-help="1"')}</div>
   <div class="h2">Sozlamalar</div><div class="group">${li(ic('global-linear', 20), 'Til', LANG === 'ru' ? 'Русский' : "O'zbekcha", 'data-lang="1"')}</div>
   <div class="h2">Huquqiy ma'lumot</div><div class="group">${li(I.phone, 'Kontaktlar', "Sotuvchi bilan bog'lanish", 'data-go="contacts"')}${li(I.shield, 'Maxfiylik siyosati', 'Shartlar va shaxsiy ma\'lumotlar', 'data-go="privacy"')}</div>
-  ${isAdmin ? `<div class="h2">Boshqaruv</div><div class="group">${li(I.gear, 'Admin panel', 'Mahsulot, buyurtma, banner, istoriya', 'data-go="admin"')}</div>` : ''}
+  ${isAdmin ? `<div class="h2">Boshqaruv</div><div class="group">${li(I.gear, 'Admin panel', 'Mahsulot, buyurtma, banner, istoriya', 'data-tab="admin"')}</div>` : ''}
   <button class="logout" id="logout">Ma'lumotlarni tozalash</button>
   <div class="ver">v ${SHOP.version} · ${SHOP.name}</div>`;
 };
@@ -765,44 +795,100 @@ V.contacts = () => title('Kontaktlar') + `<div class="group">
 V.contacts.after = () => withMaps(() => { const m = new ymaps.Map('map', { center: SHOP.coords, zoom: 16, controls: ['zoomControl'] }); m.geoObjects.add(new ymaps.Placemark(SHOP.coords, { balloonContent: SHOP.name }, { preset: 'islands#blackShoppingIcon' })); });
 
 /* ===== admin ===== */
-let AD = { orders: [], form: null };
-const emptyForm = () => ({ id: null, name: '', price: '', old_price: '', category_id: '', sizes: '', description: '', images: [] });
-V.admin = async ({ tab = 'orders' }) => {
-  const tabs = [['orders', 'Buyurtmalar'], ['stats', 'Statistika'], ['products', 'Mahsulotlar'], ['banners', 'Bannerlar'], ['stories', 'Istoriyalar'], ['cats', 'Kategoriyalar'], ['broadcast', 'Rassilka'], ['settings', 'Sozlamalar']]
-    .map(([k, t]) => `<button class="chip ${tab === k ? 'on' : ''}" data-atab="${k}">${t}</button>`).join('');
-  let body = '';
+/* ===== ADMIN PANEL ===== */
+let AD = { orders: [], form: null, story: { images: [] }, bc: { image: null }, pq: '', pcat: 0 };
+const ADM = { newOrders: 0 };
+const SIZE_SETS = [['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL'], ['39', '40', '41', '42', '43', '44', '45']];
+const PRESET = new Set(SIZE_SETS.flat());
+const emptyForm = () => ({ id: null, name: '', price: '', old_price: '', category_id: '', sizes: [], description: '', images: [], sold_out: false });
+const formFrom = p => ({ id: p.id, name: p.name, price: p.price, old_price: p.old_price || '', category_id: p.category_id || '', sizes: [...(p.sizes || [])], description: p.description || '', images: [...imgs(p)], sold_out: !!p.sold_out });
+const fmtNum = v => String(v ?? '').replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+const OST = { new: 'Yangi', confirmed: 'Tasdiqlandi', done: 'Yetkazildi', cancel: 'Bekor qilindi' };
+const ago = d => { const m = Math.round((Date.now() - new Date(d)) / 60000); return m < 1 ? 'hozirgina' : m < 60 ? m + ' daqiqa oldin' : m < 1440 ? Math.round(m / 60) + ' soat oldin' : date(d); };
+const ASEC = {
+  orders: ['Buyurtmalar', 'bag-4-linear'], products: ['Mahsulotlar', 'box-linear'], banners: ['Bannerlar', 'gallery-wide-linear'],
+  stories: ['Istoriyalar', 'play-circle-linear'], cats: ['Kategoriyalar', 'widget-2-linear'], broadcast: ['Rassilka', 'letter-linear'],
+  stats: ['Statistika', 'chart-2-linear'], settings: ['Sozlamalar', 'settings-linear'],
+};
+const mv = (table, id) => `<button class="ibtn" data-mv="${table}:${id}:-1">${ic('alt-arrow-up-linear', 18)}</button><button class="ibtn" data-mv="${table}:${id}:1">${ic('alt-arrow-down-linear', 18)}</button>`;
+const sw = (attr, on) => `<label class="sw"><input type="checkbox" ${attr} ${on ? 'checked' : ''}><i></i></label>`;
+async function refreshAdminBadge() { if (!isAdmin) return; try { const o = await api('/admin/orders'); ADM.newOrders = o.filter(x => x.status === 'new').length; AD.orders = o; navBar(); } catch {} }
+
+function aplist() {
+  const qq = norm(AD.pq);
+  const list = D.products.filter(p => (!AD.pcat || p.category_id === AD.pcat) && (!qq || norm(p.name).includes(qq)));
+  const cat = Object.fromEntries(D.categories.map(c => [c.id, c.name]));
+  return list.map(p => `<div class="arow"><div class="im" ${bg(imgs(p)[0])} data-aedit="${p.id}"></div>
+    <div class="tx" data-aedit="${p.id}">${esc(p.name)}<small>${som(p.price)}${cat[p.category_id] ? ' · ' + esc(cat[p.category_id]) : ''}</small></div>
+    <div class="swl">${sw(`data-sold="${p.id}"`, !p.sold_out)}<small>${p.sold_out ? "Yo'q" : 'Sotuvda'}</small></div>
+    <button class="ibtn" data-dup="${p.id}" aria-label="Nusxa">${ic('copy-linear', 18)}</button></div>`).join('') || `<div class="empty">Hech narsa topilmadi</div>`;
+}
+
+V.admin = async (c) => {
+  const tab = c.tab;
+  if (!tab) {
+    let x = null; try { x = await api('/admin/stats'); ADM.newOrders = x.newOrders; navBar(); } catch {}
+    const sub = { orders: x ? `${x.newOrders} ta yangi` : '', products: `${D.products.length} ta`, banners: `${D.banners.length} ta`, stories: `${D.stories.length} ta`,
+      cats: `${D.categories.length} ta`, broadcast: 'Mijozlarga xabar', stats: x ? `7 kun: ${som(x.week.revenue)}` : '', settings: 'Adminlar, yetkazish' };
+    return title('Admin panel') + (x ? `<div class="stats">
+      <div class="stat"><small>Bugungi savdo</small><b>${som(x.today.revenue)}</b><span>${x.today.count} ta buyurtma</span></div>
+      <div class="stat" data-anav="orders"><small>Yangi buyurtmalar</small><b>${x.newOrders}</b><span>javob kutmoqda</span></div></div>` : '') +
+      `<div class="atiles">${Object.entries(ASEC).map(([k, [t, i]]) => `<button class="atile" data-anav="${k}"><span class="ai">${ic(i, 24)}</span><b>${t}</b><small>${sub[k]}</small>${k === 'orders' && x?.newOrders ? `<span class="cnt">${x.newOrders}</span>` : ''}</button>`).join('')}</div>
+      <div class="h2" style="font-size:18px">Tezkor amallar</div><div class="group">
+      ${li(ic('add-circle-linear', 20), "Mahsulot qo'shish", '', 'data-anav="product" data-new="1"')}${li(ic('gallery-add-linear', 20), "Banner qo'shish", '', 'data-anav="banners"')}${li(ic('letter-linear', 20), 'Rassilka yuborish', '', 'data-anav="broadcast"')}</div><div style="height:16px"></div>`;
+  }
   if (tab === 'orders') {
-    try { AD.orders = await api('/admin/orders'); } catch { AD.orders = []; }
-    const st = { new: 'Yangi', confirmed: 'Tasdiqlandi', done: 'Yetkazildi', cancel: 'Bekor' };
-    body = AD.orders.map(o => `<div class="order"><div class="hd"><span>#${o.id} · ${esc(o.name)}</span><span class="badge ${o.status}">${st[o.status]}</span></div>
-    <small><a href="tel:${esc(o.phone)}" style="color:inherit">${esc(o.phone)}</a>${o.tg_username ? ' · @' + esc(o.tg_username) : ''} · ${date(o.created_at)}</small>
-    <small>${o.delivery === 'pickup' ? "🏬 Olib ketadi" : '🚚 ' + esc(o.address || '')}${o.comment ? '<br>💬 ' + esc(o.comment) : ''}</small>
-    <div class="thumbs">${o.items.map(i => `<div ${bg(i.image)}></div>`).join('')}</div>
-    <small>${o.items.map(i => esc(i.name) + (i.size ? ' / ' + esc(i.size) : '') + ' × ' + i.qty).join('<br>')}</small>
-    <div style="font-weight:800;margin-top:8px">${som(o.total)}${o.delivery_fee ? ` <span class="mute" style="font-weight:500;font-size:13px">(yetkazish ${som(o.delivery_fee)})</span>` : ''}</div>
-    <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">${[['confirmed', 'Tasdiqlash'], ['done', 'Yetkazildi'], ['cancel', 'Bekor']].map(([s, t]) => `<button class="btn sm ${o.status === s ? '' : 'ghost'}" data-ost="${s}" data-oid="${o.id}">${t}</button>`).join('')}</div></div>`).join('') || `<div class="empty">Buyurtma yo'q</div>`;
+    try { AD.orders = await api('/admin/orders'); ADM.newOrders = AD.orders.filter(o => o.status === 'new').length; navBar(); } catch { AD.orders = []; }
+    const cnt = k => AD.orders.filter(o => k === 'all' || o.status === k).length;
+    const f = c.st ||= cnt('new') ? 'new' : 'all';
+    const list = AD.orders.filter(o => f === 'all' || o.status === f);
+    const act = o => o.status === 'new' ? `<button class="btn sm" data-ost="confirmed" data-oid="${o.id}">${ic('check-circle-linear', 16)} Tasdiqlash</button><button class="btn sm ghost" data-ost="cancel" data-oid="${o.id}">Bekor qilish</button>`
+      : o.status === 'confirmed' ? `<button class="btn sm" data-ost="done" data-oid="${o.id}">${ic('delivery-linear', 16)} Yetkazildi</button><button class="btn sm ghost" data-ost="cancel" data-oid="${o.id}">Bekor qilish</button>`
+      : `<button class="btn sm ghost" data-ost="new" data-oid="${o.id}">Qayta ochish</button>`;
+    return title('Buyurtmalar') + `<div class="chips">${[['new', 'Yangi'], ['confirmed', 'Tasdiqlangan'], ['done', 'Yetkazilgan'], ['cancel', 'Bekor'], ['all', 'Hammasi']]
+      .map(([k, t]) => `<button class="chip ${f === k ? 'on' : ''}" data-ostf="${k}">${t} <span class="cc">${cnt(k)}</span></button>`).join('')}</div>` +
+      (list.map(o => `<div class="order"><div class="hd"><span>#${o.id} · ${esc(o.name)}</span><span class="badge ${o.status}">${OST[o.status]}</span></div>
+      <small>${ago(o.created_at)} · ${o.delivery === 'pickup' ? "🏬 Olib ketadi" : '🚚 ' + esc(o.address || '')}${o.comment ? '<br>💬 ' + esc(o.comment) : ''}</small>
+      <div class="thumbs">${o.items.map(i => `<div ${bg(i.image)}></div>`).join('')}</div>
+      <small>${o.items.map(i => esc(i.name) + (i.size ? ' / ' + esc(i.size) : '') + ' × ' + i.qty).join('<br>')}</small>
+      <div style="font-weight:800;margin-top:8px">${som(o.total)}${o.delivery_fee ? ` <span class="mute" style="font-weight:500;font-size:13px">(yetkazish ${som(o.delivery_fee)})</span>` : ''}</div>
+      <div class="oact"><a class="btn sm line" href="tel:${esc(String(o.phone).replace(/[^\d+]/g, ''))}">${ic('phone-linear', 16)} ${esc(o.phone)}</a>
+      ${o.tg_username ? `<button class="btn sm line" data-tglink="https://t.me/${esc(o.tg_username)}">${ic('chat-round-dots-linear', 16)} Yozish</button>` : ''}
+      ${o.location ? `<button class="btn sm line" data-link="https://yandex.uz/maps/?pt=${o.location.lng},${o.location.lat}&z=17&l=map">${ic('map-point-linear', 16)} Xarita</button>` : ''}</div>
+      <div class="oact">${act(o)}</div></div>`).join('') || `<div class="empty">${I.box}Bu bo'limda buyurtma yo'q</div>`);
   }
   if (tab === 'products') {
-    const f = AD.form ||= emptyForm();
-    body = `<div class="form"><div class="h2" style="padding:0">${f.id ? 'Tahrirlash' : 'Yangi mahsulot'}</div>
-    <div class="fld"><label>Rasmlar (birinchisi asosiy)</label><div class="thumbs-edit">${f.images.map((u, i) => `<div ${bg(u)}><button data-rmimg="${i}">×</button></div>`).join('')}
-    <label class="upl">+<input type="file" accept="image/*" multiple data-upload="product"></label></div></div>
-    <div class="fld"><label>Nomi</label><input id="p_name" value="${esc(f.name)}" placeholder="Kurtka Puffer / L / Qora"></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="fld"><label>Narx</label><input id="p_price" inputmode="numeric" value="${esc(f.price)}"></div>
-    <div class="fld"><label>Eski narx</label><input id="p_old" inputmode="numeric" value="${esc(f.old_price || '')}" placeholder="chegirma"></div></div>
-    <div class="fld"><label>Kategoriya</label><select id="p_cat"><option value="">—</option>${D.categories.map(c => `<option value="${c.id}" ${+f.category_id === c.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select></div>
-    <div class="fld"><label>O'lchamlar (vergul bilan)</label><input id="p_sizes" value="${esc(f.sizes)}" placeholder="S, M, L, XL"></div>
-    <div class="fld"><label>Tavsif</label><textarea id="p_desc" rows="3">${esc(f.description)}</textarea></div>
-    <label class="agree"><input type="checkbox" id="p_sold" ${f.sold_out ? 'checked' : ''}><span>Sotuvda yo'q (tugagan)</span></label>
-    <button class="btn lg" id="p_save">${f.id ? 'Saqlash' : "Qo'shish"}</button>${f.id ? '<button class="btn ghost" id="p_cancel">Bekor qilish</button>' : ''}</div>
-    <div class="h2">Mahsulotlar (${D.products.length})</div>` +
-    D.products.map(p => `<div class="arow"><div class="im" ${bg(imgs(p)[0])}></div><div class="tx">${esc(p.name)}<small>${som(p.price)}${p.sold_out ? " · Sotuvda yo'q" : ''}</small></div>
-    <button class="btn sm ghost" data-edit="${p.id}">✎</button><button class="btn sm ghost" data-delp="${p.id}">🗑</button></div>`).join('');
+    return title('Mahsulotlar') + `<div class="form" style="margin-bottom:12px"><button class="btn lg" data-anav="product" data-new="1">${ic('add-circle-linear', 20)} Yangi mahsulot</button>
+      <div class="sbox">${ic('magnifer-linear', 19, 'color:#8d8d87')}<input id="ap_q" type="search" placeholder="Mahsulot qidirish" value="${esc(AD.pq)}" autocomplete="off"></div></div>
+      <div class="chips">${[{ id: 0, name: 'Hammasi' }, ...D.categories].map(k => `<button class="chip ${AD.pcat === k.id ? 'on' : ''}" data-apcat="${k.id}">${esc(k.name)} <span class="cc">${k.id ? D.products.filter(p => p.category_id === k.id).length : D.products.length}</span></button>`).join('')}</div>
+      <div id="aplist">${aplist()}</div><div style="height:16px"></div>`;
   }
+  if (tab === 'product') {
+    const f = AD.form ||= emptyForm();
+    const extra = f.sizes.filter(z => !PRESET.has(z)).join(', ');
+    return title(f.id ? 'Tahrirlash' : 'Yangi mahsulot') + `<div class="form">
+    <div class="fld"><label>Rasmlar — birinchisi asosiy. Asosiy qilish uchun rasmni bosing</label><div class="thumbs-edit">${f.images.map((u, i) => `<div ${bg(u)} data-mainimg="${i}" class="${i ? '' : 'main'}">${i ? '' : '<em>Asosiy</em>'}<button data-rmimg="${i}">×</button></div>`).join('')}
+    <label class="upl">+<input type="file" accept="image/*" multiple data-upload="product"></label></div></div>
+    <div class="fld"><label>Nomi</label><input id="p_name" value="${esc(f.name)}" placeholder="Kurtka Puffer / Qora"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="fld"><label>Narx (so'm)</label><input id="p_price" class="num" inputmode="numeric" value="${fmtNum(f.price)}" placeholder="0"></div>
+    <div class="fld"><label>Eski narx</label><input id="p_old" class="num" inputmode="numeric" value="${fmtNum(f.old_price)}" placeholder="chegirma bo'lsa"></div></div>
+    <div class="fld"><label>Kategoriya</label><div class="chips wrap">${D.categories.map(k => `<button class="chip ${+f.category_id === k.id ? 'on' : ''}" data-pfcat="${k.id}">${esc(k.name)}</button>`).join('')}</div></div>
+    <div class="fld"><label>O'lchamlar — keraklilarini belgilang</label>${SIZE_SETS.map(set => `<div class="chips wrap">${set.map(z => `<button class="chip ${f.sizes.includes(z) ? 'on' : ''}" data-psz="${z}">${z}</button>`).join('')}</div>`).join('')}
+    <input id="p_extra" value="${esc(extra)}" placeholder="Boshqa o'lcham (vergul bilan): 46, 48, One size" style="margin-top:4px"></div>
+    <div class="fld"><label>Tavsif</label><textarea id="p_desc" rows="3" placeholder="Mato, rang, xususiyatlari">${esc(f.description)}</textarea></div>
+    <div class="swrow"><span><b>Sotuvda bor</b><small>O'chirsangiz, "Sotuvda yo'q" deb ko'rinadi</small></span>${sw('id="p_sold"', !f.sold_out)}</div>
+    ${f.id ? `<button class="btn ghost" data-delp="${f.id}" style="color:var(--red)">${ic('trash-bin-minimalistic-linear', 18)} Mahsulotni o'chirish</button>` : ''}
+    </div><div style="height:90px"></div>`;
+  }
+  return title(ASEC[tab]?.[0] || 'Admin panel') + await adminSection(tab);
+};
+V.admin.buy = c => c.tab === 'product' ? `<div class="buy"><button class="btn lg" id="p_save">${AD.form?.id ? 'Saqlash' : "Qo'shish"}</button></div>` : '';
+async function adminSection(tab) {
+  let body = '';
   if (tab === 'banners') body = `<div class="form"><p class="mute">Banner o'lchami: 3:1 (masalan 1500×500). Bosh sahifada aylanadi.</p>
     <div class="fld"><label>Mahsulotga bog'lash (ixtiyoriy)</label><select id="b_prod"><option value="">—</option>${D.products.map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join('')}</select></div>
     <label class="btn lg" style="position:relative">Rasm yuklash<input type="file" accept="image/*" data-upload="banner" style="position:absolute;inset:0;opacity:0"></label></div><div style="height:14px"></div>` +
-    D.banners.map(b => `<div class="arow"><div class="im" style="aspect-ratio:3/1;width:110px;${b.image ? `background-image:url('${esc(b.image)}')` : ''}"></div><div class="tx">Banner #${b.id}<small>${b.product_id ? esc(prod(b.product_id)?.name || '') : ''}</small></div><button class="btn sm ghost" data-delb="${b.id}">🗑</button></div>`).join('');
+    D.banners.map(b => `<div class="arow"><div class="im" style="aspect-ratio:3/1;width:110px;${b.image ? `background-image:url('${esc(b.image)}')` : ''}"></div><div class="tx">Banner #${b.id}<small>${b.product_id ? esc(prod(b.product_id)?.name || '') : ''}</small></div>${mv('banners', b.id)}<button class="ibtn" data-delb="${b.id}">${ic('trash-bin-minimalistic-linear', 18)}</button></div>`).join('');
   if (tab === 'stories') {
     AD.story ||= { images: [] };
     body = `<div class="form"><div class="fld"><label>Nomi</label><input id="s_title" placeholder="Chegirma, Luk, Achki..."></div>
@@ -810,10 +896,10 @@ V.admin = async ({ tab = 'orders' }) => {
     <label class="upl">+<input type="file" accept="image/*" multiple data-upload="story"></label></div></div>
     <div class="fld"><label>Mahsulotga bog'lash ("Sotib olish" tugmasi)</label><select id="s_prod"><option value="">—</option>${D.products.map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join('')}</select></div>
     <button class="btn lg" id="s_save">Istoriya qo'shish</button></div><div style="height:14px"></div>` +
-    D.stories.map(s => `<div class="arow"><div class="im" style="border-radius:50%;width:56px;aspect-ratio:1;${`background-image:url('${esc(s.cover)}')`}"></div><div class="tx">${esc(s.title)}<small>${s.images.length} ta rasm</small></div><button class="btn sm ghost" data-dels="${s.id}">🗑</button></div>`).join('');
+    D.stories.map(s => `<div class="arow"><div class="im" style="border-radius:50%;width:56px;aspect-ratio:1;${`background-image:url('${esc(s.cover)}')`}"></div><div class="tx">${esc(s.title)}<small>${s.images.length} ta rasm</small></div>${mv('stories', s.id)}<button class="ibtn" data-dels="${s.id}">${ic('trash-bin-minimalistic-linear', 18)}</button></div>`).join('');
   }
   if (tab === 'cats') body = `<div class="form"><div class="fld"><label>Yangi kategoriya</label><input id="c_name" placeholder="Masalan: Shim"></div><button class="btn" id="c_save">Qo'shish</button></div><div style="height:14px"></div>` +
-    D.categories.map(c => `<div class="arow"><div class="tx">${esc(c.name)}<small>${D.products.filter(p => p.category_id === c.id).length} ta mahsulot</small></div><button class="btn sm ghost" data-delc="${c.id}">🗑</button></div>`).join('');
+    D.categories.map(c => `<div class="arow"><div class="tx"><input class="cname" data-cname="${c.id}" value="${esc(c.name)}"><small>${D.products.filter(p => p.category_id === c.id).length} ta mahsulot · nomini bosib o'zgartiring</small></div>${mv('categories', c.id)}<button class="ibtn" data-delc="${c.id}">${ic('trash-bin-minimalistic-linear', 18)}</button></div>`).join('');
   if (tab === 'stats') {
     let x; try { x = await api('/admin/stats'); } catch { x = null; }
     body = x ? `<div class="stats">
@@ -850,8 +936,8 @@ V.admin = async ({ tab = 'orders' }) => {
     <div class="fld"><label>Bepul yetkazish (dan)</label><input id="st_free" inputmode="numeric" value="${esc(st.free_from || '')}" placeholder="masalan 1000000"></div></div>
     <button class="btn lg" id="st_save">Saqlash</button></div>`;
   }
-  return title('Admin panel') + `<div class="tabs">${tabs}</div>` + body;
-};
+  return body;
+}
 
 /* ===== map ===== */
 function withMaps(fn) {
@@ -1038,7 +1124,7 @@ function reviewSheet(pid) {
 }
 
 document.addEventListener('click', async e => {
-  const t = e.target.closest('button, [data-open], [data-go]'); if (!t) return;
+  const t = e.target.closest('button, [data-open], [data-go], [data-anav], [data-aedit], [data-mainimg]'); if (!t) return;
   const d = t.dataset;
   if (d.fav) { e.stopPropagation(); return toggleFav(d.fav); }
   if (d.add) { e.stopPropagation(); addToCart(+d.add); if (cur().v !== 'product') render(); return; }
@@ -1095,20 +1181,38 @@ document.addEventListener('click', async e => {
     ['fav', 'profile', 'addrs', 'seen', 'recent'].forEach(k => store.del(k)); U = { fav: [], profile: {}, addrs: [], seen: [], recent: [] }; cart = []; saveCart(); go('home'); });
 
   /* admin */
+  if (d.anav) { if (d.anav === 'product' && d.new) AD.form = emptyForm(); return go('admin', { tab: d.anav }); }
   if (d.atab) { cur().tab = d.atab; return render(); }
-  if (d.ost) { await api('/admin/orders/' + d.oid, { method: 'PATCH', body: JSON.stringify({ status: d.ost }) }); toast('Holat yangilandi, mijozga xabar ketdi'); return render(); }
-  if (d.rmimg != null) { saveProductForm(); AD.form.images.splice(+d.rmimg, 1); return render(); }
+  if (d.ostf) { cur().st = d.ostf; return render(); }
+  if (d.ost) {
+    const doit = async () => { await api('/admin/orders/' + d.oid, { method: 'PATCH', body: JSON.stringify({ status: d.ost }) }); haptic('medium'); toast(d.ost === 'new' ? 'Qayta ochildi' : 'Holat yangilandi, mijozga xabar ketdi'); render(); };
+    return d.ost === 'cancel' ? tg.showConfirm('Buyurtma bekor qilinsinmi? Mijozga xabar boradi.', ok => ok && doit()) : doit();
+  }
+  if (d.apcat != null) { AD.pcat = +d.apcat; return render(); }
+  if (d.aedit) { AD.form = formFrom(prod(d.aedit)); return go('admin', { tab: 'product' }); }
+  if (d.dup) { const p = prod(d.dup); AD.form = { ...formFrom(p), id: null }; toast('Nusxa olindi — o\'zgartirib saqlang'); return go('admin', { tab: 'product' }); }
+  if (d.pfcat) { AD.form.category_id = +AD.form.category_id === +d.pfcat ? '' : +d.pfcat; document.querySelectorAll('[data-pfcat]').forEach(b => b.classList.toggle('on', +b.dataset.pfcat === +AD.form.category_id)); return haptic(); }
+  if (d.psz) { const z = d.psz, a = AD.form.sizes; a.includes(z) ? a.splice(a.indexOf(z), 1) : a.push(z); t.classList.toggle('on', a.includes(z)); return haptic(); }
+  if (d.mainimg != null && !e.target.closest('[data-rmimg]')) { saveProductForm(); const i = +d.mainimg; if (i) { const [u] = AD.form.images.splice(i, 1); AD.form.images.unshift(u); haptic(); render(); } return; }
+  if (d.rmimg != null) { e.stopPropagation(); saveProductForm(); AD.form.images.splice(+d.rmimg, 1); return render(); }
   if (d.rmsimg != null) { AD.story.images.splice(+d.rmsimg, 1); return render(); }
-  if (d.edit) { const p = prod(d.edit); AD.form = { id: p.id, name: p.name, price: p.price, old_price: p.old_price, category_id: p.category_id, sizes: (p.sizes || []).join(', '), description: p.description || '', images: [...imgs(p)], sold_out: !!p.sold_out }; render(); return window.scrollTo(0, 0); }
-  if (t.id === 'p_cancel') { AD.form = emptyForm(); return render(); }
-  if (t.id === 'p_save') {
-    saveProductForm(); const f = AD.form; t.disabled = true;
-    try { await api('/admin/products' + (f.id ? '/' + f.id : ''), { method: f.id ? 'PATCH' : 'POST', body: JSON.stringify(f) });
-      toast(f.id ? 'Saqlandi ✓' : "Qo'shildi ✓"); AD.form = emptyForm(); await load(); render(); } catch (err) { tg.showAlert(err.message); t.disabled = false; }
+  if (d.mv) {
+    const [table, id, dir] = d.mv.split(':'); const arr = (table === 'categories' ? D.categories : D[table]).map(x => x.id);
+    const i = arr.indexOf(+id), j = i + +dir; if (j < 0 || j >= arr.length) return;
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+    try { await api('/admin/reorder', { method: 'POST', body: JSON.stringify({ table, ids: arr }) }); await load(); haptic(); render(); } catch (err) { tg.showAlert(err.message); }
     return;
   }
-  const del = async (path, msg) => tg.showConfirm(msg, async ok => { if (!ok) return; await api(path, { method: 'DELETE' }); await load(); render(); toast("O'chirildi"); });
-  if (d.delp) return del('/admin/products/' + d.delp, "Mahsulot o'chirilsinmi?");
+  if (t.id === 'p_save') {
+    saveProductForm(); const f = AD.form;
+    if (!f.name) return tg.showAlert('Mahsulot nomini kiriting'); if (!f.price) return tg.showAlert('Narxni kiriting');
+    t.disabled = true;
+    try { await api('/admin/products' + (f.id ? '/' + f.id : ''), { method: f.id ? 'PATCH' : 'POST', body: JSON.stringify(f) });
+      toast(f.id ? 'Saqlandi ✓' : "Qo'shildi ✓"); AD.form = null; await load(); stack.pop(); stack[stack.length - 1].tab === 'products' ? render() : go('admin', { tab: 'products' }); } catch (err) { tg.showAlert(err.message); t.disabled = false; }
+    return;
+  }
+  const del = async (path, msg, after) => tg.showConfirm(msg, async ok => { if (!ok) return; await api(path, { method: 'DELETE' }); await load(); if (after) after(); render(); toast("O'chirildi"); });
+  if (d.delp) return del('/admin/products/' + d.delp, "Mahsulot o'chirilsinmi?", () => { if (cur().tab === 'product') { AD.form = null; stack.pop(); } });
   if (d.delb) return del('/admin/banners/' + d.delb, "Banner o'chirilsinmi?");
   if (d.dels) return del('/admin/stories/' + d.dels, "Istoriya o'chirilsinmi?");
   if (d.delc) return del('/admin/categories/' + d.delc, "Kategoriya o'chirilsinmi? Mahsulotlar o'chmaydi.");
@@ -1135,6 +1239,18 @@ document.addEventListener('click', async e => {
 });
 
 document.addEventListener('change', async e => {
+  const el = e.target;
+  if (el.dataset.sold) {
+    const p = prod(el.dataset.sold); const sold = !el.checked;
+    try { await api('/admin/products/' + p.id + '/flags', { method: 'PATCH', body: JSON.stringify({ sold_out: sold }) }); p.sold_out = sold; el.closest('.swl').querySelector('small').textContent = tr(sold ? "Yo'q" : 'Sotuvda'); toast(sold ? "Sotuvda yo'q deb belgilandi" : 'Sotuvga qaytarildi'); haptic(); }
+    catch (err) { el.checked = !el.checked; tg.showAlert(err.message); }
+    return;
+  }
+  if (el.dataset.cname) {
+    const name = el.value.trim(); const c = D.categories.find(x => x.id === +el.dataset.cname); if (!name || !c || c.name === name) return;
+    try { await api('/admin/categories/' + c.id, { method: 'PATCH', body: JSON.stringify({ name }) }); c.name = name; toast('Saqlandi ✓'); } catch (err) { tg.showAlert(err.message); }
+    return;
+  }
   const k = e.target.dataset.upload; if (!k || !e.target.files.length) return;
   const files = [...e.target.files].slice(0, 10);
   try {
@@ -1147,9 +1263,12 @@ document.addEventListener('change', async e => {
 });
 
 function saveProductForm() {
-  if (!$('p_name')) return;
+  if (!$('p_name') || !AD.form) return;
+  const extra = $('p_extra').value.split(',').map(x => x.trim()).filter(Boolean);
+  const order = SIZE_SETS.flat();
+  const preset = AD.form.sizes.filter(z => PRESET.has(z)).sort((a, b) => order.indexOf(a) - order.indexOf(b));
   Object.assign(AD.form, { name: $('p_name').value.trim(), price: $('p_price').value.replace(/\s/g, ''), old_price: $('p_old').value.replace(/\s/g, ''),
-    category_id: $('p_cat').value, sizes: $('p_sizes').value, description: $('p_desc').value.trim(), sold_out: $('p_sold')?.checked || false });
+    sizes: [...preset, ...extra.filter(z => !preset.includes(z))], description: $('p_desc').value.trim(), sold_out: !$('p_sold').checked });
 }
 function saveCheckoutFields() {
   const c = cur();
@@ -1207,13 +1326,20 @@ $('qx').addEventListener('pointerdown', e => e.preventDefault()); // klaviatura 
 $('qx').onclick = () => { q = ''; $('q').value = ''; $('qx').classList.add('hide'); showSearch(); $('q').focus(); };
 $('qc').onclick = () => { endSearch(); render(); };
 // natijalarni aylantirganda klaviatura yopiladi
+document.addEventListener('input', e => {
+  const el = e.target;
+  if (el.id === 'ap_q') { AD.pq = el.value; $('aplist').innerHTML = aplist(); return; }
+  if (el.classList.contains('num')) { const pos = el.value.length - el.selectionStart; el.value = fmtNum(el.value); try { el.setSelectionRange(el.value.length - pos, el.value.length - pos); } catch {} }
+});
 $('main').addEventListener('touchmove', () => { if (searching && document.activeElement === $('q')) $('q').blur(); }, { passive: true });
 
 /* ===== render ===== */
 function navBar() {
   const root = stack[0].v, n = cartCount();
-  $('nav').innerHTML = [['home', I.home, I.homeOn, 'Bosh sahifa'], ['catalog', I.grid, I.gridOn, 'Katalog'], ['cart', I.cart(), I.cartOn, 'Savat'], ['profile', I.user, I.userOn, 'Profil']]
-    .map(([v, i0, i1, t]) => `<button data-tab="${v}" class="${root === v ? 'on' : ''}">${root === v ? i1 : i0}${t}${v === 'cart' && n ? `<span class="cnt">${n}</span>` : ''}</button>`).join('');
+  const items = [['home', I.home, I.homeOn, 'Bosh sahifa'], ['catalog', I.grid, I.gridOn, 'Katalog'], ['cart', I.cart(), I.cartOn, 'Savat'], ['profile', I.user, I.userOn, 'Profil']];
+  if (isAdmin) items.push(['admin', ic('shield-user-linear', 24), ic('shield-user-bold', 24), 'Admin']);
+  $('nav').innerHTML = items.map(([v, i0, i1, t]) => { const c = v === 'cart' ? n : v === 'admin' ? ADM.newOrders : 0;
+    return `<button data-tab="${v}" class="${root === v ? 'on' : ''}">${root === v ? i1 : i0}${t}${c ? `<span class="cnt">${c}</span>` : ''}</button>`; }).join('');
 }
 let rid = 0;
 async function render() {
@@ -1244,7 +1370,7 @@ async function checkVersion() {
     }
   } catch {}
 }
-document.addEventListener('visibilitychange', () => { if (!document.hidden) checkVersion(); });
+document.addEventListener('visibilitychange', () => { if (!document.hidden) { checkVersion(); refreshAdminBadge(); } });
 try { tg.onEvent?.('activated', checkVersion); } catch {}
 setInterval(checkVersion, 5 * 60 * 1000);
 
@@ -1260,7 +1386,7 @@ async function load() {
   api('/config').then(c => { yKey = c.yandexKey; APP_VER = c.ver; CFG = { delivery_fee: +c.delivery_fee || 0, free_from: +c.free_from || 0 }; if (loaded) render(); }).catch(() => {});
   try {
     const [me] = await Promise.all([api('/me'), load()]);
-    isAdmin = me.isAdmin;
+    isAdmin = me.isAdmin; if (isAdmin) refreshAdminBadge();
   } catch (e) {
     $('main').innerHTML = `<div class="empty">${I.box}${esc(e.message)}<br><br><button class="btn" style="max-width:220px;margin:0 auto" onclick="location.reload()">Qayta urinish</button></div>`;
     return;

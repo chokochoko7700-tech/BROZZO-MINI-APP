@@ -226,6 +226,28 @@ app.patch('/api/admin/products/:id', A, wrap(async (req, res) => {
   if (error) throw error;
   res.json(data);
 }));
+// Tezkor belgi: sotuvda bor/yo'q
+app.patch('/api/admin/products/:id/flags', A, wrap(async (req, res) => {
+  const { error } = await db.from('products').update({ sold_out: !!req.body?.sold_out }).eq('id', num(req.params.id));
+  if (error) throw error;
+  res.json({ ok: true });
+}));
+// Tartib (bannerlar, istoriyalar, kategoriyalar)
+const SORTABLE = { banners: 'banners', stories: 'stories', categories: 'categories' };
+app.post('/api/admin/reorder', A, wrap(async (req, res) => {
+  const table = SORTABLE[req.body?.table];
+  const ids = (Array.isArray(req.body?.ids) ? req.body.ids : []).map(num).filter(Boolean).slice(0, 200);
+  if (!table || !ids.length) return res.status(400).json({ error: "Noto'g'ri so'rov" });
+  await Promise.all(ids.map((id, i) => db.from(table).update({ sort: i + 1 }).eq('id', id)));
+  res.json({ ok: true });
+}));
+app.patch('/api/admin/categories/:id', A, wrap(async (req, res) => {
+  const name = str(req.body?.name, 40);
+  if (!name) return res.status(400).json({ error: 'Nom kerak' });
+  const { error } = await db.from('categories').update({ name }).eq('id', num(req.params.id));
+  if (error) throw error;
+  res.json({ ok: true });
+}));
 app.delete('/api/admin/products/:id', A, wrap(async (req, res) => {
   await db.from('products').update({ active: false }).eq('id', num(req.params.id));
   res.json({ ok: true });
@@ -272,7 +294,7 @@ app.delete('/api/admin/categories/:id', A, wrap(async (req, res) => {
 }));
 
 app.get('/api/admin/orders', A, wrap(async (_, res) => {
-  const { data } = await db.from('orders').select('*').order('created_at', { ascending: false }).limit(50);
+  const { data } = await db.from('orders').select('*').order('created_at', { ascending: false }).limit(150);
   res.json(data || []);
 }));
 const STATUS = { confirmed: '✅ tasdiqlandi', done: '📦 yetkazildi', cancel: '❌ bekor qilindi' };
