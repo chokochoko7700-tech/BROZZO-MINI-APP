@@ -4,7 +4,7 @@ const PK={users:'tg_id',settings:'key',integration:'key'};let seq=1000;
 const DEF={products:{active:true,draft:false,sold_out:false,source:'manual',images:[],sizes:[],old_price:null,stock:null,qty:null,external_id:null,sku:null,barcode:null,category_id:null,description:null},orders:{status:'new'},banners:{active:true,sort:0},stories:{active:true,sort:0},broadcasts:{status:'running',sent:0,failed:0,total:0},sync_log:{ok:true}};
 function q(t){const st={t,f:[],op:'select',ord:[],lim:null,rng:null,one:false,maybe:false,head:false,count:false,sel:'*'};
 const o={select(s,opt){if(st.op==='select'){st.sel=s||'*';if(opt?.head)st.head=true;if(opt?.count)st.count=true}else st.ret=true;return o},
-eq(k,v){st.f.push(r=>r[k]===v||String(r[k])===String(v)&&v!=null);return o},neq(k,v){st.f.push(r=>r[k]!==v);return o},gt(k,v){st.f.push(r=>r[k]>v);return o},gte(k,v){st.f.push(r=>r[k]>=v);return o},in(k,v){st.f.push(r=>v.includes(r[k]));return o},
+eq(k,v){st.f.push(r=>r[k]===v||String(r[k])===String(v)&&v!=null);return o},neq(k,v){st.f.push(r=>r[k]!==v);return o},gt(k,v){st.f.push(r=>r[k]>v);return o},gte(k,v){st.f.push(r=>r[k]>=v);return o},lt(k,v){st.f.push(r=>r[k]<v);return o},in(k,v){st.f.push(r=>v.includes(r[k]));return o},
 order(k,op={}){st.ord.push([k,op.ascending!==false]);return o},limit(n){st.lim=n;return o},range(a,b){st.rng=[a,b];return o},single(){st.one=true;return o},maybeSingle(){st.one=true;st.maybe=true;return o},
 insert(r){st.op='insert';st.rows=[].concat(r);return o},upsert(r,op){st.op='upsert';st.rows=[].concat(r);st.oc=op?.onConflict||PK[t]||'id';return o},update(r){st.op='update';st.row=r;return o},delete(){st.op='delete';return o},
 then(res,rej){return Promise.resolve().then(()=>run(st)).then(res,rej)}};return o}

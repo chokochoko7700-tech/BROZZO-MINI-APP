@@ -488,7 +488,11 @@ const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const som = n => String(Math.round(n || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " so'm";
 // Rasm o'lchami: Pexels rasmlari kerakli kenglikda so'raladi (kichik kartochkaga kichik rasm)
-const sized = (u, w) => !w || !/images\.pexels\.com/.test(u) ? u : u.replace(/([?&])w=\d+/, `$1w=${w}`).replace(/([?&])h=\d+/, `$1h=${Math.round(w * 1.2)}`);
+const sized = (u, w) => {
+  if (!w || !u) return u;
+  if (w <= 600 && /\/storage\/v1\/object\/public\/.+-x\.\w+$/.test(u)) return u.replace(/-x\.(\w+)$/, '-x_t.$1'); // o'zimiz yuklagan rasmning kichik nusxasi
+  return /images\.pexels\.com/.test(u) ? u.replace(/([?&])w=\d+/, `$1w=${w}`).replace(/([?&])h=\d+/, `$1h=${Math.round(w * 1.2)}`) : u;
+};
 // Lazy: rasm faqat ekranga yaqinlashganda yuklanadi
 const bg = (u, w) => u ? `data-bg="${esc(sized(u, w))}"` : '';
 const lazyIO = 'IntersectionObserver' in window ? new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { const el = e.target; el.style.backgroundImage = `url("${el.dataset.bg}")`; el.removeAttribute('data-bg'); lazyIO.unobserve(el); } }), { rootMargin: '400px 300px' }) : null;
@@ -1176,7 +1180,7 @@ async function compress(file, max = 1400) {
 }
 async function uploadFiles(files) {
   const out = [];
-  for (const f of files) { toast(`Yuklanmoqda ${out.length + 1}/${files.length}...`); out.push((await api('/admin/upload', { method: 'POST', body: JSON.stringify({ data: await compress(f) }) })).url); }
+  for (const f of files) { toast(`Yuklanmoqda ${out.length + 1}/${files.length}...`); out.push((await api('/admin/upload', { method: 'POST', body: JSON.stringify({ data: await compress(f), thumb: await compress(f, 480) }) })).url); }
   toast('Yuklandi ✓'); return out;
 }
 

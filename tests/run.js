@@ -52,6 +52,12 @@ ok((await call('DELETE','/api/admin/products/7',null,USER)).s===403,"Mijoz mahsu
 ok((await call('POST','/api/admin/import',{data:'eA=='},USER)).s===403,'Mijoz Excel yuklay olmaydi → 403');
 let r=await call('POST','/api/admin/upload',{data:'data:image/svg+xml;base64,PHN2Zy8+'});ok(r.s===400,'SVG (XSS xavfi) rasm sifatida qabul qilinmaydi');
 r=await call('POST','/api/admin/upload',{data:'data:text/html;base64,PGh0bWw+'});ok(r.s===400,'HTML fayl yuklab bo\'lmaydi');
+const png='data:image/webp;base64,'+Buffer.from('RIFF0000WEBPVP8 ').toString('base64');
+r=await call('POST','/api/admin/upload',{data:png,thumb:png});ok(r.s===200&&/-x\.webp$/.test(r.j.url)&&Object.keys(global.__FILES).some(k=>k.endsWith('-x_t.webp')),'Rasm yuklanganda kichik nusxa (480px) ham saqlanadi — trafik tejaladi',JSON.stringify(r.j));
+for(let i=1;i<=400;i++)DB.sync_log.push({id:i,source:'x',ok:true});
+for(let i=0;i<50;i++)await call('POST','/api/admin/import',{data:Buffer.from('Nomi;Narx;Qoldiq\nTest;1000;1').toString('base64'),name:'t.csv',dry:false});
+await new Promise(r=>setTimeout(r,100));DB.products=DB.products.filter(p=>p.name!=='Test');global.__DB.products=DB.products;
+ok(DB.sync_log.length<=350,'Sinxronlash tarixi cheksiz o\'smaydi (eski yozuvlar tozalanadi): '+DB.sync_log.length);
 ok((await one('GET','/..%2fserver.js')).s===404,'Server kodini o\'qib bo\'lmaydi (path traversal)');
 ok((await one('GET','/lib/integration.js')).s===404,'lib/ fayllari ochiq emas');
 r=await one('GET','/health');ok(r.h.get('x-content-type-options')==='nosniff','Xavfsizlik sarlavhalari bor');

@@ -144,6 +144,7 @@ const adminIds = (s) => [...new Set([String(ADMIN_ID), ...(s.admins || []).map(S
 const seen = new Map();
 function touchUser(u, lang) {
   if (!u?.id || Date.now() - (seen.get(u.id) || 0) < 10 * 60000) return;
+  if (seen.size > 20000) seen.clear(); // xotira cheksiz o'smasin
   seen.set(u.id, Date.now());
   db.from('users').upsert({ tg_id: u.id, first_name: u.first_name || null, username: u.username || null, lang: lang || u.language_code || null, blocked: false, last_seen: new Date().toISOString() }).then(() => {}, () => {});
 }
@@ -276,9 +277,14 @@ app.post('/api/admin/upload', A, wrap(async (req, res) => {
   const buf = Buffer.from(m[3], 'base64');
   if (buf.length > 5 * 1024 * 1024) return res.status(400).json({ error: 'Rasm juda katta' });
   const ext = m[2] === 'jpeg' ? 'jpg' : m[2];
-  const path = `${new Date().toISOString().slice(0, 7)}/${Date.now()}-${crypto.randomBytes(4).toString('hex')}.${ext}`;
+  // Kichik nusxa (480px) — katalog ro'yxatida shu yuklanadi: trafik ~6 barobar kam
+  const t = /^data:(image\/(webp|jpeg|png));base64,([A-Za-z0-9+/=]+)$/.exec(req.body?.thumb || '');
+  const tbuf = t && t[1] === m[1] ? Buffer.from(t[3], 'base64') : null;
+  const base = `${new Date().toISOString().slice(0, 7)}/${Date.now()}-${crypto.randomBytes(4).toString('hex')}${tbuf && tbuf.length < 600 * 1024 ? '-x' : ''}`;
+  const path = `${base}.${ext}`;
   const { error } = await db.storage.from(BUCKET).upload(path, buf, { contentType: m[1], cacheControl: '31536000' });
   if (error) throw error;
+  if (base.endsWith('-x')) await db.storage.from(BUCKET).upload(`${base}_t.${ext}`, tbuf, { contentType: m[1], cacheControl: '31536000' });
   res.json({ url: db.storage.from(BUCKET).getPublicUrl(path).data.publicUrl });
 }));
 
