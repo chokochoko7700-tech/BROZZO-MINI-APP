@@ -21,3 +21,12 @@ Faqat ADMIN_ID egasi Profil > Admin panel'ni ko'radi: mahsulot (telefondan rasm 
 ## Sozlash
 `public/index.html` boshidagi `SHOP` obyektida telefon, manzil, koordinata, matnlar.
 Mahsulotga to'g'ridan-to'g'ri havola: `t.me/<bot>/<app>?startapp=p_<id>`.
+
+## v3 (2026-11-13)
+- UptimeRobot: `https://brozzo-mini-app.onrender.com/health` ni 5 daqiqada tekshirsin — server uxlamaydi, Supabase ham to'xtamaydi.
+- Admin panel → Sozlamalar: qo'shimcha adminlar, buyurtmalar guruhi (botni guruhga qo'shsangiz, ID'ni o'zi yozadi; `/id` buyrug'i), yetkazish narxi va bepul yetkazish chegarasi.
+- Admin panel → Rassilka: botni ishga tushirgan barcha mijozlarga xabar (rasm + "Do'konni ochish" tugmasi).
+- Admin panel → Statistika: bugun / 7 / 30 kun savdo, yangi buyurtmalar, mijozlar, top mahsulotlar.
+- Mahsulot: "Sotuvda yo'q" belgisi. Istoriya: mahsulotga bog'lash ("Sotib olish" tugmasi).
+- Rozilik belgisi + Maxfiylik siyosati sahifasi. UZ / RU tili (Profil → Til; Telegram tili ruscha bo'lsa avtomatik).
+- Demo mahsulotlar `public/demo/` rasmlari bilan (Brozzo Instagram'idan).

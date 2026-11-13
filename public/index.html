@@ -318,6 +318,35 @@ nav .cnt{min-width:17px;height:17px;font-size:10px;top:-3px}
 .shit .p{font-size:14px}
 .arow{border-radius:14px}
 .arow .tx{font-size:14px}
+/* qo'shimchalar */
+.soldout{position:absolute;left:0;right:0;bottom:0;background:rgba(17,17,17,.78);color:#fff;font-size:12px;font-weight:700;text-align:center;padding:6px 0}
+.card.so .im{filter:grayscale(.6)}
+.hcats{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px}
+.hcat{position:relative;aspect-ratio:3/4;border-radius:18px;background:#222 center/cover;overflow:hidden;text-align:left}
+.hcat::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 55%,rgba(0,0,0,.6))}
+.hcat b{position:absolute;left:12px;bottom:14px;right:52px;z-index:1;color:#fff;font-size:18px;font-weight:700;line-height:1.2}
+.hcat i{position:absolute;right:10px;bottom:10px;z-index:1;width:36px;height:36px;border-radius:50%;background:#fff;display:grid;place-items:center;color:#111}
+#svp{position:absolute;left:12px;right:12px;bottom:calc(16px + env(safe-area-inset-bottom));z-index:3;display:none;align-items:center;gap:10px;background:rgba(255,255,255,.96);border-radius:18px;padding:10px}
+#svp.on{display:flex}
+#svp .im{width:44px;aspect-ratio:5/6;border-radius:10px;background:var(--soft) center/cover;flex:none}
+#svp .tx{flex:1;min-width:0}
+#svp .tx b{display:block;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#svp .tx small{font-weight:800;font-size:14px}
+#svp .btn{width:auto;padding:0 16px;height:40px}
+.agree{display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.45}
+.agree input{width:20px;height:20px;accent-color:#111;flex:none;margin-top:1px}
+.agree a{color:var(--ink);font-weight:700;text-decoration:underline}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px}
+.stat{background:var(--card);border-radius:16px;padding:14px}
+.stat small{display:block;color:var(--mute);font-size:13px}
+.stat b{display:block;font-size:17px;font-weight:800;margin-top:4px;white-space:nowrap}
+.stat span{font-size:13px;color:var(--mute)}
+.legal{padding:0 16px;font-size:15px;line-height:1.6;color:#333}
+.legal h3{font-size:16px;margin:18px 0 6px;color:var(--ink)}
+.legal p,.legal li{margin:0 0 8px}
+.legal ul{padding-left:20px}
+.prog{height:6px;border-radius:6px;background:var(--soft);overflow:hidden;margin-top:8px}
+.prog i{display:block;height:100%;background:var(--ink)}
 @media (max-width:360px){.card .nm{font-size:14px}.card .pr{font-size:17px}.btn{font-size:14px;gap:6px}.h1{font-size:27px}}
 </style>
 </head>
@@ -330,12 +359,12 @@ nav .cnt{min-width:17px;height:17px;font-size:10px;top:-3px}
 <main id="main"></main>
 <div id="buy"></div>
 <nav id="nav"></nav>
-<div id="sv"><div class="img"></div><div class="bars"></div><div class="hd"><div class="c"></div><span></span><button class="x">×</button></div></div>
+<div id="sv"><div class="img"></div><div class="bars"></div><div class="hd"><div class="c"></div><span></span><button class="x">×</button></div><div id="svp"></div></div>
 <div id="sheet"><div class="in"><div class="grab"></div><div id="sin"></div></div></div>
 <div class="toast" id="toast"></div>
 
 <script>
-const tg = window.Telegram?.WebApp || { initData: '', initDataUnsafe: {}, ready(){}, expand(){}, showAlert: alert, showConfirm: (m, c) => c(confirm(m)), openLink: u => open(u), openTelegramLink: u => open(u), BackButton: { show(){}, hide(){}, onClick(){} }, HapticFeedback: null, close(){} };
+const tg = window.Telegram?.WebApp || { initData: '', initDataUnsafe: {}, ready(){}, expand(){}, showAlert: (m, c) => { alert(m); c?.(); }, showConfirm: (m, c) => c(confirm(m)), openLink: u => open(u), openTelegramLink: u => open(u), BackButton: { show(){}, hide(){}, onClick(){} }, HapticFeedback: null, close(){} };
 tg.ready(); tg.expand();
 try { tg.setHeaderColor('#f6f6f3'); tg.setBackgroundColor('#f6f6f3'); tg.disableVerticalSwipes?.(); } catch {}
 
@@ -352,6 +381,39 @@ const SHOP = {
   marquee: ['Premium kiyim', 'Yangi kolleksiya 2026/27', 'BROZZO*', 'Shahrisabz'],
   version: '2026.11.13',
 };
+
+/* ===== til: o'zbekcha / ruscha ===== */
+let LANG = (() => { try { const l = localStorage.getItem('bz_lang'); if (l) return l; } catch {} return String(tg.initDataUnsafe?.user?.language_code || '').startsWith('ru') ? 'ru' : 'uz'; })();
+document.documentElement.lang = LANG;
+const RU = {"Kurtka":"Куртки","Ko'ylak":"Рубашки","Poyabzal":"Обувь","Atirlar":"Парфюм","Achki":"Очки","Shim":"Брюки","Kostyum":"Костюмы","Aksessuarlar":"Аксессуары","Bosh sahifa": "Главная", "Katalog": "Каталог", "Savat": "Корзина", "Profil": "Профиль", "Mahsulot qidirish": "Поиск товаров", "Bekor": "Отмена", "Natijalar": "Результаты", "Qidiruv": "Поиск", "Oxirgi qidiruvlar": "Недавние запросы", "Tozalash": "Очистить", "Boshqa so'z bilan urinib ko'ring.": "Попробуйте другой запрос.", "BROZZO* — premium uslub": "BROZZO* — премиальный стиль", "Istoriyalar": "Истории", "Kategoriyalar": "Категории", "Chegirmalar": "Скидки", "Chegirma": "Скидки", "Yangi kolleksiya": "Новые поступления", "Premium kiyim": "Премиальная одежда", "Yangi kolleksiya 2026/27": "Новая коллекция 2026/27", "Shahrisabz": "Шахрисабз", "BROZZO* — Shahrisabzdagi premium erkaklar kiyimi do'koni. Kurtka, ko'ylak, kostyum, poyabzal, atirlar va aksessuarlar — har bir buyum mato sifati, bichimi va o'lchamiga e'tibor bilan tanlangan. Yangi kolleksiya allaqachon sotuvda.": "BROZZO* — магазин премиальной мужской одежды в Шахрисабзе. Куртки, рубашки, костюмы, обувь, парфюм и аксессуары — каждая вещь подобрана с вниманием к качеству ткани, крою и размеру. Новая коллекция уже в продаже.", "KONTAKTLAR": "КОНТАКТЫ", "Kontaktlar": "Контакты", "© 2026 BROZZO*. Shahrisabz": "© 2026 BROZZO*. Шахрисабз", "Qo'ng'iroq qilish": "Позвонить", "Do'kon manzili": "Адрес магазина", "Do'kon": "Магазин", "Yo'l ko'rsatish": "Маршрут", "Shahrisabz shahar, Maqom plaza mehmonxonasi yonida, Jahon marketni ro'parasida": "г. Шахрисабз, рядом с гостиницей Maqom plaza, напротив Jahon market", "Barchasi": "Все", "Yangilari": "Новые", "Arzonroq": "Дешевле", "Qimmatroq": "Дороже", "Hozircha mahsulot yo'q": "Пока нет товаров", "Mahsulot topilmadi": "Товар не найден", "Savatga": "В корзину", "Savatda": "В корзине", "Sotuvda yo'q": "Нет в наличии", "Sotib olish": "Купить", "Savatga qo'shildi": "Добавлено в корзину", "Savatga qo'shildi ✓": "Добавлено в корзину ✓", "O'lcham": "Размер", "Tavsif": "Описание", "Sharhlar": "Отзывы", "Sharh yozish": "Написать отзыв", "Sharhlar yo'q": "Нет отзывов", "Birinchi bo'lib sharh qoldiring.": "Оставьте отзыв первым.", "Mahsulot haqida fikringiz": "Ваш отзыв о товаре", "Yuborish": "Отправить", "Rahmat! Sharh qabul qilindi": "Спасибо! Отзыв принят", "O'lchamni tanlang": "Выберите размер", "Savat bo'sh": "Корзина пуста", "Katalogga o'tish": "Перейти в каталог", "Yetkazib berish": "Доставка", "Kelishiladi": "По договорённости", "Bepul": "Бесплатно", "Jami": "Итого", "Rasmiylashtirish": "Оформление заказа", "Ism": "Имя", "Ismingiz": "Ваше имя", "Telefon": "Телефон", "Olib ketish": "Самовывоз", "Yangi manzil": "Новый адрес", "Xaritadan tanlang yoki yozing": "Выберите на карте или введите", "Manzil": "Адрес", "Shahar, ko'cha, uy, mo'ljal": "Город, улица, дом, ориентир", "Manzilni saqlash": "Сохранить адрес", "Izoh (ixtiyoriy)": "Комментарий (необязательно)", "Masalan: qo'ng'iroq qilib keling": "Например: позвоните перед приездом", "Buyurtma berish": "Оформить заказ", "Yuborilmoqda...": "Отправка...", "Buyurtma berish orqali": "Оформляя заказ, я соглашаюсь с", "maxfiylik siyosati va shartlar": "политикой конфиденциальности и условиями", "ga hamda ma'lumotlarim qayta ishlanishiga roziman": "и на обработку моих данных", "Shartlarga rozilik belgisini qo'ying": "Отметьте согласие с условиями", "Ism va telefon raqamini kiriting": "Введите имя и номер телефона", "Yetkazish manzilini kiriting": "Введите адрес доставки", "Manzilni kiriting": "Введите адрес", "Shartlarga rozilik bering": "Подтвердите согласие с условиями", "Ism, telefon va mahsulot kerak": "Нужны имя, телефон и товары", "Mahsulotlar topilmadi": "Товары не найдены", "Telegram orqali oching": "Откройте через Telegram", "Server xatosi": "Ошибка сервера", "Xatolik yuz berdi": "Произошла ошибка", "Qayta urinish": "Повторить", "Mehmon": "Гость", "Xaridlar": "Покупки", "Xaridlarim": "Мои покупки", "Sevimlilar": "Избранное", "Sharhlarim": "Мои отзывы", "Men haqimda": "Обо мне", "Ma'lumotlarim": "Мои данные", "ism, telefon, tug'ilgan sana": "имя, телефон, дата рождения", "Manzillarim": "Мои адреса", "Yordam": "Поддержка", "Telegram, telefon": "Telegram, телефон", "Sozlamalar": "Настройки", "Til": "Язык", "O'zbekcha": "O'zbekcha", "Huquqiy ma'lumot": "Правовая информация", "Sotuvchi bilan bog'lanish": "Связаться с продавцом", "Maxfiylik siyosati": "Политика конфиденциальности", "Shartlar va shaxsiy ma'lumotlar": "Условия и персональные данные", "Boshqaruv": "Управление", "Admin panel": "Админ-панель", "Mahsulot, buyurtma, banner, istoriya": "Товары, заказы, баннеры, истории", "Ma'lumotlarni tozalash": "Очистить данные", "Sevimlilar, manzillar va savat tozalansinmi?": "Очистить избранное, адреса и корзину?", "Yangi": "Новый", "Tasdiqlandi": "Подтверждён", "Yetkazildi": "Доставлен", "Bekor qilindi": "Отменён", "Qayta buyurtma": "Повторить заказ", "Hali xarid qilmagansiz": "У вас пока нет покупок", "Hali sharh yozmagansiz": "Вы ещё не писали отзывов", "Mahsulot": "Товар", "Email": "Email", "Tug'ilgan sana": "Дата рождения", "Telegram raqamini yuborish": "Отправить номер из Telegram", "Saqlash": "Сохранить", "Saqlandi ✓": "Сохранено ✓", "Raqam yuborildi": "Номер отправлен", "Raqam qo'shildi ✓": "Номер добавлен ✓", "Saqlangan manzil yo'q": "Нет сохранённых адресов", "+ Manzil qo'shish": "+ Добавить адрес", "O'chirish": "Удалить", "Nomi": "Название", "Uy, Ish...": "Дом, Работа...", "Telegram orqali yozish": "Написать в Telegram", "Telegram": "Telegram", "Instagram": "Instagram", "Buyurtmalar": "Заказы", "Statistika": "Статистика", "Mahsulotlar": "Товары", "Bannerlar": "Баннеры", "Rassilka": "Рассылка", "Tasdiqlash": "Подтвердить", "Buyurtma yo'q": "Заказов нет", "Tahrirlash": "Редактирование", "Yangi mahsulot": "Новый товар", "Rasmlar (birinchisi asosiy)": "Фото (первое — главное)", "Narx": "Цена", "Eski narx": "Старая цена", "chegirma": "скидка", "Kategoriya": "Категория", "O'lchamlar (vergul bilan)": "Размеры (через запятую)", "Sotuvda yo'q (tugagan)": "Нет в наличии (закончился)", "Qo'shish": "Добавить", "Bekor qilish": "Отмена", "Banner o'lchami: 16:10 (masalan 1600×1000). Bosh sahifada aylanadi.": "Размер баннера: 16:10 (например 1600×1000). Прокручивается на главной.", "Mahsulotga bog'lash (ixtiyoriy)": "Привязать к товару (необязательно)", "Rasm yuklash": "Загрузить фото", "Rasmlar (birinchisi — doira rasmi)": "Фото (первое — обложка круга)", "Mahsulotga bog'lash (\"Sotib olish\" tugmasi)": "Привязать к товару (кнопка «Купить»)", "Istoriya qo'shish": "Добавить историю", "Chegirma, Luk, Achki...": "Скидки, Образ, Очки...", "Yangi kategoriya": "Новая категория", "Masalan: Shim": "Например: Брюки", "Bugun": "Сегодня", "Yangi buyurtmalar": "Новые заказы", "javob kutmoqda": "ждут ответа", "Mijozlar": "Клиенты", "Eng ko'p sotilgan (30 kun)": "Топ продаж (30 дней)", "Hali sotuv yo'q": "Пока нет продаж", "Yuklab bo'lmadi": "Не удалось загрузить", "Rasm (ixtiyoriy)": "Фото (необязательно)", "Matn": "Текст", "Mahsulotga havola (ixtiyoriy)": "Ссылка на товар (необязательно)", "Oxirgi rassilkalar": "Последние рассылки", "Yangilash": "Обновить", "Tugadi": "Завершена", "Xato": "Ошибка", "Yuborilmoqda": "Отправляется", "Hali rassilka yo'q": "Рассылок пока нет", "Xabar barcha mijozlarga yuborilsinmi?": "Отправить сообщение всем клиентам?", "Yuborish boshlandi ✓": "Рассылка запущена ✓", "Matn yoki rasm kiriting": "Введите текст или добавьте фото", "Adminlar (Telegram ID, vergul bilan)": "Админы (Telegram ID через запятую)", "Buyurtmalar guruhi (chat ID)": "Группа для заказов (chat ID)", "Botni do'kon guruhiga qo'shing — bot guruh ID'sini yozib beradi. Bo'sh qolsa, buyurtmalar barcha adminlarga keladi.": "Добавьте бота в группу магазина — бот напишет ID группы. Если пусто, заказы приходят всем админам.", "Yetkazish narxi": "Стоимость доставки", "Bepul yetkazish (dan)": "Бесплатная доставка (от)", "0 — kelishiladi": "0 — по договорённости", "masalan 1000000": "например 1000000", "Masalan: 🔥 Yangi kolleksiya keldi! Barcha kurtkalarga −20% chegirma, faqat shu hafta.": "Например: 🔥 Новая коллекция! Скидка −20% на все куртки, только на этой неделе.", "Holat yangilandi, mijozga xabar ketdi": "Статус обновлён, клиент уведомлён", "Mahsulot o'chirilsinmi?": "Удалить товар?", "Banner o'chirilsinmi?": "Удалить баннер?", "Istoriya o'chirilsinmi?": "Удалить историю?", "Kategoriya o'chirilsinmi? Mahsulotlar o'chmaydi.": "Удалить категорию? Товары не удалятся.", "O'chirildi": "Удалено", "Qo'shildi ✓": "Добавлено ✓", "Nom va rasm kerak": "Нужны название и фото", "Nom va narx kerak": "Нужны название и цена", "Yuklandi ✓": "Загружено ✓", "Rasm formati noto'g'ri": "Неверный формат фото", "Rasm juda katta": "Фото слишком большое", "Ruxsat yo'q": "Нет доступа", "Rasm kerak": "Нужно фото", "Matn yoki rasm kerak": "Нужен текст или фото", "Nom kerak": "Нужно название"};
+const RX = [[/^(\d+) ta mahsulot$/, "Товаров: $1"], [/^(\d+) ta$/, "$1 шт."], [/^(\d+) ta buyurtma$/, "Заказов: $1"], [/^(\d+) ta rasm$/, "Фото: $1"], [/^(\d+) ta tugagan$/, "нет в наличии: $1"], [/^(\d+) ta manzil$/, "Адресов: $1"], [/^(\d+) dona$/, "$1 шт."], [/^(\d+) kun$/, "$1 дней"], [/^\+(\d+) shu hafta$/, "+$1 за неделю"], [/^Mahsulotlar \((\d+)\)$/, "Товары ($1)"], [/^O'lcham: (.+)$/, "Размер: $1"], [/^Rasmiylashtirish · (.+)$/, "Оформить · $1"], [/^Savatga qo'shish · (.+)$/, "В корзину · $1"], [/^(.+) · Sotuvda yo'q$/, "$1 · Нет в наличии"], [/^(.+) dan yuqori buyurtmada yetkazish bepul$/, "Бесплатная доставка от $1"], [/^([\d.]+) · (\d+) ta sharh$/, "$1 · отзывов: $2"], [/^(.+) · (\d+) ta mahsulot$/, "$1 · товаров: $2"], [/^(.+) · (\d+)\/(\d+) yuborildi · (\d+) ta yetmadi$/, "$1 · отправлено $2/$3 · не доставлено: $4"], [/^(.+) · (\d+)\/(\d+) yuborildi$/, "$1 · отправлено $2/$3"], [/^(\d\d:\d\d) dan (\d\d:\d\d) gacha$/, "с $1 до $2"], [/^Ish vaqti: (\d\d:\d\d) dan (\d\d:\d\d) gacha$/, "Часы работы: с $1 до $2"], [/^«(.+)» bo'yicha hech narsa topilmadi\.$/, "По запросу «$1» ничего не найдено."], [/^Buyurtma #(\d+) qabul qilindi! Tez orada siz bilan bog'lanamiz\.$/, "Заказ #$1 принят! Мы скоро свяжемся с вами."], [/^Xabar botni ishga tushirgan barcha mijozlarga \((\d+) ta\) yuboriladi\..*$/, "Сообщение получат все клиенты, запустившие бота ($1). Под сообщением будет кнопка «Открыть магазин»."], [/^Asosiy admin: (\d+)\. Sizning ID:$/, "Главный админ: $1. Ваш ID:"], [/^\. Boshqa odam o'z ID'sini botga \/id yozib bilib oladi\.$/, ". Другой человек узнает свой ID, написав боту /id."], [/^Yuklanmoqda (\d+)\/(\d+)\.\.\.$/, "Загрузка $1/$2..."], [/^Banner #(\d+)$/, "Баннер #$1"], [/^(.+) do'koni$/, "Магазин $1"], [/^Ish vaqti: (.+)$/, "Часы работы: $1"], [/^(\d+)\. (.+)$/, "$1. $2"], [/^(.+) \(yetkazish (.+)\)$/, "$1 (доставка $2)"], [/^\(yetkazish (.+)\)$/, "(доставка $1)"]];
+function tr(str) {
+  if (LANG !== 'ru' || !str) return str;
+  const k = str.trim(); if (!k) return str;
+  let r = RU[k];
+  if (r == null) for (const [re, to] of RX) if (re.test(k)) { r = k.replace(re, to); break; }
+  if (r == null) r = k;
+  r = r.replace(/so'm/g, 'сум');
+  return r === k ? str : str.replace(k, r);
+}
+function trNode(n) {
+  if (LANG !== 'ru') return;
+  if (n.nodeType === 3) { if (!n.parentElement?.closest('[translate="no"],script,style')) { const v = tr(n.data); if (v !== n.data) n.data = v; } return; }
+  if (n.nodeType !== 1 || n.closest('[translate="no"]')) return;
+  if (n.placeholder) n.placeholder = tr(n.placeholder);
+  const w = document.createTreeWalker(n, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT);
+  for (let x = w.nextNode(); x; x = w.nextNode()) {
+    if (x.nodeType === 1) { if (x.placeholder) x.placeholder = tr(x.placeholder); continue; }
+    if (x.parentElement?.closest('[translate="no"],script,style')) continue;
+    const v = tr(x.data); if (v !== x.data) x.data = v;
+  }
+}
+if (LANG === 'ru') {
+  new MutationObserver(ms => { for (const m of ms) m.addedNodes.forEach(trNode); }).observe(document.documentElement, { childList: true, subtree: true });
+  for (const f of ['showAlert', 'showConfirm']) { const o = tg[f]?.bind(tg); if (o) tg[f] = (m, c) => o(tr(m), c); }
+  trNode(document.body);
+}
+function setLang(l) { try { localStorage.setItem('bz_lang', l); } catch {} location.reload(); }
 
 /* ===== helpers ===== */
 const $ = id => document.getElementById(id);
@@ -408,7 +470,8 @@ const store = {
 let D = { categories: [], products: [], banners: [], stories: [] };
 let U = { fav: [], profile: {}, addrs: [], seen: [] };
 let cart = []; try { cart = JSON.parse(localStorage.getItem('bz_cart') || '[]'); } catch {}
-let isAdmin = false, yKey = '', q = '', loaded = false;
+let isAdmin = false, yKey = '', q = '', loaded = false, CFG = { delivery_fee: 0, free_from: 0 };
+const feeFor = sum => (CFG.free_from && sum >= CFG.free_from) ? 0 : (CFG.delivery_fee || 0);
 const saveCart = () => { try { localStorage.setItem('bz_cart', JSON.stringify(cart)); } catch {} navBar(); };
 const prod = id => D.products.find(p => p.id === +id);
 const imgs = p => (p.images && p.images.length ? p.images : p.image ? [p.image] : []);
@@ -432,12 +495,12 @@ tg.BackButton.onClick(back);
 function card(p) {
   const off = p.old_price > p.price ? Math.round((1 - p.price / p.old_price) * 100) : 0;
   const inCart = cart.some(i => i.id === p.id);
-  return `<div class="card"><div class="im" ${bg(imgs(p)[0])} data-open="${p.id}">
-    ${off ? `<span class="sale">−${off}%</span>` : ''}
+  return `<div class="card ${p.sold_out ? 'so' : ''}"><div class="im" ${bg(imgs(p)[0])} data-open="${p.id}">
+    ${off ? `<span class="sale">−${off}%</span>` : ''}${p.sold_out ? `<span class="soldout">Sotuvda yo'q</span>` : ''}
     <button class="heart ${isFav(p.id) ? 'on' : ''}" data-fav="${p.id}">${I.heart(19, isFav(p.id))}</button></div>
     <div class="body" data-open="${p.id}"><div class="nm">${esc(p.name)}</div>
     <div class="pr">${off ? `<s>${som(p.old_price)}</s>` : ''}${som(p.price)}</div>
-    <button class="btn add ${inCart ? 'done' : ''}" data-add="${p.id}">${I.cart(18)} ${inCart ? 'Savatda' : 'Savatga'}</button></div></div>`;
+    ${p.sold_out ? `<button class="btn add ghost" disabled>Sotuvda yo'q</button>` : `<button class="btn add ${inCart ? 'done' : ''}" data-add="${p.id}">${I.cart(18)} ${inCart ? 'Savatda' : 'Savatga'}</button>`}</div></div>`;
 }
 const grid = list => `<div class="grid">${list.length ? list.map(card).join('') : `<div class="empty">${I.box}Hozircha mahsulot yo'q</div>`}</div>`;
 const skel = () => `<div class="grid">${'<div class="card"><div class="im skel"></div><div class="body"><div class="skel" style="height:16px;border-radius:6px"></div><div class="skel" style="height:22px;width:60%;border-radius:6px;margin:12px 0"></div><div class="skel" style="height:48px;border-radius:14px"></div></div></div>'.repeat(4)}</div>`;
@@ -456,10 +519,13 @@ V.home = () => {
     `<button class="banner" ${bg(b.image)} ${b.product_id ? `data-open="${b.product_id}"` : ''}></button>`).join('')}</div>
     ${D.banners.length > 1 ? `<div class="dots" id="dots">${D.banners.map((_, i) => `<i class="${i ? '' : 'on'}"></i>`).join('')}</div>` : ''}</div>` : '';
   const sale = D.products.filter(p => p.old_price > p.price);
-  const words = SHOP.marquee.join(' • ') + ' • ';
+  const hc = D.categories.map(c => ({ c, img: imgs(D.products.find(p => p.category_id === c.id) || {})[0] })).filter(x => x.img);
+  const cats = hc.length ? `<div class="h2">Kategoriyalar</div><div class="hcats">${hc.map(({ c, img }) =>
+    `<button class="hcat" ${bg(img)} data-go="cat" data-id="${c.id}"><b>${esc(c.name)}</b><i>${ic('arrow-right-linear', 20)}</i></button>`).join('')}</div>` : '';
+  const words = SHOP.marquee.map(tr).join(' • ') + ' • ';
   return `<div class="h1">${SHOP.name} — premium uslub</div>
   <div class="mq"><div><span>${esc(words.repeat(3))}</span><span>${esc(words.repeat(3))}</span></div></div>
-  ${st}${bn}
+  ${st}${bn}${cats}
   ${sale.length ? `<div class="h2 row">Chegirmalar <small>${sale.length} ta</small></div>${grid(sale.slice(0, 4))}` : ''}
   <div class="h2 row">Yangi kolleksiya <small>${D.products.length} ta</small></div>${grid(D.products)}
   ${brand()}`;
@@ -552,6 +618,7 @@ V.product = ({ id }) => {
   </div>`;
 };
 V.product.buy = ({ id }) => { const p = prod(id); if (!p) return ''; const inCart = cart.filter(i => i.id === p.id).reduce((a, i) => a + i.qty, 0);
+  if (p.sold_out) return `<div class="buy"><button class="btn lg ghost" disabled>Sotuvda yo'q</button></div>`;
   return `<div class="buy"><button class="btn lg" data-addp="${p.id}">${I.cart(20)} Savatga qo'shish · ${som(p.price)}${inCart ? ` (${inCart})` : ''}</button></div>`; };
 V.product.after = async ({ id }) => {
   const g = $('gal'), d = $('gdots');
@@ -571,10 +638,11 @@ V.cart = () => {
   ${i.size ? `<small>O'lcham: ${esc(i.size)}</small>` : ''}<div class="p">${som(p.price * i.qty)}</div>
   <div class="qty"><button data-dec="${n}">−</button><span>${i.qty}</span><button data-inc="${n}">+</button></div></div></div>`; }).join('') +
   `<div class="sum"><div><span class="mute">Mahsulotlar (${cartCount()})</span><span>${som(cartTotal())}</span></div>
-  <div><span class="mute">Yetkazib berish</span><span>Kelishiladi</span></div>
-  <div class="t"><span>Jami</span><span>${som(cartTotal())}</span></div></div><div style="height:90px"></div>`;
+  <div><span class="mute">Yetkazib berish</span><span>${CFG.delivery_fee ? (feeFor(cartTotal()) ? som(feeFor(cartTotal())) : 'Bepul') : 'Kelishiladi'}</span></div>
+  ${CFG.free_from && cartTotal() < CFG.free_from && CFG.delivery_fee ? `<div><span class="mute" style="font-size:13px">${som(CFG.free_from)} dan yuqori buyurtmada yetkazish bepul</span></div>` : ''}
+  <div class="t"><span>Jami</span><span>${som(cartTotal() + feeFor(cartTotal()))}</span></div></div><div style="height:90px"></div>`;
 };
-V.cart.buy = () => cart.length ? `<div class="buy"><button class="btn lg" data-go="checkout">Rasmiylashtirish · ${som(cartTotal())}</button></div>` : '';
+V.cart.buy = () => cart.length ? `<div class="buy"><button class="btn lg" data-go="checkout">Rasmiylashtirish · ${som(cartTotal() + feeFor(cartTotal()))}</button></div>` : '';
 
 V.checkout = () => {
   const c = cur(); const pf = U.profile; const u = tg.initDataUnsafe?.user || {};
@@ -590,7 +658,9 @@ V.checkout = () => {
   ${c.addr === -1 ? `<div id="map"></div><div class="fld"><label>Manzil</label><textarea id="f_addr" rows="2" placeholder="Shahar, ko'cha, uy, mo'ljal">${esc(c.text || '')}</textarea></div>
   <label style="display:flex;gap:10px;align-items:center;font-weight:600"><input type="checkbox" id="f_save" checked style="width:20px;height:20px;accent-color:#111"> Manzilni saqlash</label>` : ''}`}
   <div class="fld"><label>Izoh (ixtiyoriy)</label><textarea id="f_cmt" rows="2" placeholder="Masalan: qo'ng'iroq qilib keling"></textarea></div>
-  <div class="sum" style="margin:0"><div class="t" style="border:0;margin:0;padding:0"><span>Jami</span><span>${som(cartTotal())}</span></div></div>
+  <div class="sum" style="margin:0">${c.delivery === 'delivery' && CFG.delivery_fee ? `<div><span class="mute">Yetkazib berish</span><span>${feeFor(cartTotal()) ? som(feeFor(cartTotal())) : 'Bepul'}</span></div>` : ''}
+  <div class="t" style="${c.delivery === 'delivery' && CFG.delivery_fee ? '' : 'border:0;margin:0;padding:0'}"><span>Jami</span><span>${som(cartTotal() + (c.delivery === 'delivery' ? feeFor(cartTotal()) : 0))}</span></div></div>
+  <label class="agree"><input type="checkbox" id="f_agree" ${c.agree ? 'checked' : ''}><span>Buyurtma berish orqali <a data-go="privacy">maxfiylik siyosati va shartlar</a>ga hamda ma'lumotlarim qayta ishlanishiga roziman</span></label>
   </div><div style="height:90px"></div>`;
 };
 V.checkout.buy = () => `<div class="buy"><button class="btn lg" id="order">Buyurtma berish</button></div>`;
@@ -599,13 +669,14 @@ V.checkout.after = () => { if ($('map')) mapPicker('map', cur()); };
 V.profile = () => {
   const u = tg.initDataUnsafe?.user || {};
   const nm = U.profile.name || [u.first_name, u.last_name].filter(Boolean).join(' ') || 'Mehmon';
-  return title('Profil') + `<div class="user"><div class="av" ${u.photo_url ? bg(u.photo_url) : ''}>${u.photo_url ? '' : esc(nm[0] || 'B')}</div>
+  return title('Profil') + `<div class="user"><div class="av" ${u.photo_url ? bg(u.photo_url) : ''}>${u.photo_url ? '' : esc(tr(nm)[0] || 'B')}</div>
   <div><b>${esc(nm)}</b><span class="mute">${u.username ? '@' + esc(u.username) : esc(U.profile.phone || '')}</span></div></div>
   <div class="h2">Xaridlar</div><div class="group">
   ${li(I.bag, 'Xaridlarim', '', 'data-go="orders"')}${li(I.heart(20), 'Sevimlilar', U.fav.length ? U.fav.length + ' ta' : '', 'data-go="favs"')}${li(I.star(20), 'Sharhlarim', '', 'data-go="myreviews"')}</div>
   <div class="h2">Men haqimda</div><div class="group">
   ${li(ic('user-id-linear', 20), "Ma'lumotlarim", "ism, telefon, tug'ilgan sana", 'data-go="mydata"')}${li(I.pin, 'Manzillarim', U.addrs.length ? U.addrs.length + ' ta manzil' : '', 'data-go="addrs"')}${li(I.chat, 'Yordam', 'Telegram, telefon', 'data-help="1"')}</div>
-  <div class="h2">Huquqiy ma'lumot</div><div class="group">${li(I.phone, 'Kontaktlar', "Sotuvchi bilan bog'lanish", 'data-go="contacts"')}</div>
+  <div class="h2">Sozlamalar</div><div class="group">${li(ic('global-linear', 20), 'Til', LANG === 'ru' ? 'Русский' : "O'zbekcha", 'data-lang="1"')}</div>
+  <div class="h2">Huquqiy ma'lumot</div><div class="group">${li(I.phone, 'Kontaktlar', "Sotuvchi bilan bog'lanish", 'data-go="contacts"')}${li(I.shield, 'Maxfiylik siyosati', 'Shartlar va shaxsiy ma\'lumotlar', 'data-go="privacy"')}</div>
   ${isAdmin ? `<div class="h2">Boshqaruv</div><div class="group">${li(I.gear, 'Admin panel', 'Mahsulot, buyurtma, banner, istoriya', 'data-go="admin"')}</div>` : ''}
   <button class="logout" id="logout">Ma'lumotlarni tozalash</button>
   <div class="ver">v ${SHOP.version} · ${SHOP.name}</div>`;
@@ -622,6 +693,22 @@ V.orders = async () => {
   : `<div class="empty">${I.box}Hali xarid qilmagansiz</div>`);
 };
 V.orders.data = [];
+
+V.privacy = () => title(LANG === 'ru' ? 'Политика конфиденциальности' : 'Maxfiylik siyosati') + (LANG === 'ru' ? `<div class="legal" translate="no">
+  <p>Магазин ${SHOP.name} (далее — Продавец) обрабатывает персональные данные покупателей только для выполнения заказов.</p>
+  <h3>Какие данные собираются</h3><ul><li>имя, номер телефона;</li><li>адрес и геолокация доставки (если выбрана доставка);</li><li>Telegram ID и имя пользователя;</li><li>история заказов, отзывы.</li></ul>
+  <h3>Цель</h3><p>Оформление и доставка заказа, связь с покупателем, уведомления о статусе заказа и, с согласия, о скидках и новинках.</p>
+  <h3>Хранение и защита</h3><p>Данные хранятся на защищённых серверах и доступны только Продавцу. Данные не продаются и не передаются третьим лицам, кроме случаев, предусмотренных законом.</p>
+  <h3>Ваши права</h3><p>Вы можете запросить удаление или изменение своих данных, написав продавцу: ${SHOP.phoneTxt}. От рассылки можно отказаться, остановив бота.</p>
+  <h3>Условия покупки</h3><p>Цены указаны в сумах. Заказ считается принятым после подтверждения продавцом. Оплата и стоимость доставки согласуются при подтверждении. Обмен и возврат — согласно законодательству Республики Узбекистан о защите прав потребителей.</p>
+  <p class="mute">Нажимая «Оформить заказ», вы соглашаетесь с этими условиями.</p></div>` : `<div class="legal" translate="no">
+  <p>${SHOP.name} do'koni (keyingi o'rinlarda — Sotuvchi) xaridorlarning shaxsiy ma'lumotlarini faqat buyurtmalarni bajarish uchun qayta ishlaydi.</p>
+  <h3>Qanday ma'lumotlar yig'iladi</h3><ul><li>ism, telefon raqami;</li><li>yetkazish manzili va joylashuvi (yetkazish tanlansa);</li><li>Telegram ID va foydalanuvchi nomi;</li><li>buyurtmalar tarixi, sharhlar.</li></ul>
+  <h3>Maqsad</h3><p>Buyurtmani rasmiylashtirish va yetkazish, xaridor bilan bog'lanish, buyurtma holati haqida xabar berish va roziligingiz bilan chegirmalar hamda yangiliklar haqida xabar yuborish.</p>
+  <h3>Saqlash va himoya</h3><p>Ma'lumotlar himoyalangan serverlarda saqlanadi va faqat Sotuvchiga ochiq. Ma'lumotlar sotilmaydi va qonunda nazarda tutilgan hollardan tashqari uchinchi shaxslarga berilmaydi.</p>
+  <h3>Sizning huquqlaringiz</h3><p>Ma'lumotlaringizni o'chirish yoki o'zgartirishni so'rashingiz mumkin: ${SHOP.phoneTxt}. Xabarlardan voz kechish uchun botni to'xtating.</p>
+  <h3>Xarid shartlari</h3><p>Narxlar so'mda ko'rsatilgan. Buyurtma sotuvchi tasdiqlaganidan keyin qabul qilingan hisoblanadi. To'lov va yetkazish narxi tasdiqlashda kelishiladi. Almashtirish va qaytarish O'zbekiston Respublikasining iste'molchilar huquqlarini himoya qilish to'g'risidagi qonunchiligiga muvofiq.</p>
+  <p class="mute">"Buyurtma berish" tugmasini bosish orqali siz ushbu shartlarga rozilik bildirasiz.</p></div>`) + '<div style="height:24px"></div>';
 
 V.favs = () => title('Sevimlilar') + grid(D.products.filter(p => isFav(p.id)));
 
@@ -663,7 +750,7 @@ V.contacts.after = () => withMaps(() => { const m = new ymaps.Map('map', { cente
 let AD = { orders: [], form: null };
 const emptyForm = () => ({ id: null, name: '', price: '', old_price: '', category_id: '', sizes: '', description: '', images: [] });
 V.admin = async ({ tab = 'orders' }) => {
-  const tabs = [['orders', 'Buyurtmalar'], ['products', 'Mahsulotlar'], ['banners', 'Bannerlar'], ['stories', 'Istoriyalar'], ['cats', 'Kategoriyalar']]
+  const tabs = [['orders', 'Buyurtmalar'], ['stats', 'Statistika'], ['products', 'Mahsulotlar'], ['banners', 'Bannerlar'], ['stories', 'Istoriyalar'], ['cats', 'Kategoriyalar'], ['broadcast', 'Rassilka'], ['settings', 'Sozlamalar']]
     .map(([k, t]) => `<button class="chip ${tab === k ? 'on' : ''}" data-atab="${k}">${t}</button>`).join('');
   let body = '';
   if (tab === 'orders') {
@@ -674,7 +761,7 @@ V.admin = async ({ tab = 'orders' }) => {
     <small>${o.delivery === 'pickup' ? "🏬 Olib ketadi" : '🚚 ' + esc(o.address || '')}${o.comment ? '<br>💬 ' + esc(o.comment) : ''}</small>
     <div class="thumbs">${o.items.map(i => `<div ${bg(i.image)}></div>`).join('')}</div>
     <small>${o.items.map(i => esc(i.name) + (i.size ? ' / ' + esc(i.size) : '') + ' × ' + i.qty).join('<br>')}</small>
-    <div style="font-weight:800;margin-top:8px">${som(o.total)}</div>
+    <div style="font-weight:800;margin-top:8px">${som(o.total)}${o.delivery_fee ? ` <span class="mute" style="font-weight:500;font-size:13px">(yetkazish ${som(o.delivery_fee)})</span>` : ''}</div>
     <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">${[['confirmed', 'Tasdiqlash'], ['done', 'Yetkazildi'], ['cancel', 'Bekor']].map(([s, t]) => `<button class="btn sm ${o.status === s ? '' : 'ghost'}" data-ost="${s}" data-oid="${o.id}">${t}</button>`).join('')}</div></div>`).join('') || `<div class="empty">Buyurtma yo'q</div>`;
   }
   if (tab === 'products') {
@@ -688,9 +775,10 @@ V.admin = async ({ tab = 'orders' }) => {
     <div class="fld"><label>Kategoriya</label><select id="p_cat"><option value="">—</option>${D.categories.map(c => `<option value="${c.id}" ${+f.category_id === c.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select></div>
     <div class="fld"><label>O'lchamlar (vergul bilan)</label><input id="p_sizes" value="${esc(f.sizes)}" placeholder="S, M, L, XL"></div>
     <div class="fld"><label>Tavsif</label><textarea id="p_desc" rows="3">${esc(f.description)}</textarea></div>
+    <label class="agree"><input type="checkbox" id="p_sold" ${f.sold_out ? 'checked' : ''}><span>Sotuvda yo'q (tugagan)</span></label>
     <button class="btn lg" id="p_save">${f.id ? 'Saqlash' : "Qo'shish"}</button>${f.id ? '<button class="btn ghost" id="p_cancel">Bekor qilish</button>' : ''}</div>
     <div class="h2">Mahsulotlar (${D.products.length})</div>` +
-    D.products.map(p => `<div class="arow"><div class="im" ${bg(imgs(p)[0])}></div><div class="tx">${esc(p.name)}<small>${som(p.price)}</small></div>
+    D.products.map(p => `<div class="arow"><div class="im" ${bg(imgs(p)[0])}></div><div class="tx">${esc(p.name)}<small>${som(p.price)}${p.sold_out ? " · Sotuvda yo'q" : ''}</small></div>
     <button class="btn sm ghost" data-edit="${p.id}">✎</button><button class="btn sm ghost" data-delp="${p.id}">🗑</button></div>`).join('');
   }
   if (tab === 'banners') body = `<div class="form"><p class="mute">Banner o'lchami: 16:10 (masalan 1600×1000). Bosh sahifada aylanadi.</p>
@@ -702,11 +790,48 @@ V.admin = async ({ tab = 'orders' }) => {
     body = `<div class="form"><div class="fld"><label>Nomi</label><input id="s_title" placeholder="Chegirma, Luk, Achki..."></div>
     <div class="fld"><label>Rasmlar (birinchisi — doira rasmi)</label><div class="thumbs-edit">${AD.story.images.map((u, i) => `<div ${bg(u)}><button data-rmsimg="${i}">×</button></div>`).join('')}
     <label class="upl">+<input type="file" accept="image/*" multiple data-upload="story"></label></div></div>
+    <div class="fld"><label>Mahsulotga bog'lash ("Sotib olish" tugmasi)</label><select id="s_prod"><option value="">—</option>${D.products.map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join('')}</select></div>
     <button class="btn lg" id="s_save">Istoriya qo'shish</button></div><div style="height:14px"></div>` +
     D.stories.map(s => `<div class="arow"><div class="im" style="border-radius:50%;width:56px;aspect-ratio:1;${`background-image:url('${esc(s.cover)}')`}"></div><div class="tx">${esc(s.title)}<small>${s.images.length} ta rasm</small></div><button class="btn sm ghost" data-dels="${s.id}">🗑</button></div>`).join('');
   }
   if (tab === 'cats') body = `<div class="form"><div class="fld"><label>Yangi kategoriya</label><input id="c_name" placeholder="Masalan: Shim"></div><button class="btn" id="c_save">Qo'shish</button></div><div style="height:14px"></div>` +
     D.categories.map(c => `<div class="arow"><div class="tx">${esc(c.name)}<small>${D.products.filter(p => p.category_id === c.id).length} ta mahsulot</small></div><button class="btn sm ghost" data-delc="${c.id}">🗑</button></div>`).join('');
+  if (tab === 'stats') {
+    let x; try { x = await api('/admin/stats'); } catch { x = null; }
+    body = x ? `<div class="stats">
+      <div class="stat"><small>Bugun</small><b>${som(x.today.revenue)}</b><span>${x.today.count} ta buyurtma</span></div>
+      <div class="stat"><small>7 kun</small><b>${som(x.week.revenue)}</b><span>${x.week.count} ta buyurtma</span></div>
+      <div class="stat"><small>30 kun</small><b>${som(x.month.revenue)}</b><span>${x.month.count} ta buyurtma</span></div>
+      <div class="stat"><small>Yangi buyurtmalar</small><b>${x.newOrders}</b><span>javob kutmoqda</span></div>
+      <div class="stat"><small>Mijozlar</small><b>${x.users}</b><span>+${x.newUsers} shu hafta</span></div>
+      <div class="stat"><small>Mahsulotlar</small><b>${D.products.length}</b><span>${D.products.filter(p => p.sold_out).length} ta tugagan</span></div></div>
+      <div class="h2">Eng ko'p sotilgan (30 kun)</div>${x.top.map((t, i) => `<div class="arow"><div class="im" ${bg(t.image)}></div><div class="tx">${i + 1}. ${esc(t.name)}<small>${t.qty} dona</small></div></div>`).join('') || '<div class="empty">Hali sotuv yo\'q</div>'}` : '<div class="empty">Yuklab bo\'lmadi</div>';
+  }
+  if (tab === 'broadcast') {
+    AD.bc ||= { image: null };
+    let list = [], st = {}; try { [list, st] = await Promise.all([api('/admin/broadcasts'), api('/admin/settings')]); } catch {}
+    body = `<div class="form"><p class="mute">Xabar botni ishga tushirgan barcha mijozlarga (${st.users || 0} ta) yuboriladi. Xabar ostida "Do'konni ochish" tugmasi bo'ladi.</p>
+    <div class="fld"><label>Rasm (ixtiyoriy)</label><div class="thumbs-edit">${AD.bc.image ? `<div ${bg(AD.bc.image)}><button data-rmbc="1">×</button></div>` : `<label class="upl">+<input type="file" accept="image/*" data-upload="bc"></label>`}</div></div>
+    <div class="fld"><label>Matn</label><textarea id="bc_text" rows="5" placeholder="Masalan: 🔥 Yangi kolleksiya keldi! Barcha kurtkalarga −20% chegirma, faqat shu hafta."></textarea></div>
+    <div class="fld"><label>Mahsulotga havola (ixtiyoriy)</label><select id="bc_prod"><option value="">—</option>${D.products.map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join('')}</select></div>
+    <button class="btn lg" id="bc_send">Yuborish</button></div>
+    <div class="h2 row">Oxirgi rassilkalar <small><button data-atab="broadcast" style="color:var(--mute);font-weight:600">Yangilash</button></small></div>` +
+    (list.map(b => `<div class="order"><div class="hd"><span style="font-size:14px;font-weight:600">${esc((b.text || 'Rasm').slice(0, 60))}</span><span class="badge ${b.status === 'done' ? 'done' : b.status === 'error' ? 'cancel' : 'new'}">${b.status === 'done' ? 'Tugadi' : b.status === 'error' ? 'Xato' : 'Yuborilmoqda'}</span></div>
+      <small>${date(b.created_at)} · ${b.sent}/${b.total} yuborildi${b.failed ? ` · ${b.failed} ta yetmadi` : ''}</small><div class="prog"><i style="width:${b.total ? Math.round((b.sent + b.failed) / b.total * 100) : 0}%"></i></div></div>`).join('') || '<div class="empty">Hali rassilka yo\'q</div>');
+  }
+  if (tab === 'settings') {
+    let st = {}; try { st = await api('/admin/settings'); } catch {}
+    const me = tg.initDataUnsafe?.user?.id || '';
+    body = `<div class="form">
+    <div class="fld"><label>Adminlar (Telegram ID, vergul bilan)</label><input id="st_admins" inputmode="numeric" value="${esc((st.admins || []).join(', '))}" placeholder="123456789, 987654321"></div>
+    <p class="mute" style="font-size:13px;margin-top:-4px">Asosiy admin: ${esc(st.owner || '')}. Sizning ID: <b>${me}</b>. Boshqa odam o'z ID'sini botga /id yozib bilib oladi.</p>
+    <div class="fld"><label>Buyurtmalar guruhi (chat ID)</label><input id="st_chat" inputmode="numeric" value="${esc(st.notify_chat || '')}" placeholder="-100..."></div>
+    <p class="mute" style="font-size:13px;margin-top:-4px">Botni do'kon guruhiga qo'shing — bot guruh ID'sini yozib beradi. Bo'sh qolsa, buyurtmalar barcha adminlarga keladi.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+    <div class="fld"><label>Yetkazish narxi</label><input id="st_fee" inputmode="numeric" value="${esc(st.delivery_fee || '')}" placeholder="0 — kelishiladi"></div>
+    <div class="fld"><label>Bepul yetkazish (dan)</label><input id="st_free" inputmode="numeric" value="${esc(st.free_from || '')}" placeholder="masalan 1000000"></div></div>
+    <button class="btn lg" id="st_save">Saqlash</button></div>`;
+  }
   return title('Admin panel') + `<div class="tabs">${tabs}</div>` + body;
 };
 
@@ -749,6 +874,9 @@ function showStory() {
   sv.querySelector('.img').style.backgroundImage = `url('${im[SV.k]}')`;
   sv.querySelector('.hd .c').style.backgroundImage = `url('${s.cover}')`;
   sv.querySelector('.hd span').textContent = s.title;
+  const sp = s.product_id && prod(s.product_id);
+  $('svp').classList.toggle('on', !!sp);
+  $('svp').innerHTML = sp ? `<div class="im" ${bg(imgs(sp)[0])}></div><div class="tx"><b>${esc(sp.name)}</b><small>${som(sp.price)}</small></div><button class="btn" data-svbuy="${sp.id}">${I.cart(18)} Sotib olish</button>` : '';
   sv.querySelector('.bars').innerHTML = im.map((_, j) => `<i><b style="width:${j < SV.k ? 100 : 0}%"></b></i>`).join('');
   const bar = sv.querySelectorAll('.bars b')[SV.k];
   requestAnimationFrame(() => { bar.style.transition = 'width 5s linear'; bar.style.width = '100%'; });
@@ -757,6 +885,9 @@ function showStory() {
 function closeStory() { clearTimeout(SV?.t); SV = null; $('sv').classList.remove('on'); if (cur().v === 'home') render(); }
 $('sv').addEventListener('click', e => {
   if (e.target.closest('.x')) return closeStory();
+  const b = e.target.closest('[data-svbuy]');
+  if (b) { e.stopPropagation(); const id = +b.dataset.svbuy; closeStory(); return go('product', { id }); }
+  if (e.target.closest('#svp')) return;
   SV.k += e.clientX < innerWidth / 3 ? -1 : 1;
   if (SV.k < 0 && SV.si === 0) SV.k = 0;
   showStory();
@@ -840,6 +971,7 @@ document.addEventListener('click', async e => {
   if (d.tglink) return tg.openTelegramLink(d.tglink);
   if (d.call) return tg.openLink?.('tel:' + SHOP.phone) || (location.href = 'tel:' + SHOP.phone);
   if (d.help) return help();
+  if (d.lang) { setLang(LANG === 'ru' ? 'uz' : 'ru'); return; }
   if (d.review) return reviewSheet(d.review);
   if (d.dlv) { saveCheckoutFields(); cur().delivery = d.dlv; return render(); }
   if (d.pick != null) { saveCheckoutFields(); cur().addr = +d.pick; return render(); }
@@ -856,7 +988,11 @@ document.addEventListener('click', async e => {
     U.profile = { name: $('d_name').value.trim(), phone: $('d_phone').value.trim(), email: $('d_email').value.trim(), birth: $('d_birth').value };
     store.set('profile', U.profile); toast('Saqlandi ✓'); return back();
   }
-  if (t.id === 'd_contact') return tg.requestContact(ok => { const c = tg.initDataUnsafe?.user; if (ok) toast('Raqam yuborildi'); });
+  if (t.id === 'd_contact') return tg.requestContact((ok, r) => {
+    const ph = r?.responseUnsafe?.contact?.phone_number;
+    if (ok && ph && $('d_phone')) { $('d_phone').value = '+' + String(ph).replace(/^\+/, ''); toast('Raqam qo\'shildi ✓'); }
+    else if (ok) toast('Raqam yuborildi');
+  });
   if (t.id === 'a_save') {
     const text = $('f_addr').value.trim(); if (!text) return toast('Manzilni kiriting');
     U.addrs.push({ title: $('a_title').value.trim() || 'Manzil', text, loc: cur().loc || null }); store.set('addrs', U.addrs); toast('Saqlandi ✓'); return back();
@@ -869,7 +1005,7 @@ document.addEventListener('click', async e => {
   if (d.ost) { await api('/admin/orders/' + d.oid, { method: 'PATCH', body: JSON.stringify({ status: d.ost }) }); toast('Holat yangilandi, mijozga xabar ketdi'); return render(); }
   if (d.rmimg != null) { saveProductForm(); AD.form.images.splice(+d.rmimg, 1); return render(); }
   if (d.rmsimg != null) { AD.story.images.splice(+d.rmsimg, 1); return render(); }
-  if (d.edit) { const p = prod(d.edit); AD.form = { id: p.id, name: p.name, price: p.price, old_price: p.old_price, category_id: p.category_id, sizes: (p.sizes || []).join(', '), description: p.description || '', images: [...imgs(p)] }; render(); return window.scrollTo(0, 0); }
+  if (d.edit) { const p = prod(d.edit); AD.form = { id: p.id, name: p.name, price: p.price, old_price: p.old_price, category_id: p.category_id, sizes: (p.sizes || []).join(', '), description: p.description || '', images: [...imgs(p)], sold_out: !!p.sold_out }; render(); return window.scrollTo(0, 0); }
   if (t.id === 'p_cancel') { AD.form = emptyForm(); return render(); }
   if (t.id === 'p_save') {
     saveProductForm(); const f = AD.form; t.disabled = true;
@@ -882,9 +1018,20 @@ document.addEventListener('click', async e => {
   if (d.delb) return del('/admin/banners/' + d.delb, "Banner o'chirilsinmi?");
   if (d.dels) return del('/admin/stories/' + d.dels, "Istoriya o'chirilsinmi?");
   if (d.delc) return del('/admin/categories/' + d.delc, "Kategoriya o'chirilsinmi? Mahsulotlar o'chmaydi.");
+  if (d.rmbc) { AD.bc.image = null; return render(); }
+  if (t.id === 'bc_send') {
+    const text = $('bc_text').value.trim(); if (!text && !AD.bc.image) return toast('Matn yoki rasm kiriting');
+    return tg.showConfirm('Xabar barcha mijozlarga yuborilsinmi?', async ok => { if (!ok) return;
+      try { await api('/admin/broadcast', { method: 'POST', body: JSON.stringify({ text, image: AD.bc.image, product_id: $('bc_prod').value }) }); AD.bc = { image: null }; toast('Yuborish boshlandi ✓'); render(); } catch (err) { tg.showAlert(err.message); } });
+  }
+  if (t.id === 'st_save') {
+    const body = { admins: $('st_admins').value.split(/[,\s]+/).filter(Boolean), notify_chat: $('st_chat').value.trim(), delivery_fee: $('st_fee').value.replace(/\s/g, ''), free_from: $('st_free').value.replace(/\s/g, '') };
+    try { const r = await api('/admin/settings', { method: 'PUT', body: JSON.stringify(body) }); CFG.delivery_fee = +r.delivery_fee || 0; CFG.free_from = +r.free_from || 0; toast('Saqlandi ✓'); render(); } catch (err) { tg.showAlert(err.message); }
+    return;
+  }
   if (t.id === 's_save') {
     const title = $('s_title').value.trim(); if (!title || !AD.story.images.length) return toast('Nom va rasm kerak');
-    try { await api('/admin/stories', { method: 'POST', body: JSON.stringify({ title, images: AD.story.images }) }); AD.story = { images: [] }; await load(); render(); toast("Qo'shildi ✓"); } catch (err) { tg.showAlert(err.message); }
+    try { await api('/admin/stories', { method: 'POST', body: JSON.stringify({ title, images: AD.story.images, product_id: $('s_prod').value }) }); AD.story = { images: [] }; await load(); render(); toast("Qo'shildi ✓"); } catch (err) { tg.showAlert(err.message); }
     return;
   }
   if (t.id === 'c_save') {
@@ -899,6 +1046,7 @@ document.addEventListener('change', async e => {
   try {
     if (k === 'product') { saveProductForm(); AD.form.images.push(...await uploadFiles(files)); }
     if (k === 'story') AD.story.images.push(...await uploadFiles(files));
+    if (k === 'bc') { const [url] = await uploadFiles(files.slice(0, 1)); AD.bc.image = url; }
     if (k === 'banner') { const [url] = await uploadFiles(files.slice(0, 1)); await api('/admin/banners', { method: 'POST', body: JSON.stringify({ image: url, product_id: $('b_prod').value }) }); await load(); }
     render();
   } catch (err) { tg.showAlert(err.message); }
@@ -907,13 +1055,14 @@ document.addEventListener('change', async e => {
 function saveProductForm() {
   if (!$('p_name')) return;
   Object.assign(AD.form, { name: $('p_name').value.trim(), price: $('p_price').value.replace(/\s/g, ''), old_price: $('p_old').value.replace(/\s/g, ''),
-    category_id: $('p_cat').value, sizes: $('p_sizes').value, description: $('p_desc').value.trim() });
+    category_id: $('p_cat').value, sizes: $('p_sizes').value, description: $('p_desc').value.trim(), sold_out: $('p_sold')?.checked || false });
 }
 function saveCheckoutFields() {
   const c = cur();
   if ($('f_name')) U.profile.name = $('f_name').value.trim();
   if ($('f_phone')) U.profile.phone = $('f_phone').value.trim();
   if ($('f_addr')) c.text = $('f_addr').value;
+  if ($('f_agree')) c.agree = $('f_agree').checked;
 }
 async function placeOrder(btn) {
   saveCheckoutFields();
@@ -926,10 +1075,11 @@ async function placeOrder(btn) {
       if (address && $('f_save')?.checked) { U.addrs.push({ title: 'Manzil ' + (U.addrs.length + 1), text: address, loc }); store.set('addrs', U.addrs); } }
     if (!address) return tg.showAlert('Yetkazish manzilini kiriting');
   }
+  if (!c.agree) return tg.showAlert("Shartlarga rozilik belgisini qo'ying");
   store.set('profile', U.profile);
   btn.disabled = true; btn.textContent = 'Yuborilmoqda...';
   try {
-    const r = await api('/orders', { method: 'POST', body: JSON.stringify({ name, phone, delivery: c.delivery, address, location: loc, comment: $('f_cmt')?.value || '', items: cart }) });
+    const r = await api('/orders', { method: 'POST', body: JSON.stringify({ name, phone, delivery: c.delivery, address, location: loc, comment: $('f_cmt')?.value || '', items: cart, agree: true }) });
     cart = []; saveCart(); tg.HapticFeedback?.notificationOccurred('success');
     stack = [{ v: 'profile' }, { v: 'orders' }]; render();
     tg.showAlert(`Buyurtma #${r.id} qabul qilindi! Tez orada siz bilan bog'lanamiz.`);
@@ -1011,7 +1161,7 @@ async function load() {
   render();
   const [fav, profile, addrs, seen, recent] = await Promise.all(['fav', 'profile', 'addrs', 'seen', 'recent'].map(k => store.get(k)));
   U = { fav: fav || [], profile: profile || {}, addrs: addrs || [], seen: seen || [], recent: recent || [] };
-  api('/config').then(c => { yKey = c.yandexKey; APP_VER = c.ver; }).catch(() => {});
+  api('/config').then(c => { yKey = c.yandexKey; APP_VER = c.ver; CFG = { delivery_fee: +c.delivery_fee || 0, free_from: +c.free_from || 0 }; if (loaded) render(); }).catch(() => {});
   try {
     const [me] = await Promise.all([api('/me'), load()]);
     isAdmin = me.isAdmin;
@@ -1020,7 +1170,9 @@ async function load() {
     return;
   }
   const sp = tg.initDataUnsafe?.start_param; // t.me/bot/app?startapp=p_12 → mahsulot
+  const pp = new URLSearchParams(location.search).get('p'); // rassilka havolasi → mahsulot
   if (sp && /^p_\d+$/.test(sp)) stack.push({ v: 'product', id: +sp.slice(2) });
+  else if (pp && /^\d+$/.test(pp) && prod(pp)) stack.push({ v: 'product', id: +pp });
   render();
 })();
 </script>

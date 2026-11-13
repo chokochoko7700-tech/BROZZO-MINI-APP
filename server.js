@@ -17,7 +17,11 @@ app.use(express.static('public', {
   maxAge: '1h',
   setHeaders: (res, file) => { if (file.endsWith('.html')) res.setHeader('Cache-Control', 'no-cache, must-revalidate'); },
 }));
-app.get('/health', (_, res) => res.send('ok'));
+// UptimeRobot shu manzilni tekshiradi: server uxlamaydi, Supabase ham faol qoladi
+app.get('/health', async (_, res) => {
+  const { error } = await db.from('categories').select('id').limit(1);
+  res.status(error ? 500 : 200).send(error ? 'db error' : 'ok');
+});
 
 const bot = (method, body) =>
   fetch(`https://api.telegram.org/bot${BOT_TOKEN}/${method}`, {
@@ -39,13 +43,32 @@ function verify(initData) {
   if (Date.now() / 1000 - Number(p.get('auth_date')) > 86400) return null;
   try { return JSON.parse(p.get('user')); } catch { return null; }
 }
-const auth = (req, res, next) => {
+// Sozlamalar (adminlar, buyurtma guruhi, yetkazish narxi) — bazada, 30 soniya keshlanadi
+const DEF = { admins: [], notify_chat: null, delivery_fee: 0, free_from: 0 };
+let SET = { ...DEF }, setAt = 0;
+async function settings(force) {
+  if (!force && Date.now() - setAt < 30000) return SET;
+  const { data } = await db.from('settings').select('key,value');
+  SET = { ...DEF, ...Object.fromEntries((data || []).map((r) => [r.key, r.value])) };
+  setAt = Date.now();
+  return SET;
+}
+const adminIds = (s) => [...new Set([String(ADMIN_ID), ...(s.admins || []).map(String)])];
+const seen = new Map();
+function touchUser(u, lang) {
+  if (!u?.id || Date.now() - (seen.get(u.id) || 0) < 10 * 60000) return;
+  seen.set(u.id, Date.now());
+  db.from('users').upsert({ tg_id: u.id, first_name: u.first_name || null, username: u.username || null, lang: lang || u.language_code || null, blocked: false, last_seen: new Date().toISOString() }).then(() => {}, () => {});
+}
+const auth = async (req, res, next) => {
   const u = verify(req.get('x-init-data'));
   if (!u) return res.status(401).json({ error: 'Telegram orqali oching' });
   req.user = u;
-  req.isAdmin = String(u.id) === String(ADMIN_ID);
+  try { req.isAdmin = adminIds(await settings()).includes(String(u.id)); } catch { req.isAdmin = String(u.id) === String(ADMIN_ID); }
+  touchUser(u);
   next();
 };
+const notifyChats = async () => { const s = await settings(); return s.notify_chat ? [s.notify_chat] : adminIds(s); };
 const adminOnly = (req, res, next) => (req.isAdmin ? next() : res.status(403).json({ error: "Ruxsat yo'q" }));
 const wrap = (fn) => (req, res) =>
   Promise.resolve(fn(req, res)).catch((e) => { console.error(e); res.status(500).json({ error: 'Server xatosi' }); });
@@ -56,7 +79,11 @@ const isUrl = (u) => typeof u === 'string' && /^https:\/\/[^\s"'()<>]+$/.test(u)
 const urls = (a) => (Array.isArray(a) ? a.filter(isUrl).slice(0, 12) : []);
 const som = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " so'm";
 
-app.get('/api/config', (_, res) => { res.setHeader('Cache-Control', 'no-store'); res.json({ yandexKey: YANDEX_KEY || '', ver: VER }); });
+app.get('/api/config', async (_, res) => {
+  res.setHeader('Cache-Control', 'no-store');
+  const s = await settings().catch(() => DEF);
+  res.json({ yandexKey: YANDEX_KEY || '', ver: VER, delivery_fee: +s.delivery_fee || 0, free_from: +s.free_from || 0 });
+});
 app.get('/api/me', auth, (req, res) => res.json({ isAdmin: req.isAdmin }));
 
 app.get('/api/catalog', auth, wrap(async (_, res) => {
@@ -89,12 +116,13 @@ app.post('/api/orders', auth, wrap(async (req, res) => {
   if (!name || !phone || !Array.isArray(b.items) || !b.items.length)
     return res.status(400).json({ error: 'Ism, telefon va mahsulot kerak' });
   if (delivery === 'delivery' && !address) return res.status(400).json({ error: 'Manzilni kiriting' });
+  if (b.agree !== true) return res.status(400).json({ error: 'Shartlarga rozilik bering' });
   let location = null;
   if (b.location && Number.isFinite(+b.location.lat) && Number.isFinite(+b.location.lng))
     location = { lat: +b.location.lat, lng: +b.location.lng };
 
   const ids = [...new Set(b.items.slice(0, 50).map((i) => Number(i.id)))];
-  const { data: prods } = await db.from('products').select('id,name,price,image').in('id', ids).eq('active', true);
+  const { data: prods } = await db.from('products').select('id,name,price,image').in('id', ids).eq('active', true).eq('sold_out', false);
   const map = Object.fromEntries((prods || []).map((p) => [p.id, p]));
   const lines = [];
   let total = 0;
@@ -106,11 +134,14 @@ app.post('/api/orders', auth, wrap(async (req, res) => {
     total += p.price * qty;
   }
   if (!lines.length) return res.status(400).json({ error: 'Mahsulotlar topilmadi' });
+  const st = await settings();
+  const fee = delivery === 'delivery' && !(+st.free_from && total >= +st.free_from) ? (+st.delivery_fee || 0) : 0;
+  total += fee;
 
   const { data: order, error } = await db.from('orders').insert({
     tg_id: req.user.id, tg_username: req.user.username || null, name, phone,
     address: delivery === 'pickup' ? "Do'kondan olib ketish" : address,
-    delivery, location, comment: str(b.comment, 300), items: lines, total,
+    delivery, location, comment: str(b.comment, 300), items: lines, total, delivery_fee: fee,
   }).select().single();
   if (error) throw error;
 
@@ -118,10 +149,13 @@ app.post('/api/orders', auth, wrap(async (req, res) => {
     (delivery === 'pickup' ? "🏬 Do'kondan olib ketadi\n" : `🚚 Yetkazish: ${address}\n`) +
     (order.comment ? `💬 ${order.comment}\n` : '') + '\n' +
     lines.map((l) => `• ${l.name}${l.size ? ' / ' + l.size : ''} × ${l.qty} = ${som(l.price * l.qty)}`).join('\n') +
+    (fee ? `\n🚚 Yetkazish: ${som(fee)}` : '') +
     `\n\n💰 Jami: ${som(total)}` + (req.user.username ? `\n@${req.user.username}` : '');
-  bot('sendMessage', { chat_id: ADMIN_ID, text }).then(() => {
-    if (location) bot('sendLocation', { chat_id: ADMIN_ID, latitude: location.lat, longitude: location.lng });
-  });
+  for (const chat_id of await notifyChats()) {
+    bot('sendMessage', { chat_id, text }).then(() => {
+      if (location) bot('sendLocation', { chat_id, latitude: location.lat, longitude: location.lng });
+    });
+  }
   bot('sendMessage', { chat_id: req.user.id, text: `✅ Buyurtmangiz #${order.id} qabul qilindi.\nJami: ${som(total)}\nTez orada siz bilan bog'lanamiz.` });
   res.json({ ok: true, id: order.id, total });
 }));
@@ -175,7 +209,7 @@ function productRow(b) {
     name: str(b.name, 140), price: num(b.price), old_price: num(b.old_price),
     category_id: num(b.category_id), description: str(b.description, 2000),
     sizes: (Array.isArray(b.sizes) ? b.sizes : String(b.sizes || '').split(',')).map((s) => String(s).trim()).filter(Boolean).slice(0, 15),
-    images, image: images[0] || null,
+    images, image: images[0] || null, sold_out: !!b.sold_out,
   };
 }
 app.post('/api/admin/products', A, wrap(async (req, res) => {
@@ -214,7 +248,7 @@ app.post('/api/admin/stories', A, wrap(async (req, res) => {
   const images = urls(b.images);
   const cover = isUrl(b.cover) ? b.cover : images[0];
   if (!str(b.title, 40) || !cover) return res.status(400).json({ error: 'Nom va rasm kerak' });
-  const { error } = await db.from('stories').insert({ title: str(b.title, 40), cover, images: images.length ? images : [cover], sort: num(b.sort) || 0 });
+  const { error } = await db.from('stories').insert({ title: str(b.title, 40), cover, images: images.length ? images : [cover], product_id: num(b.product_id), sort: num(b.sort) || 0 });
   if (error) throw error;
   res.json({ ok: true });
 }));
@@ -249,15 +283,113 @@ app.patch('/api/admin/orders/:id', A, wrap(async (req, res) => {
   res.json({ ok: true });
 }));
 
+// Sozlamalar
+app.get('/api/admin/settings', A, wrap(async (_, res) => {
+  const s = await settings(true);
+  const { count } = await db.from('users').select('tg_id', { count: 'exact', head: true });
+  res.json({ ...s, owner: String(ADMIN_ID), users: count || 0 });
+}));
+app.put('/api/admin/settings', A, wrap(async (req, res) => {
+  const b = req.body || {};
+  const rows = [
+    { key: 'admins', value: (Array.isArray(b.admins) ? b.admins : []).map((x) => String(x).replace(/\D/g, '')).filter(Boolean).slice(0, 10) },
+    { key: 'notify_chat', value: /^-?\d+$/.test(String(b.notify_chat || '').trim()) ? String(b.notify_chat).trim() : null },
+    { key: 'delivery_fee', value: Math.max(0, num(b.delivery_fee) || 0) },
+    { key: 'free_from', value: Math.max(0, num(b.free_from) || 0) },
+  ].map((r) => ({ ...r, updated_at: new Date().toISOString() }));
+  const { error } = await db.from('settings').upsert(rows);
+  if (error) throw error;
+  res.json(await settings(true));
+}));
+
+// Statistika
+app.get('/api/admin/stats', A, wrap(async (_, res) => {
+  const since = new Date(Date.now() - 30 * 864e5).toISOString();
+  const [{ data: orders }, { count: users }, { count: newUsers }] = await Promise.all([
+    db.from('orders').select('total,status,items,created_at').gte('created_at', since).limit(5000),
+    db.from('users').select('tg_id', { count: 'exact', head: true }),
+    db.from('users').select('tg_id', { count: 'exact', head: true }).gte('created_at', new Date(Date.now() - 7 * 864e5).toISOString()),
+  ]);
+  const ok = (orders || []).filter((o) => o.status !== 'cancel');
+  const day0 = new Date(); day0.setHours(0, 0, 0, 0);
+  const sum = (arr) => ({ count: arr.length, revenue: arr.reduce((a, o) => a + Number(o.total || 0), 0) });
+  const top = {};
+  for (const o of ok) for (const i of o.items || []) { const t = (top[i.id] ||= { id: i.id, name: i.name, image: i.image, qty: 0 }); t.qty += i.qty; }
+  res.json({
+    today: sum(ok.filter((o) => new Date(o.created_at) >= day0)),
+    week: sum(ok.filter((o) => Date.now() - new Date(o.created_at) < 7 * 864e5)),
+    month: sum(ok),
+    newOrders: (orders || []).filter((o) => o.status === 'new').length,
+    users: users || 0, newUsers: newUsers || 0,
+    top: Object.values(top).sort((a, b) => b.qty - a.qty).slice(0, 5),
+  });
+}));
+
+// Rassilka (barcha mijozlarga xabar)
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+async function runBroadcast(id, text, image, product) {
+  const users = [];
+  for (let from = 0; ; from += 1000) {
+    const { data } = await db.from('users').select('tg_id').eq('blocked', false).range(from, from + 999);
+    users.push(...(data || []));
+    if (!data || data.length < 1000) break;
+  }
+  await db.from('broadcasts').update({ total: users.length }).eq('id', id);
+  const url = product ? `${APP_URL}&p=${product}` : APP_URL;
+  const reply_markup = APP_URL ? { inline_keyboard: [[{ text: "🛍 Do'konni ochish", web_app: { url } }]] } : undefined;
+  let sent = 0, failed = 0;
+  for (let i = 0; i < users.length; i++) {
+    const chat_id = users[i].tg_id;
+    const r = image
+      ? await bot('sendPhoto', { chat_id, photo: image, caption: text || undefined, reply_markup })
+      : await bot('sendMessage', { chat_id, text, reply_markup });
+    if (r.ok) sent++;
+    else {
+      failed++;
+      if (r.error_code === 403) await db.from('users').update({ blocked: true }).eq('tg_id', chat_id);
+      if (r.error_code === 429) { await sleep(((r.parameters?.retry_after) || 3) * 1000); i--; failed--; continue; }
+    }
+    if (i % 25 === 24) await db.from('broadcasts').update({ sent, failed }).eq('id', id);
+    await sleep(45); // Telegram limiti: ~25 xabar/soniya
+  }
+  await db.from('broadcasts').update({ sent, failed, status: 'done' }).eq('id', id);
+}
+app.post('/api/admin/broadcast', A, wrap(async (req, res) => {
+  const text = str(req.body?.text, 1000), image = isUrl(req.body?.image) ? req.body.image : null;
+  if (!text && !image) return res.status(400).json({ error: 'Matn yoki rasm kerak' });
+  const { data, error } = await db.from('broadcasts').insert({ text, image }).select().single();
+  if (error) throw error;
+  runBroadcast(data.id, text, image, num(req.body?.product_id)).catch(async (e) => {
+    console.error(e); await db.from('broadcasts').update({ status: 'error' }).eq('id', data.id);
+  });
+  res.json(data);
+}));
+app.get('/api/admin/broadcasts', A, wrap(async (_, res) => {
+  const { data } = await db.from('broadcasts').select('*').order('id', { ascending: false }).limit(5);
+  res.json(data || []);
+}));
+
 // Bot webhook
 app.post(`/webhook/${SECRET}`, (req, res) => {
   res.sendStatus(200);
-  const m = req.body.message;
-  if (m && m.text && m.text.startsWith('/start') && BASE) {
+  const u = req.body || {};
+  // Bot guruhga qo'shilsa — guruh ID'sini aytadi (buyurtmalar guruhi uchun)
+  const mc = u.my_chat_member;
+  if (mc && ['group', 'supergroup'].includes(mc.chat.type) && ['member', 'administrator'].includes(mc.new_chat_member?.status)) {
+    bot('sendMessage', { chat_id: mc.chat.id, text: `Salom! Bu guruh ID'si: ${mc.chat.id}\nBuyurtmalar shu guruhga kelishi uchun ilovada Admin panel → Sozlamalar → "Buyurtmalar guruhi" ga kiriting.` });
+    return;
+  }
+  const m = u.message;
+  if (!m || !m.text) return;
+  if (m.text.startsWith('/id')) return bot('sendMessage', { chat_id: m.chat.id, text: `Chat ID: ${m.chat.id}` });
+  if (m.chat.type !== 'private') return;
+  if (m.from) { seen.delete(m.from.id); touchUser(m.from); }
+  if (m.text.startsWith('/start') && APP_URL) {
+    const ru = (m.from?.language_code || '').startsWith('ru');
     bot('sendMessage', {
       chat_id: m.chat.id,
-      text: "BROZZO* — premium erkaklar kiyimi.\nKatalog, chegirmalar va buyurtma — pastdagi tugmada 👇",
-      reply_markup: { inline_keyboard: [[{ text: "🛍 Do'konni ochish", web_app: { url: APP_URL } }]] },
+      text: ru ? "BROZZO* — премиальная мужская одежда.\nКаталог, скидки и заказ — по кнопке ниже 👇" : "BROZZO* — premium erkaklar kiyimi.\nKatalog, chegirmalar va buyurtma — pastdagi tugmada 👇",
+      reply_markup: { inline_keyboard: [[{ text: ru ? '🛍 Открыть магазин' : "🛍 Do'konni ochish", web_app: { url: APP_URL } }]] },
     });
   }
 });
@@ -265,7 +397,7 @@ app.post(`/webhook/${SECRET}`, (req, res) => {
 app.listen(process.env.PORT || 3000, async () => {
   console.log('Brozzo server ishga tushdi');
   if (BASE && BOT_TOKEN) {
-    await bot('setWebhook', { url: `${BASE}/webhook/${SECRET}` });
+    await bot('setWebhook', { url: `${BASE}/webhook/${SECRET}`, allowed_updates: ['message', 'my_chat_member'] });
     await bot('setChatMenuButton', { menu_button: { type: 'web_app', text: "Do'kon", web_app: { url: APP_URL } } });
   }
 });
