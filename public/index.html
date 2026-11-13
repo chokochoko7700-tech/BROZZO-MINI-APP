@@ -206,7 +206,10 @@ nav .cnt{position:absolute;top:-4px;left:calc(50% + 8px);background:var(--ink);c
 /* story viewer */
 #sv{position:fixed;inset:0;background:#000;z-index:60;display:none}
 #sv.on{display:block}
-#sv .img{position:absolute;inset:0;background:#000 center/contain no-repeat}
+#sv .img{position:absolute;inset:0;background:#000 center/cover no-repeat;transition:background-image .15s}
+#sv .sh{position:absolute;left:0;right:0;z-index:1;pointer-events:none}
+#sv .sh.t{top:0;height:calc(210px + var(--st,0px));background:linear-gradient(180deg,rgba(0,0,0,.88) 0%,rgba(0,0,0,.62) 38%,rgba(0,0,0,.22) 72%,rgba(0,0,0,0) 100%)}
+#sv .sh.b{bottom:0;height:calc(280px + env(safe-area-inset-bottom));background:linear-gradient(0deg,rgba(0,0,0,.9) 0%,rgba(0,0,0,.62) 38%,rgba(0,0,0,.22) 72%,rgba(0,0,0,0) 100%)}
 #sv .bars{position:absolute;top:calc(12px + env(safe-area-inset-top));left:10px;right:10px;display:flex;gap:4px;z-index:2}
 #sv .bars i{flex:1;height:3px;border-radius:3px;background:rgba(255,255,255,.35);overflow:hidden}
 #sv .bars i b{display:block;height:100%;width:0;background:#fff}
@@ -419,7 +422,7 @@ html.fs #sv .hd{top:calc(var(--st) + 20px)}
 <main id="main"></main>
 <div id="buy"></div>
 <nav id="nav"></nav>
-<div id="sv"><div class="img"></div><div class="bars"></div><div class="hd"><div class="c"></div><span></span><button class="x">×</button></div><div id="svp"></div></div>
+<div id="sv"><div class="img"></div><div class="sh t"></div><div class="sh b"></div><div class="bars"></div><div class="hd"><div class="c"></div><span></span><button class="x">×</button></div><div id="svp"></div></div>
 <div id="sheet"><div class="in"><div class="grab"></div><div id="sin"></div></div></div>
 <div class="toast" id="toast"></div>
 
@@ -1129,7 +1132,9 @@ function showStory() {
   if (SV.k >= im.length) { SV.si++; SV.k = 0; return showStory(); }
   if (SV.k < 0) { SV.si = Math.max(0, SV.si - 1); SV.k = 0; }
   const sv = $('sv');
-  sv.querySelector('.img').style.backgroundImage = `url('${im[SV.k]}')`;
+  // Istoriya butun ekranni egallaydi: Pexels rasmlari vertikal (9:16) kesib olinadi
+  const full = u => /images\.pexels\.com/.test(u) ? u.replace(/([?&])w=\d+/, '$1w=1080').replace(/([?&])h=\d+/, '$1h=1920') : u;
+  sv.querySelector('.img').style.backgroundImage = `url('${full(im[SV.k])}')`;
   sv.querySelector('.hd .c').style.backgroundImage = `url('${s.cover}')`;
   sv.querySelector('.hd span').textContent = s.title;
   const sp = s.product_id && prod(s.product_id);
